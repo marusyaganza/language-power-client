@@ -1,6 +1,10 @@
 // src/pages/WordSearchPage.jsx
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { Container, Stack, Text, Loader, Center } from '@mantine/core'
+import { SearchBar } from '../components/SearchBar'
+import { WordCard } from '../components/WordCard'
+import { useLanguage } from '../context/LanguageContext'
 
 const API_BASE = 'http://localhost:8000' // move to an env var later
 
@@ -16,53 +20,44 @@ async function searchWord(query, language) {
 }
 
 export default function WordSearchPage() {
-    const [query, setQuery] = useState('')
-    const [language, setLanguage] = useState('es')
+    const { language } = useLanguage()
     const [submittedQuery, setSubmittedQuery] = useState(null)
 
     const { data: results, isLoading, isError, error } = useQuery({
         queryKey: ['wordSearch', submittedQuery, language],
         queryFn: () => searchWord(submittedQuery, language),
-        enabled: !!submittedQuery, // don't fetch until a search is actually submitted
+        enabled: !!submittedQuery,
     })
 
-    function handleSubmit(e) {
-        e.preventDefault()
-        setSubmittedQuery(query.trim())
-    }
-
     return (
-        <div>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search a word..."
-                />
-                <select value={language} onChange={(e) => setLanguage(e.target.value)}>
-                    <option value="es">Spanish</option>
-                    <option value="en">English</option>
-                </select>
-                <button type="submit">Search</button>
-            </form>
+        <Container size="md" py="xl">
+            <Stack gap="xl">
+                <SearchBar onSearch={setSubmittedQuery} />
 
-            {isLoading && <p>Loading...</p>}
-            {isError && <p>Error: {error.message}</p>}
-            {results && results.length === 0 && submittedQuery && <p>No results found.</p>}
+                {isLoading && (
+                    <Center py="xl">
+                        <Loader />
+                    </Center>
+                )}
 
-            <ul>
-                {results?.map((word) => (
-                    <li key={word.uuid}>
-                        <strong>{word.name}</strong> {word.fl && <em>({word.fl})</em>}
-                        <ul>
-                            {word.defs.map((def, i) => (
-                                <li key={i}>{def}</li>
-                            ))}
-                        </ul>
-                    </li>
-                ))}
-            </ul>
-        </div>
+                {isError && (
+                    <Text c="red" ta="center">
+                        {error.message}
+                    </Text>
+                )}
+
+                {results && results.length === 0 && submittedQuery && (
+                    <Text c="dimmed" ta="center">
+                        No results found for "{submittedQuery}".
+                    </Text>
+                )}
+
+                <Stack gap="lg">
+                    {results?.map((word) => (
+                        <WordCard key={word.uuid} word={word} />
+                    ))}
+                </Stack>
+            </Stack>
+        </Container>
     )
 }
