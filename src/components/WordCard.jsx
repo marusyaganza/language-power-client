@@ -3,6 +3,7 @@ import { useState } from 'react'
 import {
     Card, Group, Stack, Text, Badge, ActionIcon, Image, Box, Menu, List,
 } from '@mantine/core'
+import ExampleList from './ExampleList'
 import {
     IconVolume, IconBookmark, IconDotsVertical, IconChevronDown, IconChevronUp,
     IconEdit, IconTrash,
@@ -97,8 +98,13 @@ export function WordCard({ word, onSave, onEdit, onDelete }) {
                             )}
                         </Group>
                     )}
+                    {word?.examples?.length > 0 && (
+                        <Group gap="xs" wrap="wrap">
+                            <Text size="xs" fw={600} c="dimmed" tt="uppercase">Examples</Text>
+                            <ExampleList examples={word.examples} />
+                        </Group>
+                    )}
                 </Stack>
-
                 {/* Right: image, only if present */}
                 {word.image_url && (
                     <Image
