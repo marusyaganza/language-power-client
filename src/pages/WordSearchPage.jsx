@@ -6,11 +6,11 @@ import { SearchBar } from '../components/SearchBar'
 import { WordCard } from '../components/WordCard'
 import { useLanguage } from '../context/LanguageContext'
 
-const API_BASE = 'http://localhost:8000' // move to an env var later
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 async function searchWord(query, language) {
     const res = await fetch(
-        `${API_BASE}/word/search?query=${encodeURIComponent(query)}&language=${language}`
+        `${API_BASE}/words/search?query=${encodeURIComponent(query)}&language=${language}`
     )
     if (!res.ok) {
         if (res.status === 404) return []
@@ -19,7 +19,7 @@ async function searchWord(query, language) {
     return res.json()
 }
 
-export default function WordSearchPage() {
+export function WordSearchPage() {
     const { language } = useLanguage()
     const [submittedQuery, setSubmittedQuery] = useState(null)
 

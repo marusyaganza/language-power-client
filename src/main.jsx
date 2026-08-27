@@ -1,4 +1,3 @@
-// src/main.jsx
 import '@mantine/core/styles.css'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
@@ -7,13 +6,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MantineProvider, AppShell } from '@mantine/core'
 import { LanguageProvider } from './context/LanguageContext'
 import Header from './components/Header'
-import WordSearchPage from './pages/WordSearchPage'
+import { WordSearchPage } from './pages/WordSearchPage'
+import { SignUpPage } from './pages/SignUpPage'
 
 const queryClient = new QueryClient()
 
 function AuthenticatedLayout() {
   function handleLogout() {
-    // clear token/session, redirect to /login, etc.
+    // clear session, redirect to /login, etc.
   }
 
   return (
@@ -29,14 +29,26 @@ function AuthenticatedLayout() {
   )
 }
 
+function App() {
+  return (
+    <Routes>
+      {/* Public routes — no header, no AppShell */}
+      <Route path="/signup" element={<SignUpPage />} />
+      {/* <Route path="/login" element={<LoginPage />} /> */}
+
+      {/* Everything else goes through the authenticated shell */}
+      <Route path="/*" element={<AuthenticatedLayout />} />
+    </Routes>
+  )
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <MantineProvider>
       <QueryClientProvider client={queryClient}>
         <LanguageProvider>
           <BrowserRouter>
-            <AuthenticatedLayout />
-            {/* login/signup routes, outside AppShell, go outside this component */}
+            <App />
           </BrowserRouter>
         </LanguageProvider>
       </QueryClientProvider>
