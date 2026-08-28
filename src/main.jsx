@@ -10,13 +10,34 @@ import { WordSearchPage } from './pages/WordSearchPage'
 import { SignUpPage } from './pages/SignUpPage'
 import { LoginPage } from './pages/LoginPage'
 import { RequireAuth } from './components/RequireAuth'
+import { useNavigate } from "react-router-dom";
+import { useQueryClient, useMutation } from '@tanstack/react-query'
+import { logout } from './api/auth'
 
 const queryClient = new QueryClient()
 
 function AuthenticatedLayout() {
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
+
+  const logoutMutation = useMutation({
+    mutationFn: logout,
+    onSuccess: () => {
+      queryClient.removeQueries({ queryKey: ["currentUser"] })
+      navigate("/login")
+    },
+    onError: () => {
+      // Even if the request fails, there's little the user can do about a
+      // stale session client-side — send them to login regardless.
+      queryClient.removeQueries({ queryKey: ["currentUser"] })
+      navigate("/login")
+    },
+  })
+
   function handleLogout() {
-    // clear session, redirect to /login, etc.
+    logoutMutation.mutate()
   }
+
 
   return (
     <AppShell header={{ height: 60 }} padding="md">
