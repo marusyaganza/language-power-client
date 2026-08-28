@@ -22,7 +22,7 @@ export function SignUpPage() {
     const mutation = useMutation({
         mutationFn: (values) =>
             signup(values.email, values.password),
-        onSuccess: () => navigate("/login"),
+        onSuccess: () => navigate("/words/search"),
         onError: (err) => setError(err.message),
     });
 

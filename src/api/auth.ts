@@ -19,3 +19,27 @@ export async function signup(email: string, password: string) {
   }
   return res.json();
 }
+
+export async function login(email: string, password: string) {
+  const res = await fetch(`${API_BASE}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail ?? "Login failed");
+  }
+  return res.json();
+}
+
+export async function fetchCurrentUser() {
+  const res = await fetch(`${API_BASE}/auth/me`, {
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error("Not authenticated");
+  }
+  return res.json();
+}

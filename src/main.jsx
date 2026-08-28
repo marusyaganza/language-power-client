@@ -8,6 +8,8 @@ import { LanguageProvider } from './context/LanguageContext'
 import Header from './components/Header'
 import { WordSearchPage } from './pages/WordSearchPage'
 import { SignUpPage } from './pages/SignUpPage'
+import { LoginPage } from './pages/LoginPage'
+import { RequireAuth } from './components/RequireAuth'
 
 const queryClient = new QueryClient()
 
@@ -21,8 +23,10 @@ function AuthenticatedLayout() {
       <Header onLogout={handleLogout} />
       <AppShell.Main>
         <Routes>
-          <Route path="/words/search" element={<WordSearchPage />} />
-          {/* /vocabulary, /games routes go here */}
+          <Route element={<RequireAuth />}>
+            <Route path="/words/search" element={<WordSearchPage />} />
+            {/* /vocabulary, /games routes go here */}
+          </Route>
         </Routes>
       </AppShell.Main>
     </AppShell>
@@ -34,6 +38,7 @@ function App() {
     <Routes>
       {/* Public routes — no header, no AppShell */}
       <Route path="/signup" element={<SignUpPage />} />
+      <Route path="/login" element={<LoginPage />} />
       {/* <Route path="/login" element={<LoginPage />} /> */}
 
       {/* Everything else goes through the authenticated shell */}

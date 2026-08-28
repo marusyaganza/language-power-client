@@ -10,7 +10,9 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 async function searchWord(query, language) {
     const res = await fetch(
-        `${API_BASE}/words/search?query=${encodeURIComponent(query)}&language=${language}`
+        `${API_BASE}/words/search?query=${encodeURIComponent(query)}&language=${language}`, {
+        credentials: "include",
+    }
     )
     if (!res.ok) {
         if (res.status === 404) return []
