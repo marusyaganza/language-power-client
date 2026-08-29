@@ -23,7 +23,7 @@ export default function Header({ onLogout }) {
             <RouterNavLink to="/words/search" style={navLinkStyle}>
               Search
             </RouterNavLink>
-            <RouterNavLink to="/vocabulary" style={navLinkStyle}>
+            <RouterNavLink to="/words/vocabulary" style={navLinkStyle}>
               Vocabulary
             </RouterNavLink>
             <RouterNavLink to="/games" style={navLinkStyle}>

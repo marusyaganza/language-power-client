@@ -7,6 +7,7 @@ import { MantineProvider, AppShell } from '@mantine/core'
 import { LanguageProvider } from './context/LanguageContext'
 import Header from './components/Header'
 import { WordSearchPage } from './pages/WordSearchPage'
+import { VocabularyPage } from './pages/VocabularyPage'
 import { SignUpPage } from './pages/SignUpPage'
 import { LoginPage } from './pages/LoginPage'
 import { RequireAuth } from './components/RequireAuth'
@@ -46,6 +47,7 @@ function AuthenticatedLayout() {
         <Routes>
           <Route element={<RequireAuth />}>
             <Route path="/words/search" element={<WordSearchPage />} />
+            <Route path="/words/vocabulary" element={<VocabularyPage />} />
             {/* /vocabulary, /games routes go here */}
           </Route>
         </Routes>

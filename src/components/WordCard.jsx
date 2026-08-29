@@ -11,7 +11,7 @@ import {
 
 const STEM_PREVIEW_COUNT = 5
 
-export function WordCard({ word, onSave, onEdit, onDelete }) {
+export function WordCard({ word, onSave, onEdit, onDelete, isSaving }) {
     const [showAllStems, setShowAllStems] = useState(false)
 
     const visibleStems = showAllStems ? word.stems : word.stems.slice(0, STEM_PREVIEW_COUNT)
@@ -24,31 +24,38 @@ export function WordCard({ word, onSave, onEdit, onDelete }) {
 
     return (
         <Card withBorder radius="md" p="lg" pos="relative">
-            {/* Corner action buttons */}
             <Box pos="absolute" top={8} right={8}>
                 <Group gap={4}>
-                    <ActionIcon variant="subtle" onClick={() => onSave?.(word)} aria-label="Save to vocabulary" disabled={word.saved}>
-                        <IconBookmark size={18} />
-                    </ActionIcon>
-                    <Menu shadow="md" width={160}>
-                        <Menu.Target>
-                            <ActionIcon variant="subtle" aria-label="More options">
-                                <IconDotsVertical size={18} />
-                            </ActionIcon>
-                        </Menu.Target>
-                        <Menu.Dropdown>
-                            <Menu.Item leftSection={<IconEdit size={14} />} onClick={() => onEdit?.(word)}>
-                                Edit
-                            </Menu.Item>
-                            <Menu.Item
-                                leftSection={<IconTrash size={14} />}
-                                color="red"
-                                onClick={() => onDelete?.(word)}
-                            >
-                                Delete
-                            </Menu.Item>
-                        </Menu.Dropdown>
-                    </Menu>
+                    {onSave && (
+                        <ActionIcon
+                            variant={word.saved ? 'filled' : 'subtle'}
+                            color={word.saved ? 'blue' : undefined}
+                            disabled={word.saved || isSaving}
+                            onClick={() => onSave(word)}
+                            aria-label={word.saved ? 'Already saved' : 'Save to vocabulary'}
+                        >
+                            <IconBookmark size={18} />
+                        </ActionIcon>
+                    )}
+                    {onEdit && (
+                        <ActionIcon
+                            variant="subtle"
+                            onClick={() => onEdit(word)}
+                            aria-label="Edit word"
+                        >
+                            <IconEdit size={18} />
+                        </ActionIcon>
+                    )}
+                    {onDelete && (
+                        <ActionIcon
+                            variant="subtle"
+                            color="red"
+                            onClick={() => onDelete(word)}
+                            aria-label="Delete word"
+                        >
+                            <IconTrash size={18} />
+                        </ActionIcon>
+                    )}
                 </Group>
             </Box>
 
