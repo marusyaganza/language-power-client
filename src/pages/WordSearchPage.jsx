@@ -1,23 +1,23 @@
 // src/pages/WordSearchPage.jsx
-import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Container, Stack, Text, Loader, Center, Group, Button } from '@mantine/core'
+import { Container, Stack, Text, Loader, Center, Group, Button, Paper, Anchor } from '@mantine/core'
 import { SearchBar } from '../components/SearchBar'
 import { WordCard } from '../components/WordCard'
 import { useLanguage } from '../context/LanguageContext'
 import { useSaveWord } from '../hooks/useSaveWord'
 import { Link } from 'react-router-dom'
-import { IconPlus } from '@tabler/icons-react'
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
+import { IconPlus, IconMoodConfuzed } from '@tabler/icons-react'
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL
 
 async function searchWord(query, language) {
     const res = await fetch(
-        `${API_BASE}/words/search?query=${encodeURIComponent(query)}&language=${language}`, {
-        credentials: "include",
-    }
+        `${API_BASE}/words/search?query=${encodeURIComponent(query)}&language=${language}`,
+        { credentials: 'include' }
     )
     if (!res.ok) {
-        if (res.status === 404) return []
+        if (res.status === 404) return { words: [], suggestions: [] }
         throw new Error(`Request failed: ${res.status}`)
     }
     return res.json()
@@ -25,19 +25,27 @@ async function searchWord(query, language) {
 
 export function WordSearchPage() {
     const { language } = useLanguage()
-    const [submittedQuery, setSubmittedQuery] = useState(null)
+    const [searchParams, setSearchParams] = useSearchParams()
+    const query = searchParams.get('query') || ''
     const { mutate: save, isPending: isSaving } = useSaveWord()
 
     const { data: results, isLoading, isError, error } = useQuery({
-        queryKey: ['wordSearch', submittedQuery, language],
-        queryFn: () => searchWord(submittedQuery, language),
-        enabled: !!submittedQuery,
+        queryKey: ['wordSearch', query, language],
+        queryFn: () => searchWord(query, language),
+        enabled: !!query,
     })
+
+    function handleSearch(newQuery) {
+        setSearchParams({ query: newQuery })
+    }
+
+    const words = results?.words ?? []
+    const suggestions = results?.suggestions ?? []
 
     return (
         <Container size="md" py="xl">
             <Stack gap="xl">
-                <SearchBar onSearch={setSubmittedQuery} />
+                <SearchBar value={query} onSearch={handleSearch} />
                 <Group justify="flex-end">
                     <Button
                         component={Link}
@@ -61,14 +69,38 @@ export function WordSearchPage() {
                     </Text>
                 )}
 
-                {results && results.length === 0 && submittedQuery && (
+                {!isLoading && query && words.length === 0 && suggestions.length === 0 && (
                     <Text c="dimmed" ta="center">
-                        No results found for "{submittedQuery}".
+                        No results found for "{query}".
                     </Text>
                 )}
 
+                {suggestions.length > 0 && (
+                    <Paper withBorder radius="md" p="md">
+                        <Group gap="xs" mb="xs">
+                            <IconMoodConfuzed size={20} />
+                            <Text fw={600}>
+                                "{query}" doesn't quite ring a bell — maybe one of these?
+                            </Text>
+                        </Group>
+                        <Group gap="xs">
+                            {suggestions.map((suggestion, i) => (
+                                <Anchor
+                                    key={i}
+                                    onClick={() => handleSearch(suggestion)}
+                                    underline="hover"
+                                    size="sm"
+                                >
+                                    {suggestion}
+                                    {i < suggestions.length - 1 && ','}
+                                </Anchor>
+                            ))}
+                        </Group>
+                    </Paper>
+                )}
+
                 <Stack gap="lg">
-                    {results?.map((word) => (
+                    {words.map((word) => (
                         <WordCard
                             key={word.uuid}
                             word={word}
