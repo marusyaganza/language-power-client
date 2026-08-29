@@ -5,7 +5,7 @@ function ExampleList({ examples }) {
 
     return (
         <Stack gap="xs">
-            {examples.map(([text, translation], i) => (
+            {examples.map(({ text, translation }, i) => (
                 <Paper key={i} p="sm" radius="md" bg="blue.0">
                     <Text size="sm">
                         {text}

@@ -27,7 +27,7 @@ export function WordCard({ word, onSave, onEdit, onDelete }) {
             {/* Corner action buttons */}
             <Box pos="absolute" top={8} right={8}>
                 <Group gap={4}>
-                    <ActionIcon variant="subtle" onClick={() => onSave?.(word)} aria-label="Save to vocabulary">
+                    <ActionIcon variant="subtle" onClick={() => onSave?.(word)} aria-label="Save to vocabulary" disabled={word.saved}>
                         <IconBookmark size={18} />
                     </ActionIcon>
                     <Menu shadow="md" width={160}>

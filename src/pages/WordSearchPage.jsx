@@ -5,6 +5,7 @@ import { Container, Stack, Text, Loader, Center } from '@mantine/core'
 import { SearchBar } from '../components/SearchBar'
 import { WordCard } from '../components/WordCard'
 import { useLanguage } from '../context/LanguageContext'
+import { useSaveWord } from '../hooks/useSaveWord'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
@@ -24,6 +25,7 @@ async function searchWord(query, language) {
 export function WordSearchPage() {
     const { language } = useLanguage()
     const [submittedQuery, setSubmittedQuery] = useState(null)
+    const { mutate: save, isPending: isSaving } = useSaveWord()
 
     const { data: results, isLoading, isError, error } = useQuery({
         queryKey: ['wordSearch', submittedQuery, language],
@@ -56,7 +58,12 @@ export function WordSearchPage() {
 
                 <Stack gap="lg">
                     {results?.map((word) => (
-                        <WordCard key={word.uuid} word={word} />
+                        <WordCard
+                            key={word.uuid}
+                            word={word}
+                            onSave={save}
+                            isSaving={isSaving}
+                        />
                     ))}
                 </Stack>
             </Stack>
