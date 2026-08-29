@@ -4,10 +4,12 @@ import {
     Container, Stack, Text, Loader, Center, TextInput, Select, Pagination, Group,
 } from '@mantine/core'
 import { useDebouncedValue } from '@mantine/hooks'
+import { modals } from '@mantine/modals'
 import { notifications } from '@mantine/notifications'
 import { IconSearch } from '@tabler/icons-react'
 import { WordCard } from '../components/WordCard'
 import { fetchVocabulary } from '../api/vocabulary'
+import { useDeleteWord } from '../hooks/useDeleteWord'
 
 const SORT_OPTIONS = [
     { value: 'created_at', label: 'Recently added' },
@@ -36,12 +38,20 @@ export function VocabularyPage() {
         setPage(1)
     }
 
+    const { mutate: removeWord } = useDeleteWord()
+
     function handleEdit(word) {
         notifications.show({ message: 'Editing words is coming soon', color: 'blue' })
     }
 
     function handleDelete(word) {
-        notifications.show({ message: 'Deleting words is coming soon', color: 'blue' })
+        modals.openConfirmModal({
+            title: 'Delete word',
+            children: <Text size="sm">Remove "{word.name}" from your vocabulary?</Text>,
+            labels: { confirm: 'Delete', cancel: 'Cancel' },
+            confirmProps: { color: 'red' },
+            onConfirm: () => removeWord(word.id),
+        })
     }
 
     return (

@@ -20,3 +20,19 @@ export async function saveWord(word) {
 
     return res.json()
 }
+
+export async function deleteWord(wordId) {
+    const res = await fetch(`${BASE_URL}/words/${wordId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+    })
+    if (!res.ok) {
+        if (res.status === 404) {
+            const error = new Error('Word not found')
+            error.status = 404
+            throw error
+        }
+        throw new Error('Failed to delete word')
+    }
+    // 204 has no body — don't call res.json()
+}
