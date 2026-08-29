@@ -1,17 +1,18 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
-    Container, Stack, Text, Loader, Center, TextInput, Select, Pagination, Group,
+    Container, Stack, Text, Loader, Center, TextInput, Select, Pagination, Group, ActionIcon, Tooltip
 } from '@mantine/core'
 import { useDebouncedValue } from '@mantine/hooks'
 import { modals } from '@mantine/modals'
 import { notifications } from '@mantine/notifications'
-import { IconSearch } from '@tabler/icons-react'
+import { IconSearch, IconPlus } from '@tabler/icons-react'
 import { WordCard } from '../components/WordCard'
 import { fetchVocabulary } from '../api/vocabulary'
 import { useDeleteWord } from '../hooks/useDeleteWord'
 import { EditWordModal } from '../components/EditWordModal'
 import { useLanguage } from '../context/LanguageContext'
+import { Link } from 'react-router-dom'
 
 const SORT_OPTIONS = [
     { value: 'created_at', label: 'Recently added' },
@@ -76,6 +77,17 @@ export function VocabularyPage() {
                         allowDeselect={false}
                         w={200}
                     />
+                    <Tooltip label="Add your own word">
+                        <ActionIcon
+                            component={Link}
+                            to="/words/new"
+                            variant="filled"
+                            size="lg"
+                            aria-label="Add your own word"
+                        >
+                            <IconPlus size={18} />
+                        </ActionIcon>
+                    </Tooltip>
                 </Group>
 
                 {isLoading && (

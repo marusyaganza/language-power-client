@@ -1,12 +1,13 @@
 // src/pages/WordSearchPage.jsx
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Container, Stack, Text, Loader, Center } from '@mantine/core'
+import { Container, Stack, Text, Loader, Center, Group, Button } from '@mantine/core'
 import { SearchBar } from '../components/SearchBar'
 import { WordCard } from '../components/WordCard'
 import { useLanguage } from '../context/LanguageContext'
 import { useSaveWord } from '../hooks/useSaveWord'
-
+import { Link } from 'react-router-dom'
+import { IconPlus } from '@tabler/icons-react'
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 async function searchWord(query, language) {
@@ -37,6 +38,16 @@ export function WordSearchPage() {
         <Container size="md" py="xl">
             <Stack gap="xl">
                 <SearchBar onSearch={setSubmittedQuery} />
+                <Group justify="flex-end">
+                    <Button
+                        component={Link}
+                        to="/words/new"
+                        variant="subtle"
+                        leftSection={<IconPlus size={16} />}
+                    >
+                        Can't find it? Add your own word
+                    </Button>
+                </Group>
 
                 {isLoading && (
                     <Center py="xl">

@@ -11,6 +11,7 @@ import { LanguageProvider } from './context/LanguageContext'
 import Header from './components/Header'
 import { WordSearchPage } from './pages/WordSearchPage'
 import { VocabularyPage } from './pages/VocabularyPage'
+import { NewWordPage } from './pages/NewWordPage'
 import { SignUpPage } from './pages/SignUpPage'
 import { LoginPage } from './pages/LoginPage'
 import { RequireAuth } from './components/RequireAuth'
@@ -51,6 +52,7 @@ function AuthenticatedLayout() {
           <Route element={<RequireAuth />}>
             <Route path="/words/search" element={<WordSearchPage />} />
             <Route path="/words/vocabulary" element={<VocabularyPage />} />
+            <Route path="/words/new" element={<NewWordPage />} />
             {/* /vocabulary, /games routes go here */}
           </Route>
         </Routes>
