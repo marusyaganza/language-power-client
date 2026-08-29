@@ -112,18 +112,18 @@ export function WordCard({ word, onSave, onEdit, onDelete, isSaving }) {
                         </Group>
                     )}
                 </Stack>
-                {/* Right: image, only if present */}
-                {word.image_url && (
+                {word.img_url && (
                     <Image
-                        src={word.image_url}
+                        src={word.img_url}
                         alt={word.name}
-                        w={100}
-                        h={100}
+                        w={200}
+                        h={200}
                         radius="sm"
                         fit="cover"
-                        style={{ flexShrink: 0 }}
+                        style={{ flexShrink: 0, marginTop: 20 }}
                     />
                 )}
+                {/* Right: image, only if present */}
             </Group>
         </Card>
     )

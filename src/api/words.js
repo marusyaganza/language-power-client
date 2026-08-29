@@ -36,3 +36,14 @@ export async function deleteWord(wordId) {
     }
     // 204 has no body — don't call res.json()
 }
+
+export async function updateWord(wordId, payload) {
+    const res = await fetch(`${BASE_URL}/words/${wordId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+    })
+    if (!res.ok) throw new Error('Failed to update word')
+    return res.json()
+}

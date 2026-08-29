@@ -10,6 +10,8 @@ import { IconSearch } from '@tabler/icons-react'
 import { WordCard } from '../components/WordCard'
 import { fetchVocabulary } from '../api/vocabulary'
 import { useDeleteWord } from '../hooks/useDeleteWord'
+import { EditWordModal } from '../components/EditWordModal'
+import { useLanguage } from '../context/LanguageContext'
 
 const SORT_OPTIONS = [
     { value: 'created_at', label: 'Recently added' },
@@ -21,11 +23,13 @@ export function VocabularyPage() {
     const [debouncedSearch] = useDebouncedValue(search, 300)
     const [page, setPage] = useState(1)
     const [sortBy, setSortBy] = useState('created_at')
+    const [editingWord, setEditingWord] = useState(null)
+    const { language } = useLanguage()
 
     const { data, isLoading, isError, error } = useQuery({
-        queryKey: ['vocabulary', debouncedSearch, page, sortBy],
-        queryFn: () => fetchVocabulary({ query: debouncedSearch, page, sortBy }),
-        placeholderData: (prev) => prev, // keep old page visible while refetching
+        queryKey: ['vocabulary', debouncedSearch, page, sortBy, language],
+        queryFn: () => fetchVocabulary({ query: debouncedSearch, page, sortBy, language }),
+        placeholderData: (prev) => prev,
     })
 
     function handleSearchChange(value) {
@@ -41,7 +45,7 @@ export function VocabularyPage() {
     const { mutate: removeWord } = useDeleteWord()
 
     function handleEdit(word) {
-        notifications.show({ message: 'Editing words is coming soon', color: 'blue' })
+        setEditingWord(word)
     }
 
     function handleDelete(word) {
@@ -115,6 +119,11 @@ export function VocabularyPage() {
                     </Center>
                 )}
             </Stack>
+            <EditWordModal
+                word={editingWord}
+                opened={!!editingWord}
+                onClose={() => setEditingWord(null)}
+            />
         </Container>
     )
 }
