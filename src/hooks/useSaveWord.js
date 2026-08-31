@@ -10,9 +10,9 @@ export function useSaveWord() {
         onSuccess: (savedWord, variables) => {
             queryClient.setQueriesData({ queryKey: ['wordSearch'] }, (old) => {
                 if (!old) return old
-                return old.map((w) =>
+                return {...old, words: old.words.map((w) =>
                     w.uuid === variables.uuid ? { ...w, saved: true } : w
-                )
+                )}
             })
             notifications.show({
                 message: `"${savedWord.name}" saved to vocabulary`,

@@ -14,6 +14,7 @@ import { VocabularyPage } from './pages/VocabularyPage'
 import { NewWordPage } from './pages/NewWordPage'
 import { SignUpPage } from './pages/SignUpPage'
 import { LoginPage } from './pages/LoginPage'
+import { GamesPage } from './pages/GamesPage'
 import { RequireAuth } from './components/RequireAuth'
 import { useNavigate } from "react-router-dom";
 import { useQueryClient, useMutation } from '@tanstack/react-query'
@@ -53,6 +54,7 @@ function AuthenticatedLayout() {
             <Route path="/words/search" element={<WordSearchPage />} />
             <Route path="/words/vocabulary" element={<VocabularyPage />} />
             <Route path="/words/new" element={<NewWordPage />} />
+            <Route path="/games" element={<GamesPage />} />
             {/* /vocabulary, /games routes go here */}
           </Route>
         </Routes>
