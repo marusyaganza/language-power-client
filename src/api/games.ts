@@ -29,3 +29,30 @@ export async function fetchGames(language: string): Promise<Game[]> {
     isEnabled: g.is_enabled,
   }));
 }
+
+export async function fetchGameSession(gameId: string, language: string) {
+    const res = await fetch(`${API_BASE}/games/${gameId}?language=${language}`, {
+        credentials: 'include',
+    })
+    if (!res.ok) throw new Error('Failed to load game')
+    return res.json()
+}
+
+export async function submitAnswer(gameId: string, { sessionId, wordId, answer }: {sessionId: string, wordId: string, answer: string}) {
+    const res = await fetch(`${API_BASE}/games/${gameId}/answer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ session_id: sessionId, word_id: wordId, answer }),
+    })
+    if (!res.ok) throw new Error('Failed to submit answer')
+    return res.json()
+}
+
+export async function fetchGameResult(sessionId: string) {
+    const res = await fetch(`${API_BASE}/games/result/${sessionId}`, {
+        credentials: 'include',
+    })
+    if (!res.ok) throw new Error('Failed to load results')
+    return res.json()
+}

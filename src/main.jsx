@@ -15,6 +15,7 @@ import { NewWordPage } from './pages/NewWordPage'
 import { SignUpPage } from './pages/SignUpPage'
 import { LoginPage } from './pages/LoginPage'
 import { GamesPage } from './pages/GamesPage'
+import { GamePage } from './pages/GamePage'
 import { RequireAuth } from './components/RequireAuth'
 import { useNavigate } from "react-router-dom";
 import { useQueryClient, useMutation } from '@tanstack/react-query'
@@ -69,7 +70,10 @@ function App() {
       {/* Public routes — no header, no AppShell */}
       <Route path="/signup" element={<SignUpPage />} />
       <Route path="/login" element={<LoginPage />} />
-      {/* <Route path="/login" element={<LoginPage />} /> */}
+
+      <Route element={<RequireAuth />}>
+        <Route path="/games/:gameId" element={<GamePage />} />
+      </Route>
 
       {/* Everything else goes through the authenticated shell */}
       <Route path="/*" element={<AuthenticatedLayout />} />
