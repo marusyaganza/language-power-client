@@ -13,40 +13,24 @@ import Header from './components/Header'
 import { WordSearchPage } from './pages/WordSearchPage'
 import { VocabularyPage } from './pages/VocabularyPage'
 import { NewWordPage } from './pages/NewWordPage'
-import { SignUpPage } from './pages/SignUpPage'
-import { LoginPage } from './pages/LoginPage'
+import { SignUpPage } from './features/auth/pages/SignUpPage'
+import { LoginPage } from './features/auth/pages/LoginPage'
 import { GamesPage } from './pages/GamesPage'
 import { GamePage } from './pages/GamePage'
-import { RequireAuth } from './components/RequireAuth'
+import { RequireAuth } from './app/RequireAuth'
 import { useNavigate } from "react-router-dom";
-import { useQueryClient, useMutation } from '@tanstack/react-query'
-import { logout } from './api/auth'
+import { useLogout } from './features/auth'
 import { theme, cssVariablesResolver } from './theme/theme'
 
 const queryClient = new QueryClient()
 
 function AuthenticatedLayout() {
-  const queryClient = useQueryClient()
   const navigate = useNavigate()
-
-  const logoutMutation = useMutation({
-    mutationFn: logout,
-    onSuccess: () => {
-      queryClient.removeQueries({ queryKey: ["currentUser"] })
-      navigate("/login")
-    },
-    onError: () => {
-      // Even if the request fails, there's little the user can do about a
-      // stale session client-side — send them to login regardless.
-      queryClient.removeQueries({ queryKey: ["currentUser"] })
-      navigate("/login")
-    },
-  })
+  const logout = useLogout()
 
   function handleLogout() {
-    logoutMutation.mutate()
+    logout.mutate(undefined, { onSettled: () => navigate('/login') })
   }
-
 
   return (
     <AppShell header={{ height: 60 }} padding="md" styles={{ header: { backgroundColor: 'rgba(9, 9, 64, 0.82)', backdropFilter: 'blur(8px)', borderColor: 'var(--app-border)' } }}>

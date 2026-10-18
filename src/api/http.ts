@@ -17,7 +17,7 @@ interface RequestOptions {
 
 /**
  * Calls the API and validates the response with `schema`.
- * Pass `schema: null` for endpoints that return no content (e.g. 204); the body is not read.
+ * Pass `schema: null` when the response body isn't used (e.g. 204, or a logout acknowledgement); it is not read.
  * Throws ApiError for HTTP errors, network failures and responses that don't match the schema.
  */
 export function apiFetch<S extends z.ZodType>(
