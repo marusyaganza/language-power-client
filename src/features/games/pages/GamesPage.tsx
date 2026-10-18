@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Container, Group, SegmentedControl, SimpleGrid, Skeleton, Stack, Switch, Text } from "@mantine/core";
 import { useSearchParams } from "react-router-dom";
-import { useLanguage } from "@/context/LanguageContext";
+import { useLanguage } from "@/context/language";
 import { useNow } from "@/shared/hooks/useNow";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { QueryState } from "@/shared/components/QueryState";

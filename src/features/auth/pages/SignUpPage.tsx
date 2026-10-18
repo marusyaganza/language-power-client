@@ -1,5 +1,6 @@
 import { Paper, Title } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
+import { paths } from "@/shared/paths";
 import { AuthForm } from "../components/AuthForm";
 import { useAuthConfig, useSignup } from "../queries";
 
@@ -24,7 +25,7 @@ export function SignUpPage() {
     <AuthForm
       title="Sign up"
       submitLabel="Sign up"
-      onSubmit={(credentials) => signup.mutate(credentials, { onSuccess: () => navigate("/words/search") })}
+      onSubmit={(credentials) => signup.mutate(credentials, { onSuccess: () => navigate(paths.search) })}
       isPending={signup.isPending}
       error={signup.error}
     />

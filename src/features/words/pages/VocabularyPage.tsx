@@ -26,9 +26,10 @@ import {
   IconSortDescendingLetters,
 } from "@tabler/icons-react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useLanguage } from "@/context/LanguageContext";
+import { useLanguage } from "@/context/language";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { QueryState } from "@/shared/components/QueryState";
+import { paths } from "@/shared/paths";
 import { EditWordModal } from "../components/EditWordModal";
 import { WordCard } from "../components/WordCard";
 import {
@@ -157,7 +158,7 @@ export function VocabularyPage() {
               <SortOrderIcon size={18} />
             </ActionIcon>
           </Tooltip>
-          <Button component={Link} to="/words/new" leftSection={<IconPlus size={16} />}>
+          <Button component={Link} to={paths.newWord} leftSection={<IconPlus size={16} />}>
             Add word
           </Button>
         </Group>
@@ -194,7 +195,7 @@ export function VocabularyPage() {
                   {debouncedQuery ? `No saved words matching "${debouncedQuery}".` : "You haven't saved any words yet."}
                 </Text>
                 {!debouncedQuery && (
-                  <Button component={Link} to="/words/search" variant="light">
+                  <Button component={Link} to={paths.search} variant="light">
                     Find words to save
                   </Button>
                 )}

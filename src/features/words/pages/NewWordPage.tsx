@@ -1,6 +1,7 @@
 import { Container, Stack, Title } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-import { useLanguage } from "@/context/LanguageContext";
+import { useLanguage } from "@/context/language";
+import { paths } from "@/shared/paths";
 import { WordForm } from "../components/WordForm";
 import { emptyWordForm, toWordCreate, usesTranslations } from "../lib/wordForm";
 import { useCreateWord } from "../queries";
@@ -21,7 +22,7 @@ export function NewWordPage() {
           submitLabel="Save word"
           isPending={create.isPending}
           onSubmit={(values) =>
-            create.mutate(toWordCreate(values, language), { onSuccess: () => navigate("/words/vocabulary") })
+            create.mutate(toWordCreate(values, language), { onSuccess: () => navigate(paths.vocabulary) })
           }
         />
       </Stack>

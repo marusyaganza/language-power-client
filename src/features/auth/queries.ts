@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLanguage } from "@/context/LanguageContext";
+import { useLanguage } from "@/context/language";
 import { getAuthConfig, getCurrentUser, login, logout, signup } from "./api";
 
 export const authKeys = {

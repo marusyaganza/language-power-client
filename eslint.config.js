@@ -23,12 +23,4 @@ export default defineConfig([
     files: ['**/*.{ts,tsx}'],
     extends: [tseslint.configs.recommended],
   },
-  {
-    // Temporary: these files are replaced during the architecture migration (phase 4).
-    // Delete this block once they are gone.
-    files: ['src/main.jsx', 'src/context/LanguageContext.tsx'],
-    rules: {
-      'react-refresh/only-export-components': 'off',
-    },
-  },
 ])

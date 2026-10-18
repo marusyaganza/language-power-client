@@ -1,8 +1,9 @@
 import { Button, Container, Group, Stack, Text } from "@mantine/core";
 import { IconFlask, IconMoodConfuzed, IconPlus } from "@tabler/icons-react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useLanguage } from "@/context/LanguageContext";
+import { useLanguage } from "@/context/language";
 import { QueryState } from "@/shared/components/QueryState";
+import { paths } from "@/shared/paths";
 import { QueryLinks } from "../components/QueryLinks";
 import { SearchBar } from "../components/SearchBar";
 import { WordCard } from "../components/WordCard";
@@ -27,7 +28,7 @@ export function SearchPage() {
         <Group justify="flex-end">
           <Button
             component={Link}
-            to="/words/new"
+            to={paths.newWord}
             variant="subtle"
             mod={{ "hover-fill": "rose" }}
             leftSection={<IconPlus size={16} />}

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { paths } from "@/shared/paths";
 import { AuthForm } from "../components/AuthForm";
 import { useLogin } from "../queries";
 
@@ -10,7 +11,7 @@ export function LoginPage() {
     <AuthForm
       title="Log in"
       submitLabel="Log in"
-      onSubmit={(credentials) => login.mutate(credentials, { onSuccess: () => navigate("/words/search") })}
+      onSubmit={(credentials) => login.mutate(credentials, { onSuccess: () => navigate(paths.search) })}
       isPending={login.isPending}
       error={login.error}
     />

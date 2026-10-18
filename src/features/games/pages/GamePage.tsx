@@ -3,7 +3,7 @@ import { ActionIcon, Box, Button, Center, Group, Loader, Progress, Stack, Text }
 import { modals } from "@mantine/modals";
 import { IconX } from "@tabler/icons-react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { useLanguage } from "@/context/LanguageContext";
+import { useLanguage } from "@/context/language";
 import { QuestionView } from "../components/QuestionView";
 import { ResultScreen } from "../components/ResultScreen";
 import { randomMessage } from "../lib/gameMessages";

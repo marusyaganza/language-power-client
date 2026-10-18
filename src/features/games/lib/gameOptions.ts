@@ -1,5 +1,6 @@
 // How a game is played. Kept in the URL with the backend's own param names, on both the games list
 // (/games?mode=review) and the game itself (/games/3?mode=review), which sends them to GET /games/{id}.
+import { paths } from "@/shared/paths";
 import type { GameMode } from "../schemas";
 
 export interface GameOptions {
@@ -28,11 +29,11 @@ export function gameOptionsToParams(options: GameOptions): URLSearchParams {
 /** Link to a game with these options, e.g. "/games/3?mode=review". */
 export function gamePath(gameId: number, options: GameOptions): string {
   const search = gameOptionsToParams(options).toString();
-  return `/games/${gameId}${search ? `?${search}` : ""}`;
+  return `${paths.game(gameId)}${search ? `?${search}` : ""}`;
 }
 
 /** The games list with these options, e.g. "/games?mode=review". */
 export function gamesListPath(options: GameOptions): string {
   const search = gameOptionsToParams(options).toString();
-  return `/games${search ? `?${search}` : ""}`;
+  return `${paths.games}${search ? `?${search}` : ""}`;
 }
