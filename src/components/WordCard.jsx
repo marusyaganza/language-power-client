@@ -2,16 +2,12 @@
 import { useState } from 'react'
 import { Card, Group, Stack, Text, ActionIcon, Image, Tooltip, UnstyledButton } from '@mantine/core'
 import {
-    IconVolume, IconBookmark, IconBookmarkFilled, IconEdit, IconTrash,
+    IconVolume, IconBookmark, IconBookmarkFilled, IconEdit, IconTrash, IconBook,
 } from '@tabler/icons-react'
 import ExampleList from './ExampleList'
 import classes from './WordCard.module.css'
 
 const STEM_PREVIEW_COUNT = 5
-
-function pad(n) {
-    return String(n).padStart(2, '0')
-}
 
 export function WordCard({ word, onSave, onEdit, onDelete, isSaving }) {
     const [showAllStems, setShowAllStems] = useState(false)
@@ -31,7 +27,6 @@ export function WordCard({ word, onSave, onEdit, onDelete, isSaving }) {
                     <Group gap="sm" align="center" wrap="wrap">
                         <Text component="h3" m={0} className={classes.name}>{word.name}</Text>
                         {word.fl && <span className={classes.tag}>{word.fl}</span>}
-                        {word.gender && <span className={classes.tag}>{word.gender}</span>}
                         {word.transcription && (
                             <span className={classes.transcription}>/{word.transcription}/</span>
                         )}
@@ -45,7 +40,9 @@ export function WordCard({ word, onSave, onEdit, onDelete, isSaving }) {
                     <ol className={classes.defs}>
                         {word.defs.map((def, i) => (
                             <li key={i} className={classes.def}>
-                                <span className={classes.defIndex}>{pad(i + 1)}</span>
+                                <span className={classes.defIcon} aria-hidden>
+                                    <IconBook size={15} stroke={1.75} />
+                                </span>
                                 <Text size="md">{def}</Text>
                             </li>
                         ))}

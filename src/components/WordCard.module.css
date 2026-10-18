@@ -41,14 +41,14 @@
 .def {
     display: grid;
     grid-template-columns: 1.75rem 1fr;
-    align-items: baseline;
+    align-items: start;
 }
 
-.defIndex {
-    font-family: var(--app-font-ui);
-    font-size: 0.75rem;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.04em;
+/* Height of one text line, so the icon centres on the first line of a wrapped def. */
+.defIcon {
+    display: flex;
+    align-items: center;
+    height: calc(var(--mantine-font-size-md) * var(--mantine-line-height-md));
     color: var(--app-signal);
 }
 
