@@ -1,5 +1,5 @@
 // src/api/games.ts
-import { Game } from "@/types/game";
+import type { Game } from "@/types/game";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 

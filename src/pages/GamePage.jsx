@@ -83,7 +83,7 @@ export function GamePage() {
                     setCurrentIndex(0)
                     setIsLoading(false)
                 }
-            } catch (err) {
+            } catch {
                 if (!cancelled) {
                     setError('Could not load this game. Try again.')
                     setIsLoading(false)
@@ -106,7 +106,7 @@ export function GamePage() {
             })
             setFeedback({ isCorrect: res.is_correct, correctAnswer: res.correct_answer })
             setFooterMessage(randomMessage(res.is_correct ? 'success' : 'error'))
-        } catch (err) {
+        } catch {
             setError('Could not submit your answer. Try again.')
         } finally {
             setIsSubmitting(false)
@@ -123,7 +123,7 @@ export function GamePage() {
                 const data = await fetchGameResult(session.sessionId)
                 clearGameSession(gameId)
                 setResult(data)
-            } catch (err) {
+            } catch {
                 setError('Could not load your results. Try again.')
             } finally {
                 setIsLoadingResult(false)

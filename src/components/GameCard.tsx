@@ -1,7 +1,7 @@
 // components/GameCard.tsx
 import { Card, Image, Text, Badge, Group } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-import { Game } from "@/types/game";
+import type { Game } from "@/types/game";
 import { getGameImage } from "@/games/gameImages";
 
 export function GameCard({ game }: { game: Game }) {

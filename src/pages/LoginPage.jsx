@@ -4,7 +4,6 @@ import { useForm } from "@mantine/form";
 import { TextInput, PasswordInput, Button, Paper, Title, Alert } from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
 import { login } from "../api/auth";
-import { useAuthConfig } from "../hooks/useAuthConfig";
 
 export function LoginPage() {
     const navigate = useNavigate();

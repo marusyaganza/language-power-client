@@ -8,4 +8,8 @@ export default defineConfig({
       "@": `${import.meta.dirname}/src`,
     },
   },
+  test: {
+    // Fixed base URL so tests don't depend on the developer's .env.
+    env: { VITE_API_BASE_URL: "http://api.test" },
+  },
 });
