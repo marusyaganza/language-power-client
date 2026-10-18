@@ -29,6 +29,8 @@ export type Word = z.infer<typeof wordSchema>;
 export const wordSearchResponseSchema = z.object({
   words: z.array(wordSchema),
   suggestions: z.array(z.string()).default([]),
+  /** Filled only when the backend runs with mocked dictionaries and the query isn't one of them. */
+  mock_queries: z.array(z.string()).default([]),
 });
 export type WordSearchResponse = z.infer<typeof wordSearchResponseSchema>;
 

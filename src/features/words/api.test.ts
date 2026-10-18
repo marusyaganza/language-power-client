@@ -58,7 +58,18 @@ describe("searchWords", () => {
     const result = await searchWords("hola", "es");
 
     expect(result.suggestions).toEqual([]);
+    expect(result.mock_queries).toEqual([]);
     expect(result.words[0]).toMatchObject({ uuid: "a1b2", saved: false });
     expect(fetchMock.mock.calls[0][0]).toBe("http://api.test/words/search?query=hola&language=es");
+  });
+});
+
+describe("searchWords in mock mode", () => {
+  it("parses the list of words the mocked dictionary supports", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ words: [], suggestions: [], mock_queries: ["hola", "ser"] }));
+
+    const result = await searchWords("casa", "es");
+
+    expect(result).toEqual({ words: [], suggestions: [], mock_queries: ["hola", "ser"] });
   });
 });

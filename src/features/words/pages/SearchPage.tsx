@@ -1,8 +1,9 @@
-import { Anchor, Button, Container, Group, Paper, Stack, Text } from "@mantine/core";
-import { IconMoodConfuzed, IconPlus } from "@tabler/icons-react";
+import { Button, Container, Group, Stack, Text } from "@mantine/core";
+import { IconFlask, IconMoodConfuzed, IconPlus } from "@tabler/icons-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import { QueryState } from "@/shared/components/QueryState";
+import { QueryLinks } from "../components/QueryLinks";
 import { SearchBar } from "../components/SearchBar";
 import { WordCard } from "../components/WordCard";
 import { useSaveWord, useWordSearch } from "../queries";
@@ -38,30 +39,32 @@ export function SearchPage() {
         <QueryState
           query={search}
           errorTitle="Search failed"
-          isEmpty={(data) => data.words.length === 0 && data.suggestions.length === 0}
+          isEmpty={(data) => data.words.length === 0 && data.suggestions.length === 0 && data.mock_queries.length === 0}
           empty={
             <Text c="dimmed" ta="center">
               No results found for "{query}".
             </Text>
           }
         >
-          {({ words, suggestions }) => (
+          {({ words, suggestions, mock_queries }) => (
             <>
+              {mock_queries.length > 0 && (
+                <QueryLinks
+                  icon={<IconFlask size={20} />}
+                  title={`"${query}" isn't available in demo mode`}
+                  description="The dictionary is mocked for this demo, so search only works for these words:"
+                  queries={mock_queries}
+                  onSelect={handleSearch}
+                />
+              )}
+
               {suggestions.length > 0 && (
-                <Paper withBorder radius="md" p="md">
-                  <Group gap="xs" mb="xs">
-                    <IconMoodConfuzed size={20} />
-                    <Text fw={600}>"{query}" doesn't quite ring a bell — maybe one of these?</Text>
-                  </Group>
-                  <Group gap="xs">
-                    {suggestions.map((suggestion, i) => (
-                      <Anchor key={i} onClick={() => handleSearch(suggestion)} underline="hover" size="sm">
-                        {suggestion}
-                        {i < suggestions.length - 1 && ","}
-                      </Anchor>
-                    ))}
-                  </Group>
-                </Paper>
+                <QueryLinks
+                  icon={<IconMoodConfuzed size={20} />}
+                  title={`"${query}" doesn't quite ring a bell — maybe one of these?`}
+                  queries={suggestions}
+                  onSelect={handleSearch}
+                />
               )}
 
               <Stack gap="lg">
