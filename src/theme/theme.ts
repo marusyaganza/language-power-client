@@ -1,9 +1,10 @@
-// src/theme/theme.js
+// src/theme/theme.ts
 // Dark-first theme. Light scheme later = fill `light` in cssVariablesResolver
 // (and swap the `dark` tuple usage), then drop forceColorScheme in main.jsx.
 import {
     createTheme, Button, Card, Paper, Input, InputWrapper, SegmentedControl,
     Pagination, Badge, Tooltip, Combobox, Modal, ActionIcon,
+    type MantineColorsTuple,
 } from '@mantine/core'
 import classes from './components.module.css'
 
@@ -11,27 +12,27 @@ const FONT_BODY = 'Itim, "Comic Neue", system-ui, sans-serif'
 const FONT_UI = 'Jost, "Futura", system-ui, sans-serif'
 
 // Mantine dark scheme reads: 0 text, 2 dimmed, 4 borders, 5 hover, 6 inputs, 7 body.
-const navy = [
+const navy: MantineColorsTuple = [
     '#E8E8F5', '#C2C2E0', '#A0A0CC', '#6E6EA6', '#2E2E72',
     '#222266', '#15154F', '#090940', '#070732', '#050524',
 ]
 
-const rose = [ // primary, brand #E5576A at 5
+const rose: MantineColorsTuple = [ // primary, brand #E5576A at 5
     '#FDECEE', '#F9C9CF', '#F4A3AD', '#EE7D8C', '#EA6A7B',
     '#E5576A', '#D0465A', '#B0384B', '#8E2C3C', '#6C202E',
 ]
 
-const signal = [ // secondary, brand #F4E87D at 4
+const signal: MantineColorsTuple = [ // secondary, brand #F4E87D at 4
     '#FEFCEB', '#FCF7CC', '#F9F1AB', '#F7EC93', '#F4E87D',
     '#E3D561', '#C7B949', '#A39737', '#7D7329', '#574F1B',
 ]
 
-const olive = [ // status/highlight only, #A8A964 at 5, #444434 at 9 (fill only)
+const olive: MantineColorsTuple = [ // status/highlight only, #A8A964 at 5, #444434 at 9 (fill only)
     '#F4F4E6', '#E3E4C4', '#D0D1A0', '#BDBE83', '#B2B373',
     '#A8A964', '#8D8E51', '#6E6F40', '#575842', '#444434',
 ]
 
-const scarlet = [ // destructive actions, #FF5A3C at 5
+const scarlet: MantineColorsTuple = [ // destructive actions, #FF5A3C at 5
     '#FFEDE9', '#FFD0C6', '#FFAF9F', '#FF8E77', '#FF7457',
     '#FF5A3C', '#E8462A', '#C2361E', '#9A2915', '#721D0E',
 ]

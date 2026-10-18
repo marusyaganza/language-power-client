@@ -16,10 +16,6 @@
     "skipLibCheck": true,
     "noEmit": true,
 
-    // Temporary: lets .ts files import not-yet-migrated .js/.jsx files. Removed in the cleanup phase.
-    "allowJs": true,
-    "checkJs": false,
-
     "paths": {
       "@/*": ["./src/*"]
     }
