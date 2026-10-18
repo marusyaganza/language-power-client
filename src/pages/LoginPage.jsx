@@ -32,7 +32,7 @@ export function LoginPage() {
             <form onSubmit={form.onSubmit((values) => mutation.mutate(values))}>
                 <TextInput label="Email" required {...form.getInputProps("email")} />
                 <PasswordInput label="Password" required mt="sm" {...form.getInputProps("password")} />
-                <Button type="submit" fullWidth mt="lg" loading={mutation.isPending}>
+                <Button type="submit" fullWidth mt="lg" loading={mutation.isPending} mod={{ 'hover-fill': 'signal' }}>
                     Log in
                 </Button>
             </form>

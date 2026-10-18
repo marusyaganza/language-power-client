@@ -3,12 +3,7 @@ import { Group, Select, Button, Image, AppShell } from '@mantine/core'
 import { NavLink as RouterNavLink } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
 import logo from '../assets/logo.png'
-
-const navLinkStyle = ({ isActive }) => ({
-  fontWeight: isActive ? 700 : 400,
-  textDecoration: 'none',
-  color: isActive ? 'var(--mantine-color-blue-7)' : 'var(--mantine-color-dark-7)',
-})
+import classes from './Header.module.css'
 
 export default function Header({ onLogout }) {
   const { language, setLanguage, SUPPORTED_LANGUAGES } = useLanguage()
@@ -20,13 +15,13 @@ export default function Header({ onLogout }) {
           <Image src={logo} alt="App logo" h={32} w="auto" fit="contain" />
 
           <Group gap="md" component="nav">
-            <RouterNavLink to="/words/search" style={navLinkStyle}>
+            <RouterNavLink to="/words/search" className={classes.link}>
               Search
             </RouterNavLink>
-            <RouterNavLink to="/words/vocabulary" style={navLinkStyle}>
+            <RouterNavLink to="/words/vocabulary" className={classes.link}>
               Vocabulary
             </RouterNavLink>
-            <RouterNavLink to="/games" style={navLinkStyle}>
+            <RouterNavLink to="/games" className={classes.link}>
               Games
             </RouterNavLink>
           </Group>
@@ -40,7 +35,7 @@ export default function Header({ onLogout }) {
             allowDeselect={false}
             w={140}
           />
-          <Button variant="subtle" onClick={onLogout}>
+          <Button variant="subtle" color="gray" mod={{ 'hover-fill': 'signal' }} onClick={onLogout}>
             Logout
           </Button>
         </Group>

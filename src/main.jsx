@@ -1,5 +1,6 @@
 import '@mantine/core/styles.css'
 import '@mantine/notifications/styles.css'
+import './theme/global.css'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
@@ -20,6 +21,7 @@ import { RequireAuth } from './components/RequireAuth'
 import { useNavigate } from "react-router-dom";
 import { useQueryClient, useMutation } from '@tanstack/react-query'
 import { logout } from './api/auth'
+import { theme, cssVariablesResolver } from './theme/theme'
 
 const queryClient = new QueryClient()
 
@@ -47,7 +49,7 @@ function AuthenticatedLayout() {
 
 
   return (
-    <AppShell header={{ height: 60 }} padding="md">
+    <AppShell header={{ height: 60 }} padding="md" styles={{ header: { backgroundColor: 'rgba(9, 9, 64, 0.82)', backdropFilter: 'blur(8px)', borderColor: 'var(--app-border)' } }}>
       <Header onLogout={handleLogout} />
       <AppShell.Main>
         <Routes>
@@ -83,7 +85,7 @@ function App() {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <MantineProvider>
+    <MantineProvider theme={theme} cssVariablesResolver={cssVariablesResolver} forceColorScheme="dark">
       <QueryClientProvider client={queryClient}>
         <LanguageProvider>
           <BrowserRouter>

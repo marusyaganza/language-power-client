@@ -1,0 +1,51 @@
+/* Two soft glows over the navy base. */
+body {
+    background-color: var(--app-bg);
+    background-image:
+        radial-gradient(ellipse 55% 45% at 10% 0%, var(--app-haze), transparent 70%),
+        radial-gradient(ellipse 50% 40% at 95% 15%, var(--app-glow), transparent 70%);
+    background-attachment: fixed;
+}
+
+/* Small uppercase Jost label: kickers, meta lines, section captions. */
+.app-label {
+    font-family: var(--app-font-ui);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mantine-color-dimmed);
+}
+
+/* HUD frame: corner ticks on top-left and bottom-right. */
+.app-frame {
+    position: relative;
+    overflow: visible;
+}
+
+.app-frame::before,
+.app-frame::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    border-color: var(--app-signal);
+    opacity: 0.55;
+}
+
+.app-frame::before {
+    top: -1px;
+    left: -1px;
+    border-top: 1px solid;
+    border-left: 1px solid;
+    border-top-left-radius: var(--mantine-radius-sm);
+}
+
+.app-frame::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 1px solid;
+    border-right: 1px solid;
+    border-bottom-right-radius: var(--mantine-radius-sm);
+}

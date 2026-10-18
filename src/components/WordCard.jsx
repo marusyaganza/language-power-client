@@ -1,75 +1,39 @@
 // src/components/WordCard.jsx
 import { useState } from 'react'
+import { Card, Group, Stack, Text, ActionIcon, Image, Tooltip, UnstyledButton } from '@mantine/core'
 import {
-    Card, Group, Stack, Text, Badge, ActionIcon, Image, Box, Menu, List,
-} from '@mantine/core'
-import ExampleList from './ExampleList'
-import {
-    IconVolume, IconBookmark, IconDotsVertical, IconChevronDown, IconChevronUp,
-    IconEdit, IconTrash,
+    IconVolume, IconBookmark, IconBookmarkFilled, IconEdit, IconTrash,
 } from '@tabler/icons-react'
+import ExampleList from './ExampleList'
+import classes from './WordCard.module.css'
 
 const STEM_PREVIEW_COUNT = 5
+
+function pad(n) {
+    return String(n).padStart(2, '0')
+}
 
 export function WordCard({ word, onSave, onEdit, onDelete, isSaving }) {
     const [showAllStems, setShowAllStems] = useState(false)
 
     const visibleStems = showAllStems ? word.stems : word.stems.slice(0, STEM_PREVIEW_COUNT)
-    const hasMoreStems = word.stems.length > STEM_PREVIEW_COUNT
+    const hiddenStemCount = word.stems.length - STEM_PREVIEW_COUNT
 
     function playAudio() {
         if (!word.audio_url) return
-        new Audio(word.audio_url).play()
+        new Audio(word.audio_url).play().catch(() => {})
     }
 
     return (
-        <Card withBorder radius="md" p="lg" pos="relative">
-            <Box pos="absolute" top={8} right={8}>
-                <Group gap={4}>
-                    {onSave && (
-                        <ActionIcon
-                            variant={word.saved ? 'filled' : 'subtle'}
-                            color={word.saved ? 'blue' : undefined}
-                            disabled={word.saved || isSaving}
-                            onClick={() => onSave(word)}
-                            aria-label={word.saved ? 'Already saved' : 'Save to vocabulary'}
-                        >
-                            <IconBookmark size={18} />
-                        </ActionIcon>
-                    )}
-                    {onEdit && (
-                        <ActionIcon
-                            variant="subtle"
-                            onClick={() => onEdit(word)}
-                            aria-label="Edit word"
-                        >
-                            <IconEdit size={18} />
-                        </ActionIcon>
-                    )}
-                    {onDelete && (
-                        <ActionIcon
-                            variant="subtle"
-                            color="red"
-                            onClick={() => onDelete(word)}
-                            aria-label="Delete word"
-                        >
-                            <IconTrash size={18} />
-                        </ActionIcon>
-                    )}
-                </Group>
-            </Box>
-
+        <Card p="lg" className={`app-frame ${classes.card}`}>
             <Group align="flex-start" justify="space-between" wrap="nowrap" gap="lg">
-                {/* Left: main content */}
-                <Stack gap="sm" style={{ flex: 1, minWidth: 0 }}>
-                    {/* Top row: name, fl, transcription, audio */}
-                    <Group gap="xs" align="baseline" wrap="wrap">
-                        <Text fw={700} size="lg">{word.name}</Text>
-                        {word.fl && (
-                            <Text size="sm" c="dimmed" fs="italic">{word.fl}</Text>
-                        )}
+                <Stack gap="md" style={{ flex: 1, minWidth: 0 }}>
+                    <Group gap="sm" align="center" wrap="wrap">
+                        <Text component="h3" m={0} className={classes.name}>{word.name}</Text>
+                        {word.fl && <span className={classes.tag}>{word.fl}</span>}
+                        {word.gender && <span className={classes.tag}>{word.gender}</span>}
                         {word.transcription && (
-                            <Text size="sm" c="dimmed">/{word.transcription}/</Text>
+                            <span className={classes.transcription}>/{word.transcription}/</span>
                         )}
                         {word.audio_url && (
                             <ActionIcon variant="subtle" size="sm" onClick={playAudio} aria-label="Play pronunciation">
@@ -78,52 +42,87 @@ export function WordCard({ word, onSave, onEdit, onDelete, isSaving }) {
                         )}
                     </Group>
 
-                    {/* Definitions (examples assumed inline within each string for now) */}
-                    <List type="ordered" size="sm" spacing={4}>
+                    <ol className={classes.defs}>
                         {word.defs.map((def, i) => (
-                            <List.Item key={i}>{def}</List.Item>
+                            <li key={i} className={classes.def}>
+                                <span className={classes.defIndex}>{pad(i + 1)}</span>
+                                <Text size="md">{def}</Text>
+                            </li>
                         ))}
-                    </List>
+                    </ol>
 
-                    {/* Stems with show more/less */}
-                    {word.stems.length > 0 && (
-                        <Group gap={6} align="center" wrap="wrap">
-                            {visibleStems.map((stem, i) => (
-                                <Badge key={i} variant="light" size="sm">
-                                    {stem}
-                                </Badge>
-                            ))}
-                            {hasMoreStems && (
-                                <ActionIcon
-                                    variant="transparent"
-                                    size="sm"
-                                    onClick={() => setShowAllStems((v) => !v)}
-                                    aria-label={showAllStems ? 'Show fewer forms' : 'Show more forms'}
-                                >
-                                    {showAllStems ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
-                                </ActionIcon>
-                            )}
-                        </Group>
-                    )}
-                    {word?.examples?.length > 0 && (
-                        <Group gap="xs" wrap="wrap">
-                            <Text size="xs" fw={600} c="dimmed" tt="uppercase">Examples</Text>
+                    {word.examples?.length > 0 && (
+                        <Stack gap={6}>
+                            <span className="app-label">Examples</span>
                             <ExampleList examples={word.examples} />
+                        </Stack>
+                    )}
+
+                    {(word.stems.length > 0 || onSave || onEdit || onDelete) && (
+                        <Group justify="space-between" align="center" wrap="wrap" gap="xs" className={classes.footer}>
+                            <Group gap={6} wrap="wrap">
+                                {visibleStems.map((stem, i) => (
+                                    <span key={i} className={classes.stem}>{stem}</span>
+                                ))}
+                                {hiddenStemCount > 0 && (
+                                    <UnstyledButton
+                                        className="app-label"
+                                        onClick={() => setShowAllStems((v) => !v)}
+                                    >
+                                        {showAllStems ? 'less' : `+${hiddenStemCount} forms`}
+                                    </UnstyledButton>
+                                )}
+                            </Group>
+
+                            <Group gap={4} ml="auto">
+                                {onSave && (
+                                    <Tooltip label={word.saved ? 'In your vocabulary' : 'Save to vocabulary'}>
+                                        <ActionIcon
+                                            variant={word.saved ? 'light' : 'subtle'}
+                                            color={word.saved ? 'olive' : 'gray'}
+                                            disabled={isSaving}
+                                            onClick={word.saved ? undefined : () => onSave(word)}
+                                            aria-label={word.saved ? 'Already saved' : 'Save to vocabulary'}
+                                        >
+                                            {word.saved ? <IconBookmarkFilled size={18} /> : <IconBookmark size={18} />}
+                                        </ActionIcon>
+                                    </Tooltip>
+                                )}
+                                {onEdit && (
+                                    <Tooltip label="Edit">
+                                        <ActionIcon variant="subtle" onClick={() => onEdit(word)} aria-label="Edit word">
+                                            <IconEdit size={18} />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                )}
+                                {onDelete && (
+                                    <Tooltip label="Delete">
+                                        <ActionIcon
+                                            variant="subtle"
+                                            color="scarlet"
+                                            onClick={() => onDelete(word)}
+                                            aria-label="Delete word"
+                                        >
+                                            <IconTrash size={18} />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                )}
+                            </Group>
                         </Group>
                     )}
                 </Stack>
+
                 {word.img_url && (
                     <Image
                         src={word.img_url}
                         alt={word.name}
-                        w={200}
-                        h={200}
+                        w={{ base: 88, sm: 160 }}
+                        h={{ base: 88, sm: 160 }}
                         radius="sm"
                         fit="cover"
-                        style={{ flexShrink: 0, marginTop: 20 }}
+                        className={classes.image}
                     />
                 )}
-                {/* Right: image, only if present */}
             </Group>
         </Card>
     )

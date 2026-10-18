@@ -1,0 +1,40 @@
+.input {
+    background-color: var(--app-surface);
+    border-color: var(--app-border);
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.input:focus,
+.input:focus-within {
+    border-color: var(--app-accent);
+    box-shadow: 0 0 0 3px var(--app-glow);
+}
+
+.segmented {
+    background-color: var(--app-surface);
+    border: 1px solid var(--app-border);
+}
+
+/* Secondary action: sage fill, dark olive text (5.8:1), olive border. */
+.button[data-variant='sage'] {
+    background-color: var(--app-sage);
+    color: var(--mantine-color-olive-9);
+    border: 1px solid var(--mantine-color-olive-5);
+}
+
+.button[data-variant='sage']:hover {
+    background-color: var(--app-sage-hover);
+}
+
+/* Opt-in hover fill: <Button mod={{ 'hover-fill': 'rose' | 'signal' }}>. Navy text on both (AA). */
+.button[data-hover-fill]:where(:not(:disabled, [data-disabled], [data-loading])):hover {
+    color: var(--mantine-color-black);
+}
+
+.button[data-hover-fill='rose']:where(:not(:disabled, [data-disabled], [data-loading])):hover {
+    background-color: var(--mantine-color-rose-5);
+}
+
+.button[data-hover-fill='signal']:where(:not(:disabled, [data-disabled], [data-loading])):hover {
+    background-color: var(--mantine-color-signal-4);
+}

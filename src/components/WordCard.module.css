@@ -1,0 +1,72 @@
+.card {
+    transition: border-color 150ms ease;
+}
+
+.card:hover {
+    border-color: var(--app-border-strong);
+}
+
+.name {
+    font-size: 1.75rem;
+    line-height: 1.1;
+    color: var(--app-word);
+}
+
+.transcription {
+    font-family: var(--app-font-ui);
+    font-size: 0.85rem;
+    color: var(--mantine-color-dimmed);
+}
+
+.tag {
+    font-family: var(--app-font-ui);
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: var(--mantine-radius-xs);
+    background-color: var(--app-tag-bg);
+    color: var(--app-tag-text);
+}
+
+.defs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+}
+
+.def {
+    display: grid;
+    grid-template-columns: 1.75rem 1fr;
+    align-items: baseline;
+}
+
+.defIndex {
+    font-family: var(--app-font-ui);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+    color: var(--app-signal);
+}
+
+.stem {
+    font-family: var(--app-font-ui);
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border: 1px solid var(--app-border);
+    border-radius: var(--mantine-radius-xl);
+    color: var(--mantine-color-dimmed);
+}
+
+.footer {
+    border-top: 1px dashed var(--app-border);
+    padding-top: var(--mantine-spacing-xs);
+}
+
+.image {
+    flex-shrink: 0;
+    border: 1px solid var(--app-border);
+}

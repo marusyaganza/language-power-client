@@ -44,7 +44,7 @@ export function DefsEditor({ defs, mainIndex, onDefsChange, onMainIndexChange })
                     )}
                     <ActionIcon
                         variant="subtle"
-                        color="red"
+                        color="scarlet"
                         onClick={() => removeDef(i)}
                         disabled={defs.length === 1}
                         aria-label="Remove definition"
@@ -54,7 +54,7 @@ export function DefsEditor({ defs, mainIndex, onDefsChange, onMainIndexChange })
                 </Group>
             ))}
             <Button
-                variant="light"
+                variant="sage"
                 size="xs"
                 leftSection={<IconPlus size={14} />}
                 onClick={addDef}

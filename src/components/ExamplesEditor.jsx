@@ -38,7 +38,7 @@ export function ExamplesEditor({ examples, onExamplesChange, hideTranslation }) 
                     </Stack>
                     <ActionIcon
                         variant="subtle"
-                        color="red"
+                        color="scarlet"
                         onClick={() => removeExample(i)}
                         aria-label="Remove example"
                     >
@@ -47,7 +47,7 @@ export function ExamplesEditor({ examples, onExamplesChange, hideTranslation }) 
                 </Group>
             ))}
             <Button
-                variant="light"
+                variant="sage"
                 size="xs"
                 leftSection={<IconPlus size={14} />}
                 onClick={addExample}

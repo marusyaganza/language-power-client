@@ -1,21 +1,24 @@
-import { Stack, Paper, Text } from '@mantine/core';
+import { Stack, Text } from '@mantine/core';
 
 function ExampleList({ examples }) {
     if (!examples?.length) return null;
 
     return (
-        <Stack gap="xs">
+        <Stack gap={6}>
             {examples.map(({ text, translation }, i) => (
-                <Paper key={i} p="sm" radius="md" bg="blue.0">
-                    <Text size="sm">
-                        {text}
-                        {translation && (
-                            <Text span c="dimmed" fs="italic">
-                                {' '}({translation})
-                            </Text>
-                        )}
-                    </Text>
-                </Paper>
+                <Text
+                    key={i}
+                    size="sm"
+                    pl="sm"
+                    style={{ borderLeft: '2px solid var(--app-accent)' }}
+                >
+                    {text}
+                    {translation && (
+                        <Text span c="dimmed">
+                            {' '}— {translation}
+                        </Text>
+                    )}
+                </Text>
             ))}
         </Stack>
     );

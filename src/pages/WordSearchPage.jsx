@@ -51,6 +51,7 @@ export function WordSearchPage() {
                         component={Link}
                         to="/words/new"
                         variant="subtle"
+                        mod={{ 'hover-fill': 'rose' }}
                         leftSection={<IconPlus size={16} />}
                     >
                         Can't find it? Add your own word
