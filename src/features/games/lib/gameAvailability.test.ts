@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Game } from "../schemas";
-import { formatTimeUntil, getGameAvailability, lockedMessage } from "./gameAvailability";
+import { formatTimeUntil, getGameAvailability, lockedMessage, nextUnlockTime } from "./gameAvailability";
 
 const game = (counts: Partial<Game>): Game => ({
   id: 2,
@@ -85,5 +85,22 @@ describe("lockedMessage", () => {
     expect(lockedMessage({ playable: false, reason: "nothing-due", nextDueAt: null }, NOW)).toBe(
       "Nothing due right now",
     );
+  });
+});
+
+describe("nextUnlockTime", () => {
+  it("picks the earliest due time among games locked only by nothing being due", () => {
+    const games = [
+      game({ id: 1, due_word_count: 0, next_due_at: "2026-10-18T15:00:00Z" }),
+      game({ id: 2, due_word_count: 0, next_due_at: "2026-10-18T13:00:00Z" }),
+      game({ id: 3, due_word_count: 2, next_due_at: "2026-10-18T12:30:00Z" }), // already playable
+      game({ id: 4, total_word_count: 1, due_word_count: 0, next_due_at: "2026-10-18T12:10:00Z" }), // needs words
+      game({ id: 5, due_word_count: 0, next_due_at: null }),
+    ];
+    expect(nextUnlockTime(games)).toBe(Date.parse("2026-10-18T13:00:00Z"));
+  });
+
+  it("is null when nothing will unlock by itself", () => {
+    expect(nextUnlockTime([game({}), game({ due_word_count: 0, next_due_at: null })])).toBeNull();
   });
 });

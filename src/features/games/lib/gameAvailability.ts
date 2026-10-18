@@ -41,3 +41,15 @@ export function lockedMessage(availability: Exclude<GameAvailability, { playable
   const wait = formatTimeUntil(availability.nextDueAt, now);
   return wait ? `Next word due in ${wait}` : "Next word due any moment";
 }
+
+/**
+ * When the next game locked only by "nothing due" unlocks (ms), or null if none will.
+ * The games list refetches at that moment so the card unlocks without a reload.
+ */
+export function nextUnlockTime(games: Game[]): number | null {
+  const times = games
+    .filter((g) => g.due_word_count === 0 && g.total_word_count >= g.min_word_count && g.next_due_at)
+    .map((g) => Date.parse(g.next_due_at as string))
+    .filter((t) => !Number.isNaN(t));
+  return times.length > 0 ? Math.min(...times) : null;
+}

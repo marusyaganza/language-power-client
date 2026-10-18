@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { gameOptionsToParams, gamePath, parseGameOptions } from "./gameOptions";
+import { gameOptionsToParams, gamePath, gamesListPath, parseGameOptions } from "./gameOptions";
 
 const parse = (search: string) => parseGameOptions(new URLSearchParams(search));
 
@@ -30,5 +30,12 @@ describe("gameOptionsToParams / gamePath", () => {
   it("round-trips", () => {
     const options = { mode: "review", newWordsFirst: true } as const;
     expect(parseGameOptions(gameOptionsToParams(options))).toEqual(options);
+  });
+});
+
+describe("gamesListPath", () => {
+  it("returns to the list with the same options", () => {
+    expect(gamesListPath({ mode: "spaced", newWordsFirst: false })).toBe("/games");
+    expect(gamesListPath({ mode: "review", newWordsFirst: true })).toBe("/games?mode=review&new_words_first=true");
   });
 });

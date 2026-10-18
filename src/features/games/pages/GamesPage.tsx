@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useRef } from "react";
 import { Container, Group, SegmentedControl, SimpleGrid, Skeleton, Stack, Switch, Text } from "@mantine/core";
 import { useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
@@ -5,6 +6,8 @@ import { useNow } from "@/shared/hooks/useNow";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { QueryState } from "@/shared/components/QueryState";
 import { GameCard } from "../components/GameCard";
+import { nextUnlockTime } from "../lib/gameAvailability";
+import { clearStoredGames } from "../lib/gameStorage";
 import { gameOptionsToParams, parseGameOptions, type GameOptions } from "../lib/gameOptions";
 import { useGames } from "../queries";
 import type { GameMode } from "../schemas";
@@ -28,6 +31,21 @@ export function GamesPage() {
   // Mode and "new words first" live in the URL and are passed on to the game.
   const [searchParams, setSearchParams] = useSearchParams();
   const options = parseGameOptions(searchParams);
+
+  // Coming back to the list ends any game in progress: a card click always starts a fresh session.
+  useEffect(() => {
+    clearStoredGames();
+  }, []);
+
+  // When a game locked by "nothing due" reaches its due time, refetch so its card unlocks.
+  const { data: gameList, refetch } = games;
+  const unlockAt = useMemo(() => (gameList ? nextUnlockTime(gameList) : null), [gameList]);
+  const refetchedFor = useRef<number | null>(null);
+  useEffect(() => {
+    if (unlockAt === null || unlockAt > now || refetchedFor.current === unlockAt) return;
+    refetchedFor.current = unlockAt; // once per due time, even if the backend still says nothing is due
+    refetch();
+  }, [unlockAt, now, refetch]);
 
   function changeOptions(change: Partial<GameOptions>) {
     setSearchParams(gameOptionsToParams({ ...options, ...change }), { replace: true });

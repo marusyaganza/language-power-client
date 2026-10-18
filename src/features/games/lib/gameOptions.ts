@@ -30,3 +30,9 @@ export function gamePath(gameId: number, options: GameOptions): string {
   const search = gameOptionsToParams(options).toString();
   return `/games/${gameId}${search ? `?${search}` : ""}`;
 }
+
+/** The games list with these options, e.g. "/games?mode=review". */
+export function gamesListPath(options: GameOptions): string {
+  const search = gameOptionsToParams(options).toString();
+  return `/games${search ? `?${search}` : ""}`;
+}

@@ -55,15 +55,16 @@ export function useLogout() {
     // and the next user must not inherit anything from the previous one.
     onSettled: () => {
       queryClient.clear();
-      clearLocalStorage(); // saved language, in-progress game sessions, …
+      clearBrowserStorage(); // saved language, in-progress game, …
       resetLanguage();
     },
   });
 }
 
-function clearLocalStorage() {
+function clearBrowserStorage() {
   try {
     localStorage.clear();
+    sessionStorage.clear();
   } catch {
     // Storage can be unavailable (e.g. blocked by the browser); nothing to clear then.
   }
