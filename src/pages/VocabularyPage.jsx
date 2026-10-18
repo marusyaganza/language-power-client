@@ -2,11 +2,14 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
     Container, Stack, Text, TextInput, SegmentedControl, Pagination, Group, Button,
-    Skeleton, Alert, Paper, useMatches,
+    Skeleton, Alert, Paper, ActionIcon, Tooltip, useMatches,
 } from '@mantine/core'
 import { useDebouncedValue } from '@mantine/hooks'
 import { modals } from '@mantine/modals'
-import { IconSearch, IconPlus, IconAlertTriangle, IconBooks } from '@tabler/icons-react'
+import {
+    IconSearch, IconPlus, IconAlertTriangle, IconBooks,
+    IconSortAscending, IconSortDescending, IconSortAscendingLetters, IconSortDescendingLetters,
+} from '@tabler/icons-react'
 import { Link } from 'react-router-dom'
 import { WordCard } from '../components/WordCard'
 import { EditWordModal } from '../components/EditWordModal'
@@ -14,25 +17,40 @@ import { PageHeader } from '../components/PageHeader'
 import { fetchVocabulary } from '../api/vocabulary'
 import { useDeleteWord } from '../hooks/useDeleteWord'
 import { useLanguage } from '../context/LanguageContext'
+import classes from './VocabularyPage.module.css'
 
 const SORT_OPTIONS = [
-    { value: 'created_at', label: 'Recent' },
-    { value: 'name', label: 'A–Z' },
+    { value: 'created_at', label: 'Date added' },
+    { value: 'name', label: 'Name' },
 ]
+
+// Each field starts in its natural direction; sort_order is always sent explicitly.
+const DEFAULT_SORT_ORDER = { created_at: 'desc', name: 'asc' }
+
+const SORT_ORDER_LABELS = {
+    created_at: { desc: 'Newest first', asc: 'Oldest first' },
+    name: { asc: 'A → Z', desc: 'Z → A' },
+}
+
+const SORT_ORDER_ICONS = {
+    created_at: { asc: IconSortAscending, desc: IconSortDescending },
+    name: { asc: IconSortAscendingLetters, desc: IconSortDescendingLetters },
+}
 
 export function VocabularyPage() {
     const [search, setSearch] = useState('')
     const [debouncedSearch] = useDebouncedValue(search, 300)
     const [page, setPage] = useState(1)
     const [sortBy, setSortBy] = useState('created_at')
+    const [sortOrder, setSortOrder] = useState(DEFAULT_SORT_ORDER.created_at)
     const [editingWord, setEditingWord] = useState(null)
     const paginationSiblings = useMatches({ base: 0, sm: 1 })
     const { language, SUPPORTED_LANGUAGES } = useLanguage()
     const languageLabel = SUPPORTED_LANGUAGES.find((l) => l.value === language)?.label ?? language
 
     const { data, isLoading, isError, error } = useQuery({
-        queryKey: ['vocabulary', debouncedSearch, page, sortBy, language],
-        queryFn: () => fetchVocabulary({ query: debouncedSearch, page, sortBy, language }),
+        queryKey: ['vocabulary', debouncedSearch, page, sortBy, sortOrder, language],
+        queryFn: () => fetchVocabulary({ query: debouncedSearch, page, sortBy, sortOrder, language }),
         placeholderData: (prev) => prev,
     })
 
@@ -43,8 +61,17 @@ export function VocabularyPage() {
 
     function handleSortChange(value) {
         setSortBy(value)
+        setSortOrder(DEFAULT_SORT_ORDER[value])
         setPage(1)
     }
+
+    function handleSortOrderToggle() {
+        setSortOrder((order) => (order === 'asc' ? 'desc' : 'asc'))
+        setPage(1)
+    }
+
+    const sortOrderLabel = SORT_ORDER_LABELS[sortBy][sortOrder]
+    const SortOrderIcon = SORT_ORDER_ICONS[sortBy][sortOrder]
 
     const { mutate: removeWord } = useDeleteWord()
 
@@ -87,8 +114,19 @@ export function VocabularyPage() {
                         data={SORT_OPTIONS}
                         value={sortBy}
                         onChange={handleSortChange}
-                        aria-label="Sort order"
+                        aria-label="Sort by"
                     />
+                    <Tooltip label={`${sortOrderLabel} · click to reverse`}>
+                        <ActionIcon
+                            size="input-sm"
+                            variant="default"
+                            className={classes.sortToggle}
+                            onClick={handleSortOrderToggle}
+                            aria-label={`Sort order: ${sortOrderLabel}. Reverse order`}
+                        >
+                            <SortOrderIcon size={18} />
+                        </ActionIcon>
+                    </Tooltip>
                     <Button component={Link} to="/words/new" leftSection={<IconPlus size={16} />}>
                         Add word
                     </Button>

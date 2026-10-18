@@ -1,0 +1,5 @@
+.sortToggle {
+    background-color: var(--app-surface);
+    border-color: var(--app-border);
+    color: var(--app-signal);
+}
