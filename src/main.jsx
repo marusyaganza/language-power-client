@@ -10,9 +10,9 @@ import { ModalsProvider } from '@mantine/modals'
 import { Notifications } from '@mantine/notifications'
 import { LanguageProvider } from './context/LanguageContext'
 import Header from './components/Header'
-import { WordSearchPage } from './pages/WordSearchPage'
-import { VocabularyPage } from './pages/VocabularyPage'
-import { NewWordPage } from './pages/NewWordPage'
+import { SearchPage } from './features/words/pages/SearchPage'
+import { VocabularyPage } from './features/words/pages/VocabularyPage'
+import { NewWordPage } from './features/words/pages/NewWordPage'
 import { SignUpPage } from './features/auth/pages/SignUpPage'
 import { LoginPage } from './features/auth/pages/LoginPage'
 import { GamesPage } from './pages/GamesPage'
@@ -38,7 +38,7 @@ function AuthenticatedLayout() {
       <AppShell.Main>
         <Routes>
           <Route element={<RequireAuth />}>
-            <Route path="/words/search" element={<WordSearchPage />} />
+            <Route path="/words/search" element={<SearchPage />} />
             <Route path="/words/vocabulary" element={<VocabularyPage />} />
             <Route path="/words/new" element={<NewWordPage />} />
             <Route path="/games" element={<GamesPage />} />

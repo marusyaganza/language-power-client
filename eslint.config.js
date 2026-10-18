@@ -25,9 +25,9 @@ export default defineConfig([
   },
   {
     // Temporary: these files are replaced during the architecture migration
-    // (main.jsx + LanguageContext.tsx in phase 4, EditWordModal.jsx in phase 5b).
+    // (main.jsx + LanguageContext.tsx in phase 4, words EditWordModal.jsx in phase 5b).
     // Delete this block once they are gone.
-    files: ['src/main.jsx', 'src/context/LanguageContext.tsx', 'src/components/EditWordModal.jsx'],
+    files: ['src/main.jsx', 'src/context/LanguageContext.tsx', 'src/features/words/components/EditWordModal.jsx'],
     rules: {
       'react-refresh/only-export-components': 'off',
       'react-hooks/set-state-in-effect': 'off',

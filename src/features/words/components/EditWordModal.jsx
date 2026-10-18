@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Modal, Stack, TextInput, Text, Group, Button } from '@mantine/core'
 import { DefsEditor } from './DefsEditor'
 import { ExamplesEditor } from './ExamplesEditor'
-import { useEditWord } from '../hooks/useEditWord'
+import { useEditWord } from '../queries'
 
 export function EditWordModal({ word, opened, onClose }) {
     const [defs, setDefs] = useState([])
@@ -47,7 +47,7 @@ export function EditWordModal({ word, opened, onClose }) {
         save(
             {
                 wordId: word.id,
-                payload: {
+                changes: {
                     defs: reorderedDefs,
                     examples,
                     audio_url: audioUrl || null,
