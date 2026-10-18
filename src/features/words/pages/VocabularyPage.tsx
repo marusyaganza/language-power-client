@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActionIcon,
   Button,
@@ -25,12 +25,19 @@ import {
   IconSortDescending,
   IconSortDescendingLetters,
 } from "@tabler/icons-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { QueryState } from "@/shared/components/QueryState";
 import { EditWordModal } from "../components/EditWordModal";
 import { WordCard } from "../components/WordCard";
+import {
+  DEFAULT_SORT_ORDER,
+  parseVocabularyView,
+  updateVocabularyView,
+  vocabularyViewToParams,
+  type VocabularyView,
+} from "../lib/vocabularyView";
 import { useDeleteWord, useVocabulary } from "../queries";
 import type { SortOrder, VocabularySortBy, Word } from "../schemas";
 import classes from "./VocabularyPage.module.css";
@@ -39,9 +46,6 @@ const SORT_OPTIONS: { value: VocabularySortBy; label: string }[] = [
   { value: "created_at", label: "Date added" },
   { value: "name", label: "Name" },
 ];
-
-// Each field starts in its natural direction; sort_order is always sent explicitly.
-const DEFAULT_SORT_ORDER: Record<VocabularySortBy, SortOrder> = { created_at: "desc", name: "asc" };
 
 const SORT_ORDER_LABELS: Record<VocabularySortBy, Record<SortOrder, string>> = {
   created_at: { desc: "Newest first", asc: "Oldest first" },
@@ -54,11 +58,10 @@ const SORT_ORDER_ICONS = {
 } satisfies Record<VocabularySortBy, Record<SortOrder, unknown>>;
 
 export function VocabularyPage() {
-  const [search, setSearch] = useState("");
-  const [debouncedSearch] = useDebouncedValue(search, 300);
-  const [page, setPage] = useState(1);
-  const [sortBy, setSortBy] = useState<VocabularySortBy>("created_at");
-  const [sortOrder, setSortOrder] = useState<SortOrder>(DEFAULT_SORT_ORDER.created_at);
+  // Search, page and sorting live in the URL (?q=&page=&sort=&order=) so they survive reloads and links.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { query, page, sortBy, sortOrder } = parseVocabularyView(searchParams);
+  const [debouncedQuery] = useDebouncedValue(query, 300);
   const [editingWord, setEditingWord] = useState<Word | null>(null);
   const paginationSiblings = useMatches({ base: 0, sm: 1 });
   const { language, SUPPORTED_LANGUAGES } = useLanguage();
@@ -66,28 +69,38 @@ export function VocabularyPage() {
 
   const vocabulary = useVocabulary({
     language,
-    query: debouncedSearch,
+    query: debouncedQuery,
     page,
     sort_by: sortBy,
     sort_order: sortOrder,
   });
-  const { data } = vocabulary;
+  const { data, isPlaceholderData } = vocabulary;
 
-  function handleSearchChange(value: string) {
-    setSearch(value);
-    setPage(1); // reset to page 1 whenever the filter changes
+  /** `replace` avoids a history entry per keystroke while typing a search. */
+  function changeView(change: Partial<VocabularyView>, { replace = false } = {}) {
+    setSearchParams(
+      (current) => vocabularyViewToParams(updateVocabularyView(parseVocabularyView(current), change)),
+      { replace },
+    );
   }
+
+  // Past the last page (e.g. after switching language or deleting the last word on it): go to the last page.
+  useEffect(() => {
+    if (!data || isPlaceholderData || data.total_pages === 0 || page <= data.total_pages) return;
+    setSearchParams(
+      (current) =>
+        vocabularyViewToParams(updateVocabularyView(parseVocabularyView(current), { page: data.total_pages })),
+      { replace: true },
+    );
+  }, [data, isPlaceholderData, page, setSearchParams]);
 
   function handleSortChange(value: string) {
     const field = value as VocabularySortBy;
-    setSortBy(field);
-    setSortOrder(DEFAULT_SORT_ORDER[field]);
-    setPage(1);
+    changeView({ sortBy: field, sortOrder: DEFAULT_SORT_ORDER[field] });
   }
 
   function handleSortOrderToggle() {
-    setSortOrder((order) => (order === "asc" ? "desc" : "asc"));
-    setPage(1);
+    changeView({ sortOrder: sortOrder === "asc" ? "desc" : "asc" });
   }
 
   const sortOrderLabel = SORT_ORDER_LABELS[sortBy][sortOrder];
@@ -127,8 +140,8 @@ export function VocabularyPage() {
           <TextInput
             placeholder="Search your vocabulary"
             leftSection={<IconSearch size={16} />}
-            value={search}
-            onChange={(e) => handleSearchChange(e.currentTarget.value)}
+            value={query}
+            onChange={(e) => changeView({ query: e.currentTarget.value }, { replace: true })}
             style={{ flex: 1, minWidth: 220 }}
             aria-label="Search your vocabulary"
           />
@@ -172,15 +185,15 @@ export function VocabularyPage() {
             </Stack>
           }
           errorTitle="Couldn't load vocabulary"
-          isEmpty={(page) => page.items.length === 0}
+          isEmpty={(result) => result.total === 0}
           empty={
             <Paper withBorder p="xl" className="app-frame" style={{ borderColor: "var(--app-border)" }}>
               <Stack align="center" gap="sm">
                 <IconBooks size={32} color="var(--app-signal)" />
                 <Text ta="center">
-                  {debouncedSearch ? `No saved words matching "${debouncedSearch}".` : "You haven't saved any words yet."}
+                  {debouncedQuery ? `No saved words matching "${debouncedQuery}".` : "You haven't saved any words yet."}
                 </Text>
-                {!debouncedSearch && (
+                {!debouncedQuery && (
                   <Button component={Link} to="/words/search" variant="light">
                     Find words to save
                   </Button>
@@ -199,14 +212,19 @@ export function VocabularyPage() {
 
               {total_pages > 1 && (
                 <Group justify="center">
-                  <Pagination value={page} onChange={setPage} total={total_pages} siblings={paginationSiblings} />
+                  <Pagination
+                    value={page}
+                    onChange={(next) => changeView({ page: next })}
+                    total={total_pages}
+                    siblings={paginationSiblings}
+                  />
                 </Group>
               )}
             </>
           )}
         </QueryState>
       </Stack>
-      <EditWordModal word={editingWord} opened={!!editingWord} onClose={() => setEditingWord(null)} />
+      <EditWordModal word={editingWord} onClose={() => setEditingWord(null)} />
     </Container>
   );
 }

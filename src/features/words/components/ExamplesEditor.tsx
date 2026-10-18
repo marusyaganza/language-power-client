@@ -1,15 +1,15 @@
 import { ActionIcon, Button, Group, Stack, Text, TextInput } from "@mantine/core";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
-import type { Example } from "../schemas";
+import type { ExampleDraft } from "../lib/wordForm";
 
 interface ExamplesEditorProps {
-  examples: Example[];
-  onExamplesChange: (examples: Example[]) => void;
+  examples: ExampleDraft[];
+  onExamplesChange: (examples: ExampleDraft[]) => void;
   hideTranslation?: boolean;
 }
 
 export function ExamplesEditor({ examples, onExamplesChange, hideTranslation }: ExamplesEditorProps) {
-  function updateExample(index: number, field: keyof Example, value: string) {
+  function updateExample(index: number, field: keyof ExampleDraft, value: string) {
     const next = [...examples];
     next[index] = { ...next[index], [field]: value };
     onExamplesChange(next);
@@ -39,7 +39,7 @@ export function ExamplesEditor({ examples, onExamplesChange, hideTranslation }: 
             {!hideTranslation && (
               <TextInput
                 placeholder="Translation (optional)"
-                value={ex.translation ?? ""}
+                value={ex.translation}
                 onChange={(e) => updateExample(i, "translation", e.currentTarget.value)}
               />
             )}
