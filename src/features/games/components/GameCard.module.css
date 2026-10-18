@@ -1,0 +1,25 @@
+.card {
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 150ms ease;
+}
+
+a.card:hover {
+  border-color: var(--app-border-strong);
+}
+
+.card[data-locked] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.title {
+  color: var(--app-word);
+}
+
+.locked {
+  font-family: var(--app-font-ui);
+  font-size: 0.8rem;
+  color: var(--app-signal);
+}

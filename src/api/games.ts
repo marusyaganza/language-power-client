@@ -1,37 +1,11 @@
-// src/api/games.ts
-import type { Game } from "@/types/game";
+// src/api/games.ts — game session calls; moved into features/games in phase 6b.
+import type { GameOptions } from "@/features/games";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
-interface GameResponse {
-  id: number;
-  slug: string;
-  title: string;
-  description: string;
-  game_type: string;
-  available_word_count: number;
-  is_enabled: boolean;
-}
-
-export async function fetchGames(language: string): Promise<Game[]> {
-  const res = await fetch(`${API_BASE}/games?language=${language}`, {
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to fetch games");
-  const data: GameResponse[] = await res.json();
-  return data.map((g) => ({
-    id: g.id,
-    slug: g.slug,
-    title: g.title,
-    description: g.description,
-    gameType: g.game_type,
-    availableWordCount: g.available_word_count,
-    isEnabled: g.is_enabled,
-  }));
-}
-
-export async function fetchGameSession(gameId: string, language: string) {
-    const res = await fetch(`${API_BASE}/games/${gameId}?language=${language}`, {
+export async function fetchGameSession(gameId: string, language: string, { mode, newWordsFirst }: GameOptions) {
+    const params = new URLSearchParams({ language, mode, new_words_first: String(newWordsFirst) })
+    const res = await fetch(`${API_BASE}/games/${gameId}?${params}`, {
         credentials: 'include',
     })
     if (!res.ok) throw new Error('Failed to load game')

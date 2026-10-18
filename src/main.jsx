@@ -15,7 +15,7 @@ import { VocabularyPage } from './features/words/pages/VocabularyPage'
 import { NewWordPage } from './features/words/pages/NewWordPage'
 import { SignUpPage } from './features/auth/pages/SignUpPage'
 import { LoginPage } from './features/auth/pages/LoginPage'
-import { GamesPage } from './pages/GamesPage'
+import { GamesPage } from './features/games/pages/GamesPage'
 import { GamePage } from './pages/GamePage'
 import { RequireAuth } from './app/RequireAuth'
 import { useNavigate } from "react-router-dom";

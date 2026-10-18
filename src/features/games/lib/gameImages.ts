@@ -1,4 +1,3 @@
-// games/gameImages.ts
 import wordEcho from "@/assets/games/word-echo.webp";
 import lexiSense from "@/assets/games/lexi-sense.webp";
 import definify from "@/assets/games/definify.webp";

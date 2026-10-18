@@ -1,6 +1,6 @@
 // pages/GamePage.jsx
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import {
     Progress, Title, Text, TextInput, Button, Stack,
     Loader, Center, ActionIcon, Group, Image, Box,
@@ -8,6 +8,7 @@ import {
 import { IconX, IconPlayerPlay } from '@tabler/icons-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { fetchGameSession, submitAnswer, fetchGameResult } from '@/api/games'
+import { gameOptionsToParams, parseGameOptions } from '@/features/games'
 import { saveGameSession, loadGameSession, clearGameSession } from '@/games/gameSessionStorage'
 import { randomMessage } from '@/games/gameMessages'
 
@@ -41,6 +42,12 @@ export function GamePage() {
     const { gameId } = useParams()
     const navigate = useNavigate()
     const { language } = useLanguage()
+    // Mode and "new words first" come from the games list via the URL (?mode=review&new_words_first=true).
+    const [searchParams] = useSearchParams()
+    const { mode, newWordsFirst } = parseGameOptions(searchParams)
+    const sessionKey = `${gameId}:${mode}:${newWordsFirst}` // don't resume a session started with other options
+    const listParams = gameOptionsToParams({ mode, newWordsFirst }).toString()
+    const gamesListPath = listParams ? `/games?${listParams}` : '/games'
 
     const [session, setSession] = useState(null)
     const [currentIndex, setCurrentIndex] = useState(0)
@@ -58,7 +65,7 @@ export function GamePage() {
 
         async function loadOrStart() {
             setIsLoading(true)
-            const cached = loadGameSession(gameId)
+            const cached = loadGameSession(sessionKey)
 
             if (cached) {
                 if (!cancelled) {
@@ -70,7 +77,7 @@ export function GamePage() {
             }
 
             try {
-                const data = await fetchGameSession(gameId, language)
+                const data = await fetchGameSession(gameId, language, { mode, newWordsFirst })
                 const newSession = {
                     sessionId: data.session_id,
                     task: data.task,
@@ -78,7 +85,7 @@ export function GamePage() {
                     currentIndex: 0,
                 }
                 if (!cancelled) {
-                    saveGameSession(gameId, newSession)
+                    saveGameSession(sessionKey, newSession)
                     setSession(newSession)
                     setCurrentIndex(0)
                     setIsLoading(false)
@@ -93,7 +100,7 @@ export function GamePage() {
 
         loadOrStart()
         return () => { cancelled = true }
-    }, [gameId, language])
+    }, [gameId, language, mode, newWordsFirst, sessionKey])
 
     async function handleCheck() {
         const currentQuestion = session.questions[currentIndex]
@@ -121,7 +128,7 @@ export function GamePage() {
             setIsLoadingResult(true)
             try {
                 const data = await fetchGameResult(session.sessionId)
-                clearGameSession(gameId)
+                clearGameSession(sessionKey)
                 setResult(data)
             } catch {
                 setError('Could not load your results. Try again.')
@@ -132,7 +139,7 @@ export function GamePage() {
         }
 
         const updated = { ...session, currentIndex: nextIndex }
-        saveGameSession(gameId, updated)
+        saveGameSession(sessionKey, updated)
         setSession(updated)
         setCurrentIndex(nextIndex)
         setAnswer('')
@@ -140,12 +147,12 @@ export function GamePage() {
     }
 
     function handleClose() {
-        clearGameSession(gameId)
-        navigate('/games')
+        clearGameSession(sessionKey)
+        navigate(gamesListPath)
     }
 
     function handleFinish() {
-        navigate('/games')
+        navigate(gamesListPath)
     }
 
     function playAudio(url) {
