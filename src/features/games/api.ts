@@ -4,8 +4,11 @@ import type { GameOptions } from "./lib/gameOptions";
 import {
   answerResponseSchema,
   gameResultSchema,
+  gameSettingsPresetsSchema,
+  gameSettingsSchema,
   gamesSchema,
   type AnswerRequest,
+  type GameSettingsUpdate,
 } from "./schemas";
 
 export function getGames(language: string, signal?: AbortSignal) {
@@ -27,4 +30,16 @@ export function submitAnswer(gameId: number, answer: AnswerRequest) {
 /** Finishes the session if it's still running (unanswered questions count as such) and returns the result. */
 export function finishGame(sessionId: string) {
   return apiFetch(`/games/result/${sessionId}`, { schema: gameResultSchema });
+}
+
+export function getGameSettings(signal?: AbortSignal) {
+  return apiFetch("/users/me/game-settings", { schema: gameSettingsSchema, signal });
+}
+
+export function updateGameSettings(settings: GameSettingsUpdate) {
+  return apiFetch("/users/me/game-settings", { method: "PUT", body: settings, schema: gameSettingsSchema });
+}
+
+export function getGameSettingsPresets(signal?: AbortSignal) {
+  return apiFetch("/users/me/game-settings/presets", { schema: gameSettingsPresetsSchema, signal });
 }

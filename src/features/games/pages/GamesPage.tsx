@@ -1,11 +1,25 @@
 import { useEffect, useMemo, useRef } from "react";
-import { Container, Group, SegmentedControl, SimpleGrid, Skeleton, Stack, Switch, Text } from "@mantine/core";
+import {
+  ActionIcon,
+  Container,
+  Group,
+  SegmentedControl,
+  SimpleGrid,
+  Skeleton,
+  Stack,
+  Switch,
+  Text,
+  Tooltip,
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { IconSettings } from "@tabler/icons-react";
 import { useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/context/language";
 import { useNow } from "@/shared/hooks/useNow";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { QueryState } from "@/shared/components/QueryState";
 import { GameCard } from "../components/GameCard";
+import { GameSettingsModal } from "../components/GameSettingsModal";
 import { nextUnlockTime } from "../lib/gameAvailability";
 import { clearStoredGames } from "../lib/gameStorage";
 import { gameOptionsToParams, parseGameOptions, type GameOptions } from "../lib/gameOptions";
@@ -31,6 +45,7 @@ export function GamesPage() {
   // Mode and "new words first" live in the URL and are passed on to the game.
   const [searchParams, setSearchParams] = useSearchParams();
   const options = parseGameOptions(searchParams);
+  const [settingsOpened, settingsModal] = useDisclosure(false);
 
   // Coming back to the list ends any game in progress: a card click always starts a fresh session.
   useEffect(() => {
@@ -54,7 +69,17 @@ export function GamesPage() {
   return (
     <Container size="lg" py="xl">
       <Stack gap="xl">
-        <PageHeader title="Your words are ready. Are you?" description="Pick a game below and start practicing." />
+        <PageHeader
+          title="Your words are ready. Are you?"
+          description="Pick a game below and start practicing."
+          actions={
+            <Tooltip label="Spaced repetition settings">
+              <ActionIcon variant="subtle" size="lg" onClick={settingsModal.open} aria-label="Spaced repetition settings">
+                <IconSettings size={22} />
+              </ActionIcon>
+            </Tooltip>
+          }
+        />
 
         <Stack gap={6}>
           <Group gap="lg" wrap="wrap">
@@ -96,6 +121,7 @@ export function GamesPage() {
           )}
         </QueryState>
       </Stack>
+      <GameSettingsModal opened={settingsOpened} onClose={settingsModal.close} />
     </Container>
   );
 }

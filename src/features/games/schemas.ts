@@ -125,3 +125,38 @@ export const gameResultSchema = z.object({
   score_percent: z.number(),
 });
 export type GameResult = z.infer<typeof gameResultSchema>;
+
+// GameSettings — the user's spaced-repetition settings; they apply to every game.
+const gameSettingsValuesSchema = z.object({
+  /** How long a new word waits after each correct answer while it's being learned. */
+  learning_steps_minutes: z.array(z.number()),
+  /** The wait after the last learning step. */
+  graduating_interval_days: z.number(),
+  /** Forgetting a learned word sends it back to the first step instead of halving its interval. */
+  strict_mode: z.boolean(),
+});
+
+export const gameSettingsSchema = gameSettingsValuesSchema.extend({
+  /** Id of the preset the values match, or "custom". */
+  preset: z.string(),
+});
+export type GameSettings = z.infer<typeof gameSettingsSchema>;
+
+// GameSettingsUpdate — `preset` is only returned; a preset is applied by sending its values.
+export interface GameSettingsUpdate {
+  learning_steps_minutes: number[];
+  graduating_interval_days: number;
+  strict_mode: boolean;
+}
+
+// GameSettingsPreset
+export const gameSettingsPresetSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  settings: gameSettingsValuesSchema,
+});
+export type GameSettingsPreset = z.infer<typeof gameSettingsPresetSchema>;
+
+/** The first preset is the default. */
+export const gameSettingsPresetsSchema = z.array(gameSettingsPresetSchema);

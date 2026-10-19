@@ -1,0 +1,37 @@
+.root {
+    background-color: var(--app-surface-raised);
+    border: 1px solid var(--app-border);
+    border-radius: var(--mantine-radius-sm);
+}
+
+.chip {
+    font-family: var(--app-font-ui);
+    font-size: var(--mantine-font-size-sm);
+    line-height: 1.4;
+    padding: 2px 8px;
+    border-radius: var(--mantine-radius-sm);
+    white-space: nowrap;
+}
+
+.step {
+    background-color: var(--app-tag-bg);
+    color: var(--app-tag-text);
+}
+
+/* Same look as the sage button variant. */
+.learned {
+    background-color: var(--app-sage);
+    color: var(--mantine-color-olive-9);
+    border: 1px solid var(--mantine-color-olive-5);
+}
+
+.text {
+    font-family: var(--app-font-ui);
+    font-size: var(--mantine-font-size-sm);
+    white-space: nowrap;
+}
+
+.arrow {
+    color: var(--mantine-color-dimmed);
+    flex-shrink: 0;
+}

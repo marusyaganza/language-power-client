@@ -1,7 +1,16 @@
 import type { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { notifications } from "@mantine/notifications";
 import type { GameOptions } from "./lib/gameOptions";
-import { finishGame, getGames, startGame, submitAnswer } from "./api";
+import {
+  finishGame,
+  getGames,
+  getGameSettings,
+  getGameSettingsPresets,
+  startGame,
+  submitAnswer,
+  updateGameSettings,
+} from "./api";
 import type { AnswerRequest } from "./schemas";
 
 export const gameKeys = {
@@ -10,6 +19,8 @@ export const gameKeys = {
   list: (language: string) => [...gameKeys.lists(), { language }] as const,
   session: (gameId: number, language: string, options: GameOptions) =>
     [...gameKeys.all, "session", { gameId, language, ...options }] as const,
+  settings: () => [...gameKeys.all, "settings"] as const,
+  settingsPresets: () => [...gameKeys.settings(), "presets"] as const,
 };
 
 export function useGames(language: string) {
@@ -59,6 +70,39 @@ export function useFinishGame() {
     onSuccess: () => {
       // Due counts changed; the games list should show them when the user goes back.
       queryClient.invalidateQueries({ queryKey: gameKeys.lists() });
+    },
+  });
+}
+
+/** The logged-in user's spaced-repetition settings. `enabled` defers loading until they're shown. */
+export function useGameSettings(enabled: boolean) {
+  return useQuery({
+    queryKey: gameKeys.settings(),
+    queryFn: ({ signal }) => getGameSettings(signal),
+    enabled,
+  });
+}
+
+export function useGameSettingsPresets(enabled: boolean) {
+  return useQuery({
+    queryKey: gameKeys.settingsPresets(),
+    queryFn: ({ signal }) => getGameSettingsPresets(signal),
+    enabled,
+    staleTime: Infinity, // fixed on the backend
+  });
+}
+
+export function useUpdateGameSettings() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateGameSettings,
+    onSuccess: (settings) => {
+      // Saved settings never move scheduled reviews, so the games list stays valid.
+      queryClient.setQueryData(gameKeys.settings(), settings);
+      notifications.show({ message: "Settings saved", color: "green" });
+    },
+    onError: (error) => {
+      notifications.show({ title: "Couldn't save settings", message: error.message, color: "red" });
     },
   });
 }
