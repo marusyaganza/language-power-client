@@ -1,10 +1,13 @@
 import { Button, Center, Stack, Text } from "@mantine/core";
 import { Navigate, Outlet } from "react-router-dom";
+import { LanguageProvider } from "@/context/LanguageProvider";
 import { useCurrentUser } from "@/features/auth";
 import { paths } from "@/shared/paths";
+import { useApplyUserTheme } from "@/theme/userTheme";
 
 export function RequireAuth() {
   const { data: user, isPending, isError, error, refetch, isFetching } = useCurrentUser();
+  useApplyUserTheme(user?.id);
 
   if (isPending) return null;
 
@@ -27,5 +30,9 @@ export function RequireAuth() {
 
   if (!user) return <Navigate to={paths.login} replace />;
 
-  return <Outlet />;
+  return (
+    <LanguageProvider key={user.id} userId={user.id}>
+      <Outlet />
+    </LanguageProvider>
+  );
 }

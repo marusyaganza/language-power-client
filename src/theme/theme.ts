@@ -1,6 +1,5 @@
 // src/theme/theme.ts
-// Dark-first theme. Light scheme later = fill `light` in cssVariablesResolver
-// (and swap the `dark` tuple usage), then drop forceColorScheme in main.jsx.
+// Dark-first theme; the light scheme keeps the same hues and overrides tokens in cssVariablesResolver.
 import {
     createTheme, Button, Card, Paper, Input, InputWrapper, SegmentedControl,
     Pagination, Badge, Tooltip, Combobox, Modal, ActionIcon,
@@ -112,6 +111,7 @@ export function cssVariablesResolver() {
             '--app-signal': 'var(--mantine-color-signal-4)',
             '--app-tag-bg': 'var(--mantine-color-olive-9)',
             '--app-tag-text': 'var(--mantine-color-olive-2)',
+            '--app-success-text': 'var(--mantine-color-green-4)',
             '--mantine-color-body': '#090940',
             // Mantine's dark light/subtle variants use shade 0 (near white); keep these hues visible.
             '--mantine-color-olive-light-color': 'var(--mantine-color-olive-3)',
@@ -120,6 +120,31 @@ export function cssVariablesResolver() {
             '--mantine-color-scarlet-light-hover': 'rgba(255, 208, 198, 0.2)',
             '--mantine-color-scarlet-filled-hover': 'var(--mantine-color-scarlet-4)',
         },
-        light: {},
+        light: {
+            // Usual light layering: tinted page, white cards. Navy (theme.black) is the text color.
+            // Text tokens are darkened to >= 4.5:1 on both #FFFFFF and #F1F1F8.
+            '--app-bg': '#F1F1F8',
+            '--app-surface': '#FFFFFF',
+            '--app-surface-raised': '#F7F7FC',
+            '--app-border': '#D4D4E8',
+            '--app-border-strong': '#A9A9CF',
+            '--app-card-shadow': '0 10px 30px -12px rgba(9, 9, 64, 0.18)',
+            '--app-glow': 'rgba(229, 87, 106, 0.10)',
+            '--app-haze': 'rgba(61, 106, 97, 0.10)',
+            '--app-sage': '#B6CBC6',
+            '--app-sage-hover': '#A3BAB4',
+            '--app-word': '#3D6A61', // deep sage; #B6CBC6 is 1.7:1 on white
+            '--app-accent': 'var(--mantine-color-rose-5)', // borders and fills only
+            '--app-signal': '#68684F', // yellow can't be text on white; tentative, revisit
+            '--app-tag-bg': 'var(--mantine-color-olive-1)',
+            '--app-tag-text': 'var(--mantine-color-olive-8)',
+            '--app-success-text': '#237032',
+            '--mantine-color-body': '#FFFFFF',
+            '--mantine-color-dimmed': '#55557F',
+            // Mantine's light/subtle variants use the primary shade (5) as text: too light on white.
+            '--mantine-color-rose-light-color': 'var(--mantine-color-rose-7)',
+            '--mantine-color-olive-light-color': 'var(--mantine-color-olive-7)',
+            '--mantine-color-scarlet-light-color': 'var(--mantine-color-scarlet-7)',
+        },
     }
 }

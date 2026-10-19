@@ -1,5 +1,5 @@
+import { useMantineColorScheme } from "@mantine/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLanguage } from "@/context/language";
 import { getAuthConfig, getCurrentUser, login, logout, signup } from "./api";
 
 export const authKeys = {
@@ -48,22 +48,21 @@ export function useSignup() {
 
 export function useLogout() {
   const queryClient = useQueryClient();
-  const { resetLanguage } = useLanguage();
+  const { clearColorScheme } = useMantineColorScheme();
   return useMutation({
     mutationFn: logout,
-    // Clear everything even if the request fails: a stale session can't be fixed client-side,
-    // and the next user must not inherit anything from the previous one.
+    // Clear session data even if the request fails: a stale session can't be fixed client-side,
+    // and the next user must not inherit it. Per-user settings (prefs:<id>) stay in localStorage.
     onSettled: () => {
       queryClient.clear();
-      clearBrowserStorage(); // saved language, in-progress game, …
-      resetLanguage();
+      clearSessionStorage(); // in-progress game
+      clearColorScheme(); // logged-out pages follow the system; login restores the user's theme
     },
   });
 }
 
-function clearBrowserStorage() {
+function clearSessionStorage() {
   try {
-    localStorage.clear();
     sessionStorage.clear();
   } catch {
     // Storage can be unavailable (e.g. blocked by the browser); nothing to clear then.

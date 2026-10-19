@@ -1,4 +1,4 @@
-// The selected study language. LanguageProvider (./LanguageProvider.tsx) supplies it.
+// The logged-in user's study language. LanguageProvider (./LanguageProvider.tsx), mounted by RequireAuth, supplies it.
 import { createContext, useContext } from "react";
 
 export interface LanguageOption {
@@ -9,8 +9,6 @@ export interface LanguageOption {
 export interface LanguageContextValue {
   language: string;
   setLanguage: (value: string) => void;
-  /** Back to the default, in memory only; callers clearing storage (e.g. logout) remove the saved value. */
-  resetLanguage: () => void;
   SUPPORTED_LANGUAGES: LanguageOption[];
 }
 

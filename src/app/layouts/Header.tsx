@@ -5,6 +5,7 @@ import { useLogout } from "@/features/auth";
 import { paths } from "@/shared/paths";
 import logo from "@/assets/logo.png";
 import classes from "./Header.module.css";
+import { ThemeToggle } from "./ThemeToggle";
 
 const NAV_LINKS = [
   { to: paths.search, label: "Search" },
@@ -45,6 +46,7 @@ export function Header() {
             w={140}
             aria-label="Study language"
           />
+          <ThemeToggle />
           <Button variant="subtle" color="gray" mod={{ "hover-fill": "signal" }} onClick={handleLogout}>
             Logout
           </Button>
