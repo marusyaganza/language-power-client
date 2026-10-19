@@ -1,0 +1,72 @@
+/* Shared by the pick-an-option inputs (ChoiceAnswer, GenderAnswer):
+   cards in a fieldset, each wrapping a visually hidden native radio or checkbox. */
+.group {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.card {
+  position: relative;
+  border: 1px solid var(--app-border);
+  border-radius: var(--mantine-radius-sm);
+  background-color: var(--app-surface);
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.group:not(:disabled) .card:hover {
+  border-color: var(--app-border-strong);
+}
+
+/* Selected: solid sage like the sage button (a translucent tint over navy turns gray). */
+.card:has(input:checked):not([data-result]) {
+  border-color: var(--mantine-color-olive-5);
+  background-color: var(--app-sage);
+  color: var(--mantine-color-olive-9);
+}
+
+.group:not(:disabled) .card:has(input:checked):hover {
+  border-color: var(--mantine-color-olive-5);
+  background-color: var(--app-sage-hover);
+}
+
+.card:has(input:focus-visible) {
+  outline: 2px solid var(--app-accent);
+  outline-offset: 2px;
+}
+
+.group:disabled .card {
+  cursor: default;
+}
+
+.card[data-result="correct"],
+.card[data-result="missed"] {
+  border-color: var(--mantine-color-green-6);
+  background-color: color-mix(in srgb, var(--mantine-color-green-6) 18%, transparent);
+}
+
+/* Expected but not picked. */
+.card[data-result="missed"] {
+  border-style: dashed;
+  background-color: transparent;
+}
+
+.card[data-result="wrong"] {
+  border-color: var(--mantine-color-red-6);
+  background-color: color-mix(in srgb, var(--mantine-color-red-6) 18%, transparent);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -21,6 +21,8 @@ export interface AnswerInputProps {
   onChange: (answer: string) => void;
   /** The grade once checked; the input is read-only from then on. */
   feedback: Feedback | null;
+  /** 0 for the first question, e.g. to show a how-to hint there only. */
+  questionIndex: number;
 }
 
 interface AnswerGameProps<Q extends AnswerQuestion> extends GamePlayerProps {
@@ -155,6 +157,7 @@ export function AnswerGame<Q extends AnswerQuestion>({
                 value: progress.answer,
                 onChange: (value) => dispatch({ type: "answerChanged", answer: value }),
                 feedback: progress.feedback,
+                questionIndex: index,
               },
               question,
             )}

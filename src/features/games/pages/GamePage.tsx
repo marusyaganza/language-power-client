@@ -5,6 +5,7 @@ import { useLanguage } from "@/context/language";
 import { GameMessage } from "../components/GameMessage";
 import { GameScreen } from "../components/GameScreen";
 import { DefinifyGame } from "../components/DefinifyGame";
+import { GenderGame } from "../components/GenderGame";
 import { LexiSenseGame } from "../components/LexiSenseGame";
 import { PictureWordGame } from "../components/PictureWordGame";
 import { WordEchoGame } from "../components/WordEchoGame";
@@ -24,6 +25,7 @@ const PLAYERS: Partial<Record<string, ComponentType<GamePlayerProps>>> = {
   image: PictureWordGame,
   select_def: LexiSenseGame,
   select_word: DefinifyGame,
+  gender: GenderGame,
 };
 
 export function GamePage() {

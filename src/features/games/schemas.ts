@@ -79,6 +79,13 @@ export const definifyQuestionSchema = answerQuestionSchema.extend({
 });
 export type DefinifyQuestion = z.infer<typeof definifyQuestionSchema>;
 
+/** GenderWord Challenge (`gender`): a noun, and the genders to tick (["masculine", "feminine"]). */
+export const genderQuestionSchema = answerQuestionSchema.extend({
+  question: z.string(),
+  options: z.array(z.string()),
+});
+export type GenderQuestion = z.infer<typeof genderQuestionSchema>;
+
 // GameSessionOut — the envelope the games send; the shape of `questions` is up to each game.
 export function gameSessionSchema<Q extends z.ZodType>(questionSchema: Q) {
   return z.object({

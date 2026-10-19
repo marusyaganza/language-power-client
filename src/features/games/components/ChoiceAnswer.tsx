@@ -3,6 +3,7 @@ import { Stack, Text } from "@mantine/core";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import { GRADE_LABELS } from "../lib/gradeLabels";
 import type { AnswerInputProps } from "./AnswerGame";
+import shared from "./answerOption.module.css";
 import classes from "./ChoiceAnswer.module.css";
 
 interface ChoiceAnswerProps extends AnswerInputProps {
@@ -30,19 +31,19 @@ export function ChoiceAnswer({ value, onChange, feedback, options, label }: Choi
 
   return (
     <Stack gap="sm" align="center">
-      <fieldset className={classes.group} disabled={feedback !== null}>
-        <legend className={classes.visuallyHidden}>{label}</legend>
+      <fieldset className={`${shared.group} ${classes.list}`} disabled={feedback !== null}>
+        <legend className={shared.visuallyHidden}>{label}</legend>
         {options.map((option, i) => {
           const result = resultOf(option);
           return (
-            <label key={option} className={classes.option} data-result={result}>
+            <label key={option} className={`${shared.card} ${classes.row}`} data-result={result}>
               <input
                 type="radio"
                 name={name}
                 value={option}
                 checked={value === option}
                 onChange={() => onChange(option)}
-                className={classes.visuallyHidden}
+                className={shared.visuallyHidden}
                 // Focus only, a radio isn't selected by focusing it.
                 autoFocus={value ? value === option : i === 0}
               />
@@ -51,7 +52,7 @@ export function ChoiceAnswer({ value, onChange, feedback, options, label }: Choi
               </Text>
               {result === "correct" && <IconCheck size={18} aria-hidden />}
               {result === "wrong" && <IconX size={18} aria-hidden />}
-              {result && <span className={classes.visuallyHidden}>{result === "correct" ? "Correct answer" : "Your answer"}</span>}
+              {result && <span className={shared.visuallyHidden}>{result === "correct" ? "Correct answer" : "Your answer"}</span>}
             </label>
           );
         })}
