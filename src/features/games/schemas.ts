@@ -42,28 +42,35 @@ const questionInfoSchema = z.object({
 });
 export type QuestionInfo = z.infer<typeof questionInfoSchema>;
 
-// QuestionOut, as the typed-answer games send it. `question` differs per game, so each game extends this.
-const typedAnswerQuestionSchema = z.object({
+// QuestionOut, as the one-answer-per-question games send it. The rest differs per game, so each game extends this.
+const answerQuestionSchema = z.object({
   id: z.number(),
   additional_info: questionInfoSchema,
 });
-export type TypedAnswerQuestion = z.infer<typeof typedAnswerQuestionSchema>;
+export type AnswerQuestion = z.infer<typeof answerQuestionSchema>;
 
 /** WordRecall (`type_word`): up to 3 definitions. */
-export const wordRecallQuestionSchema = typedAnswerQuestionSchema.extend({ question: z.array(z.string()) });
+export const wordRecallQuestionSchema = answerQuestionSchema.extend({ question: z.array(z.string()) });
 export type WordRecallQuestion = z.infer<typeof wordRecallQuestionSchema>;
 
 /** WordEcho (`audio`): the URL of the word's pronunciation. */
-export const wordEchoQuestionSchema = typedAnswerQuestionSchema.extend({ question: z.string() });
+export const wordEchoQuestionSchema = answerQuestionSchema.extend({ question: z.string() });
 export type WordEchoQuestion = z.infer<typeof wordEchoQuestionSchema>;
 
 /** PictureWord Blitz (`image`): the URL of a picture of the word. */
-export const pictureWordQuestionSchema = typedAnswerQuestionSchema.extend({
+export const pictureWordQuestionSchema = answerQuestionSchema.extend({
   question: z.string(),
   /** The picture's alt text: a clue like WordRecall's first definition, never the word itself. */
   alt: z.string().nullable().optional(),
 });
 export type PictureWordQuestion = z.infer<typeof pictureWordQuestionSchema>;
+
+/** LexiSense (`select_def`): the word, and 2–4 definitions to pick from (usually 4). */
+export const lexiSenseQuestionSchema = answerQuestionSchema.extend({
+  question: z.string(),
+  options: z.array(z.string()),
+});
+export type LexiSenseQuestion = z.infer<typeof lexiSenseQuestionSchema>;
 
 // GameSessionOut — the envelope the games send; the shape of `questions` is up to each game.
 export function gameSessionSchema<Q extends z.ZodType>(questionSchema: Q) {

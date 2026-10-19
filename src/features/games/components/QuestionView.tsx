@@ -1,22 +1,23 @@
 import type { FormEvent, ReactNode } from "react";
-import { ActionIcon, Alert, Button, Group, Image, Stack, Text, TextInput } from "@mantine/core";
+import { ActionIcon, Alert, Box, Button, Group, Image, Stack, Text } from "@mantine/core";
 import { IconPlayerPlay } from "@tabler/icons-react";
 import type { GameProgress } from "../lib/gameReducer";
 import type { QuestionInfo } from "../schemas";
 import classes from "./QuestionView.module.css";
 
-const GRADE_LABELS = { correct: "Correct", close: "Almost", wrong: "Not quite" } as const;
-
 interface QuestionViewProps {
   task: string;
   /** What the player answers: the definitions, a sound to play, … */
   prompt: ReactNode;
+  /** Where the player answers: a text input, options to pick from, … */
+  answerInput: ReactNode;
+  /** Show the expected answer above the task after a wrong answer. Off for inputs that mark it themselves. */
+  showCorrectAnswer?: boolean;
   /** Shown with the feedback once the answer has been graded. */
   info: QuestionInfo;
   /** Game-specific details shown with the feedback, above the examples. */
   feedbackDetails?: ReactNode;
   progress: GameProgress;
-  onAnswerChange: (answer: string) => void;
   onCheck: () => void;
   onContinue: () => void;
   isChecking: boolean;
@@ -26,10 +27,11 @@ interface QuestionViewProps {
 export function QuestionView({
   task,
   prompt,
+  answerInput,
+  showCorrectAnswer = true,
   info,
   feedbackDetails,
   progress,
-  onAnswerChange,
   onCheck,
   onContinue,
   isChecking,
@@ -51,7 +53,7 @@ export function QuestionView({
   return (
     <form onSubmit={handleSubmit} style={{ width: "100%" }}>
       <Stack align="center" gap="md">
-        {feedback && feedback.grade !== "correct" && feedback.correctAnswer && (
+        {showCorrectAnswer && feedback && feedback.grade !== "correct" && feedback.correctAnswer && (
           <span className={classes.correctAnswer}>{feedback.correctAnswer}</span>
         )}
 
@@ -66,21 +68,10 @@ export function QuestionView({
 
         {prompt}
 
-        <TextInput
-          key={progress.index} // fresh input (and autofocus) for every question
-          value={answer}
-          onChange={(e) => onAnswerChange(e.currentTarget.value)}
-          disabled={feedback !== null}
-          data-grade={feedback?.grade}
-          classNames={{ input: classes.answer }}
-          aria-label="Your answer"
-          description={feedback ? GRADE_LABELS[feedback.grade] : undefined}
-          inputWrapperOrder={["label", "input", "description", "error"]}
-          size="md"
-          autoFocus
-          autoComplete="off"
-          w="100%"
-        />
+        <Box key={progress.index} w="100%">
+          {/* keyed: a fresh input (and autofocus) for every question */}
+          {answerInput}
+        </Box>
 
         {checkError && (
           <Alert color="rose" variant="light" w="100%">

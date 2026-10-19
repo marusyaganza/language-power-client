@@ -8,31 +8,49 @@ import type { GamePlayerProps } from "../lib/gamePlayer";
 import { gameProgressSchema, gameReducer, initialProgress, isLastQuestion } from "../lib/gameReducer";
 import { clearStoredGame, loadStoredGame, saveStoredGame } from "../lib/gameStorage";
 import { useFinishGame, useStartGame, useSubmitAnswer } from "../queries";
-import type { GameSession, TypedAnswerQuestion } from "../schemas";
+import type { Feedback } from "../lib/gameReducer";
+import type { AnswerQuestion, GameSession } from "../schemas";
 import { GameMessage } from "./GameMessage";
 import { GameScreen } from "./GameScreen";
 import { QuestionView } from "./QuestionView";
 import { ResultScreen } from "./ResultScreen";
 
-interface TypedAnswerGameProps<Q extends TypedAnswerQuestion> extends GamePlayerProps {
+/** What an answer input (text field, options, …) gets from the game. */
+export interface AnswerInputProps {
+  value: string;
+  onChange: (answer: string) => void;
+  /** The grade once checked; the input is read-only from then on. */
+  feedback: Feedback | null;
+}
+
+interface AnswerGameProps<Q extends AnswerQuestion> extends GamePlayerProps {
   /** This game's session format. Keep it stable (define it at module level). */
   sessionSchema: z.ZodType<GameSession<Q>>;
   /** What the player answers, shown above the input. */
   renderPrompt: (question: Q) => ReactNode;
+  /** Where the player answers. The answer is sent exactly as the input reports it. */
+  renderAnswer: (input: AnswerInputProps, question: Q) => ReactNode;
+  /** False when the answer input marks the correct answer itself. */
+  showCorrectAnswer?: boolean;
   /** Extra details shown with the feedback once the question is answered. */
   renderFeedback?: (question: Q) => ReactNode;
 }
 
-/** Plays a game where the player types the word for each question; such games differ only in the prompt. */
-export function TypedAnswerGame<Q extends TypedAnswerQuestion>({
+/**
+ * Plays a game with one graded answer per question. Such games differ only in the prompt,
+ * the answer input and the feedback details; the session flow is the same.
+ */
+export function AnswerGame<Q extends AnswerQuestion>({
   gameId,
   language,
   options,
   onLeave,
   sessionSchema,
   renderPrompt,
+  renderAnswer,
+  showCorrectAnswer,
   renderFeedback,
-}: TypedAnswerGameProps<Q>) {
+}: AnswerGameProps<Q>) {
   // Reload resumes the stored copy; arriving from the games list (which clears it) starts fresh.
   const [stored] = useState(() =>
     loadStoredGame(gameId, z.object({ session: sessionSchema, progress: gameProgressSchema })),
@@ -103,7 +121,7 @@ export function TypedAnswerGame<Q extends TypedAnswerQuestion>({
   function handleCheck() {
     if (!session) return;
     answer.mutate(
-      { session_id: session.session_id, word_id: question.id, answer: progress.answer.trim() },
+      { session_id: session.session_id, word_id: question.id, answer: progress.answer },
       {
         onSuccess: (response) => {
           dispatch({ type: "graded", response });
@@ -132,10 +150,18 @@ export function TypedAnswerGame<Q extends TypedAnswerQuestion>({
           <QuestionView
             task={session.task}
             prompt={renderPrompt(question)}
+            answerInput={renderAnswer(
+              {
+                value: progress.answer,
+                onChange: (value) => dispatch({ type: "answerChanged", answer: value }),
+                feedback: progress.feedback,
+              },
+              question,
+            )}
+            showCorrectAnswer={showCorrectAnswer}
             info={question.additional_info}
             feedbackDetails={renderFeedback?.(question)}
             progress={progress}
-            onAnswerChange={(value) => dispatch({ type: "answerChanged", answer: value })}
             onCheck={handleCheck}
             onContinue={handleContinue}
             isChecking={answer.isPending}

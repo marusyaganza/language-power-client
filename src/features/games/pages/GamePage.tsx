@@ -4,6 +4,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/context/language";
 import { GameMessage } from "../components/GameMessage";
 import { GameScreen } from "../components/GameScreen";
+import { LexiSenseGame } from "../components/LexiSenseGame";
 import { PictureWordGame } from "../components/PictureWordGame";
 import { WordEchoGame } from "../components/WordEchoGame";
 import { WordRecallGame } from "../components/WordRecallGame";
@@ -20,6 +21,7 @@ const PLAYERS: Partial<Record<string, ComponentType<GamePlayerProps>>> = {
   type_word: WordRecallGame,
   audio: WordEchoGame,
   image: PictureWordGame,
+  select_def: LexiSenseGame,
 };
 
 export function GamePage() {
