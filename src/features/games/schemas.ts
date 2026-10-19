@@ -57,6 +57,14 @@ export type WordRecallQuestion = z.infer<typeof wordRecallQuestionSchema>;
 export const wordEchoQuestionSchema = typedAnswerQuestionSchema.extend({ question: z.string() });
 export type WordEchoQuestion = z.infer<typeof wordEchoQuestionSchema>;
 
+/** PictureWord Blitz (`image`): the URL of a picture of the word. */
+export const pictureWordQuestionSchema = typedAnswerQuestionSchema.extend({
+  question: z.string(),
+  /** The picture's alt text: a clue like WordRecall's first definition, never the word itself. */
+  alt: z.string().nullable().optional(),
+});
+export type PictureWordQuestion = z.infer<typeof pictureWordQuestionSchema>;
+
 // GameSessionOut — the envelope the games send; the shape of `questions` is up to each game.
 export function gameSessionSchema<Q extends z.ZodType>(questionSchema: Q) {
   return z.object({
