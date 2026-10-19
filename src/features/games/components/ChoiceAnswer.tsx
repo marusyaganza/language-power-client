@@ -7,7 +7,7 @@ import classes from "./ChoiceAnswer.module.css";
 
 interface ChoiceAnswerProps extends AnswerInputProps {
   options: string[];
-  /** Names the group for screen readers, e.g. "Definitions of wheel". */
+  /** Names the group for screen readers, e.g. "Definitions of wheel" or "Words". */
   label: string;
 }
 

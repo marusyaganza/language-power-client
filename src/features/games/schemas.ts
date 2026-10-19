@@ -72,6 +72,13 @@ export const lexiSenseQuestionSchema = answerQuestionSchema.extend({
 });
 export type LexiSenseQuestion = z.infer<typeof lexiSenseQuestionSchema>;
 
+/** Definify (`select_word`): up to 3 definitions, and 2–4 words to pick from (usually 4). */
+export const definifyQuestionSchema = answerQuestionSchema.extend({
+  question: z.array(z.string()),
+  options: z.array(z.string()),
+});
+export type DefinifyQuestion = z.infer<typeof definifyQuestionSchema>;
+
 // GameSessionOut — the envelope the games send; the shape of `questions` is up to each game.
 export function gameSessionSchema<Q extends z.ZodType>(questionSchema: Q) {
   return z.object({
