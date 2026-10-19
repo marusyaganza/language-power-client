@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { clearStoredGame, clearStoredGames, loadStoredGame, saveStoredGame, type StoredGame } from "./gameStorage";
+import { z } from "zod";
+import { clearStoredGame, clearStoredGames, loadStoredGame, saveStoredGame } from "./gameStorage";
 
 // Minimal in-memory sessionStorage for the node test environment.
 function createStorage(): Storage {
@@ -24,14 +25,19 @@ function createStorage(): Storage {
   }) as unknown as Storage;
 }
 
-const game: StoredGame = {
-  session: {
-    task: "Type a word that means",
-    session_id: "s-1",
-    questions: [{ id: 4, question: ["to have"], additional_info: {} }],
-  },
-  progress: { index: 0, answer: "ten", feedback: null },
+// Each game passes the schema of what it stores.
+const storedGameSchema = z.object({
+  session: z.object({ session_id: z.string(), questions: z.array(z.object({ id: z.number() })) }),
+  progress: z.object({ index: z.number() }),
+});
+const game: z.infer<typeof storedGameSchema> = {
+  session: { session_id: "s-1", questions: [{ id: 4 }] },
+  progress: { index: 0 },
 };
+
+function load(gameId: number) {
+  return loadStoredGame(gameId, storedGameSchema);
+}
 
 beforeEach(() => {
   vi.stubGlobal("sessionStorage", createStorage());
@@ -44,15 +50,15 @@ afterEach(() => {
 describe("game storage", () => {
   it("round-trips a game by id", () => {
     saveStoredGame(4, game);
-    expect(loadStoredGame(4)).toEqual(game);
-    expect(loadStoredGame(5)).toBeNull();
+    expect(load(4)).toEqual(game);
+    expect(load(5)).toBeNull();
   });
 
   it("ignores unreadable or outdated data", () => {
     sessionStorage.setItem("game:4", "{not json");
-    expect(loadStoredGame(4)).toBeNull();
+    expect(load(4)).toBeNull();
     sessionStorage.setItem("game:4", JSON.stringify({ sessionId: "old-format", currentIndex: 2 }));
-    expect(loadStoredGame(4)).toBeNull();
+    expect(load(4)).toBeNull();
   });
 
   it("clears one game or all of them, leaving other keys alone", () => {
@@ -61,11 +67,11 @@ describe("game storage", () => {
     sessionStorage.setItem("other", "keep");
 
     clearStoredGame(4);
-    expect(loadStoredGame(4)).toBeNull();
-    expect(loadStoredGame(6)).toEqual(game);
+    expect(load(4)).toBeNull();
+    expect(load(6)).toEqual(game);
 
     clearStoredGames();
-    expect(loadStoredGame(6)).toBeNull();
+    expect(load(6)).toBeNull();
     expect(sessionStorage.getItem("other")).toBe("keep");
   });
 });

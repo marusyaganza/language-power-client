@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Question } from "../schemas";
-import { gameReducer, initialProgress, isLastQuestion, questionLines, type GameProgress } from "./gameReducer";
+import { gameReducer, initialProgress, isLastQuestion, type GameProgress } from "./gameReducer";
 
 const graded: GameProgress = {
   index: 1,
@@ -53,17 +52,5 @@ describe("isLastQuestion", () => {
 
   it("trusts the backend's session_complete", () => {
     expect(isLastQuestion({ ...graded, feedback: { ...graded.feedback!, sessionComplete: true } }, 10)).toBe(true);
-  });
-});
-
-describe("questionLines", () => {
-  const base: Question = { id: 1, question: "", additional_info: {} };
-
-  it("passes a list of definitions through", () => {
-    expect(questionLines({ ...base, question: ["to have", "to hold"] })).toEqual(["to have", "to hold"]);
-  });
-
-  it("wraps a single prompt", () => {
-    expect(questionLines({ ...base, question: "la ballena" })).toEqual(["la ballena"]);
   });
 });

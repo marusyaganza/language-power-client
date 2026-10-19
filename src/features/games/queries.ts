@@ -1,3 +1,4 @@
+import type { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { GameOptions } from "./lib/gameOptions";
 import { finishGame, getGames, startGame, submitAnswer } from "./api";
@@ -24,11 +25,18 @@ export function useGames(language: string) {
  * from the cache as soon as the page unmounts so the next visit starts a fresh session.
  * The request is deliberately not abortable: if it were, React's dev double-mount would cancel
  * it on the brief unmount and send a second one, creating two sessions.
+ * `schema` is the session format of this game's type.
  */
-export function useStartGame(gameId: number, language: string, options: GameOptions, enabled: boolean) {
+export function useStartGame<T>(
+  gameId: number,
+  language: string,
+  options: GameOptions,
+  schema: z.ZodType<T>,
+  enabled: boolean,
+) {
   return useQuery({
     queryKey: gameKeys.session(gameId, language, options),
-    queryFn: () => startGame(gameId, language, options),
+    queryFn: () => startGame(gameId, language, options, schema),
     enabled,
     staleTime: Infinity,
     gcTime: 0,

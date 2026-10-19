@@ -40,23 +40,36 @@ const questionInfoSchema = z.object({
   examples: z.array(exampleSchema).nullable().optional(),
   def: z.string().nullable().optional(),
 });
+export type QuestionInfo = z.infer<typeof questionInfoSchema>;
 
-// QuestionOut — `question` is a list of definitions or a single prompt depending on the game type.
-export const questionSchema = z.object({
+// QuestionOut, as the typed-answer games send it. `question` differs per game, so each game extends this.
+const typedAnswerQuestionSchema = z.object({
   id: z.number(),
-  question: z.union([z.array(z.string()), z.string()]),
-  options: z.array(z.string()).nullable().optional(),
   additional_info: questionInfoSchema,
 });
-export type Question = z.infer<typeof questionSchema>;
+export type TypedAnswerQuestion = z.infer<typeof typedAnswerQuestionSchema>;
 
-// GameSessionOut
-export const gameSessionSchema = z.object({
-  task: z.string(),
-  session_id: z.string(),
-  questions: z.array(questionSchema),
-});
-export type GameSession = z.infer<typeof gameSessionSchema>;
+/** WordRecall (`type_word`): up to 3 definitions. */
+export const wordRecallQuestionSchema = typedAnswerQuestionSchema.extend({ question: z.array(z.string()) });
+export type WordRecallQuestion = z.infer<typeof wordRecallQuestionSchema>;
+
+/** WordEcho (`audio`): the URL of the word's pronunciation. */
+export const wordEchoQuestionSchema = typedAnswerQuestionSchema.extend({ question: z.string() });
+export type WordEchoQuestion = z.infer<typeof wordEchoQuestionSchema>;
+
+// GameSessionOut — the envelope the games send; the shape of `questions` is up to each game.
+export function gameSessionSchema<Q extends z.ZodType>(questionSchema: Q) {
+  return z.object({
+    task: z.string(),
+    session_id: z.string(),
+    questions: z.array(questionSchema),
+  });
+}
+export interface GameSession<Q> {
+  task: string;
+  session_id: string;
+  questions: Q[];
+}
 
 // AnswerRequest
 export interface AnswerRequest {

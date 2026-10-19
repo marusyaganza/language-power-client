@@ -1,30 +1,23 @@
 // A copy of the running game in sessionStorage so a reload resumes it. Keyed by game id only:
 // the games list clears it when it opens, so a card click always starts a fresh session.
-import { z } from "zod";
-import { gameSessionSchema } from "../schemas";
-import { gameProgressSchema } from "./gameReducer";
+// What is stored is up to each game's player, which passes the schema to read it back with.
+import type { z } from "zod";
 
 const PREFIX = "game:";
 
-const storedGameSchema = z.object({
-  session: gameSessionSchema,
-  progress: gameProgressSchema,
-});
-export type StoredGame = z.infer<typeof storedGameSchema>;
-
 /** The stored game, or null if there is none or it's unreadable (e.g. written by an older version). */
-export function loadStoredGame(gameId: number): StoredGame | null {
+export function loadStoredGame<T>(gameId: number, schema: z.ZodType<T>): T | null {
   try {
     const raw = sessionStorage.getItem(PREFIX + gameId);
     if (!raw) return null;
-    const parsed = storedGameSchema.safeParse(JSON.parse(raw));
+    const parsed = schema.safeParse(JSON.parse(raw));
     return parsed.success ? parsed.data : null;
   } catch {
     return null;
   }
 }
 
-export function saveStoredGame(gameId: number, game: StoredGame): void {
+export function saveStoredGame(gameId: number, game: unknown): void {
   try {
     sessionStorage.setItem(PREFIX + gameId, JSON.stringify(game));
   } catch {

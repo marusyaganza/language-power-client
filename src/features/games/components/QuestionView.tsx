@@ -1,15 +1,20 @@
-import type { FormEvent } from "react";
+import type { FormEvent, ReactNode } from "react";
 import { ActionIcon, Alert, Button, Group, Image, Stack, Text, TextInput } from "@mantine/core";
 import { IconPlayerPlay } from "@tabler/icons-react";
-import { questionLines, type GameProgress } from "../lib/gameReducer";
-import type { Question } from "../schemas";
+import type { GameProgress } from "../lib/gameReducer";
+import type { QuestionInfo } from "../schemas";
 import classes from "./QuestionView.module.css";
 
 const GRADE_LABELS = { correct: "Correct", close: "Almost", wrong: "Not quite" } as const;
 
 interface QuestionViewProps {
   task: string;
-  question: Question;
+  /** What the player answers: the definitions, a sound to play, … */
+  prompt: ReactNode;
+  /** Shown with the feedback once the answer has been graded. */
+  info: QuestionInfo;
+  /** Game-specific details shown with the feedback, above the examples. */
+  feedbackDetails?: ReactNode;
   progress: GameProgress;
   onAnswerChange: (answer: string) => void;
   onCheck: () => void;
@@ -20,7 +25,9 @@ interface QuestionViewProps {
 
 export function QuestionView({
   task,
-  question,
+  prompt,
+  info,
+  feedbackDetails,
   progress,
   onAnswerChange,
   onCheck,
@@ -29,7 +36,6 @@ export function QuestionView({
   checkError,
 }: QuestionViewProps) {
   const { answer, feedback } = progress;
-  const info = question.additional_info;
   const examples = info.examples ?? [];
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -58,13 +64,7 @@ export function QuestionView({
           )}
         </Group>
 
-        <Stack gap={4} align="center">
-          {questionLines(question).map((line, i) => (
-            <Text key={i} ta="center">
-              🌟 {line}
-            </Text>
-          ))}
-        </Stack>
+        {prompt}
 
         <TextInput
           key={progress.index} // fresh input (and autofocus) for every question
@@ -97,6 +97,8 @@ export function QuestionView({
             Continue
           </Button>
         )}
+
+        {feedback && feedbackDetails}
 
         {feedback && examples.length > 0 && (
           <Stack gap={4} mt="md" style={{ alignSelf: "flex-start" }}>

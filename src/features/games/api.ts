@@ -1,9 +1,9 @@
+import type { z } from "zod";
 import { apiFetch } from "@/api/http";
 import type { GameOptions } from "./lib/gameOptions";
 import {
   answerResponseSchema,
   gameResultSchema,
-  gameSessionSchema,
   gamesSchema,
   type AnswerRequest,
 } from "./schemas";
@@ -12,11 +12,11 @@ export function getGames(language: string, signal?: AbortSignal) {
   return apiFetch("/games", { query: { language }, schema: gamesSchema, signal });
 }
 
-/** Starts a new session on the backend; every call creates one. */
-export function startGame(gameId: number, language: string, options: GameOptions) {
+/** Starts a new session on the backend; every call creates one. Its format depends on the game, hence `schema`. */
+export function startGame<T>(gameId: number, language: string, options: GameOptions, schema: z.ZodType<T>) {
   return apiFetch(`/games/${gameId}`, {
     query: { language, mode: options.mode, new_words_first: options.newWordsFirst },
-    schema: gameSessionSchema,
+    schema,
   });
 }
 

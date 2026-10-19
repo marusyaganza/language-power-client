@@ -1,6 +1,6 @@
-// Progress through a game session: the typed answer, the grade once checked, and which question is shown.
+// Progress through a typed-answer game session: the typed answer, the grade once checked, and which question is shown.
 import { z } from "zod";
-import { answerGradeSchema, type AnswerResponse, type Question } from "../schemas";
+import { answerGradeSchema, type AnswerResponse } from "../schemas";
 
 export const feedbackSchema = z.object({
   grade: answerGradeSchema,
@@ -48,7 +48,3 @@ export function isLastQuestion(progress: GameProgress, questionCount: number): b
   return progress.feedback?.sessionComplete === true || progress.index + 1 >= questionCount;
 }
 
-/** A question's prompt lines; some game types send a list of definitions, others a single string. */
-export function questionLines(question: Question): string[] {
-  return Array.isArray(question.question) ? question.question : [question.question];
-}
