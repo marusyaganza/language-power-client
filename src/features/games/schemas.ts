@@ -49,42 +49,42 @@ const answerQuestionSchema = z.object({
 });
 export type AnswerQuestion = z.infer<typeof answerQuestionSchema>;
 
-/** WordRecall (`type_word`): up to 3 definitions. */
-export const wordRecallQuestionSchema = answerQuestionSchema.extend({ question: z.array(z.string()) });
-export type WordRecallQuestion = z.infer<typeof wordRecallQuestionSchema>;
+/** Type the Word (`type_word`): up to 3 definitions. */
+export const typeTheWordQuestionSchema = answerQuestionSchema.extend({ question: z.array(z.string()) });
+export type TypeTheWordQuestion = z.infer<typeof typeTheWordQuestionSchema>;
 
-/** WordEcho (`audio`): the URL of the word's pronunciation. */
-export const wordEchoQuestionSchema = answerQuestionSchema.extend({ question: z.string() });
-export type WordEchoQuestion = z.infer<typeof wordEchoQuestionSchema>;
+/** Listen & Type (`audio`): the URL of the word's pronunciation. */
+export const listenAndTypeQuestionSchema = answerQuestionSchema.extend({ question: z.string() });
+export type ListenAndTypeQuestion = z.infer<typeof listenAndTypeQuestionSchema>;
 
-/** PictureWord Blitz (`image`): the URL of a picture of the word. */
-export const pictureWordQuestionSchema = answerQuestionSchema.extend({
+/** Name the Picture (`image`): the URL of a picture of the word. */
+export const nameThePictureQuestionSchema = answerQuestionSchema.extend({
   question: z.string(),
-  /** The picture's alt text: a clue like WordRecall's first definition, never the word itself. */
+  /** The picture's alt text: a clue like Type the Word's first definition, never the word itself. */
   alt: z.string().nullable().optional(),
 });
-export type PictureWordQuestion = z.infer<typeof pictureWordQuestionSchema>;
+export type NameThePictureQuestion = z.infer<typeof nameThePictureQuestionSchema>;
 
-/** LexiSense (`select_def`): the word, and 2–4 definitions to pick from (usually 4). */
-export const lexiSenseQuestionSchema = answerQuestionSchema.extend({
+/** Pick the Meaning (`select_def`): the word, and 2–4 definitions to pick from (usually 4). */
+export const pickTheMeaningQuestionSchema = answerQuestionSchema.extend({
   question: z.string(),
   options: z.array(z.string()),
 });
-export type LexiSenseQuestion = z.infer<typeof lexiSenseQuestionSchema>;
+export type PickTheMeaningQuestion = z.infer<typeof pickTheMeaningQuestionSchema>;
 
-/** Definify (`select_word`): up to 3 definitions, and 2–4 words to pick from (usually 4). */
-export const definifyQuestionSchema = answerQuestionSchema.extend({
+/** Pick the Word (`select_word`): up to 3 definitions, and 2–4 words to pick from (usually 4). */
+export const pickTheWordQuestionSchema = answerQuestionSchema.extend({
   question: z.array(z.string()),
   options: z.array(z.string()),
 });
-export type DefinifyQuestion = z.infer<typeof definifyQuestionSchema>;
+export type PickTheWordQuestion = z.infer<typeof pickTheWordQuestionSchema>;
 
-/** GenderWord Challenge (`gender`): a noun, and the genders to tick (["masculine", "feminine"]). */
-export const genderQuestionSchema = answerQuestionSchema.extend({
+/** Noun Gender (`gender`): a noun, and the genders to tick (["masculine", "feminine"]). */
+export const nounGenderQuestionSchema = answerQuestionSchema.extend({
   question: z.string(),
   options: z.array(z.string()),
 });
-export type GenderQuestion = z.infer<typeof genderQuestionSchema>;
+export type NounGenderQuestion = z.infer<typeof nounGenderQuestionSchema>;
 
 // GameSessionOut — the envelope the games send; the shape of `questions` is up to each game.
 export function gameSessionSchema<Q extends z.ZodType>(questionSchema: Q) {

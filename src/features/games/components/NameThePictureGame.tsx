@@ -1,14 +1,14 @@
 import type { GamePlayerProps } from "../lib/gamePlayer";
-import { gameSessionSchema, pictureWordQuestionSchema } from "../schemas";
+import { gameSessionSchema, nameThePictureQuestionSchema } from "../schemas";
 import { AnswerGame } from "./AnswerGame";
 import { DefinitionNote } from "./DefinitionNote";
 import { ImagePrompt } from "./ImagePrompt";
 import { TextAnswer } from "./TextAnswer";
 
-const sessionSchema = gameSessionSchema(pictureWordQuestionSchema);
+const sessionSchema = gameSessionSchema(nameThePictureQuestionSchema);
 
-/** PictureWord Blitz (`image`): look at the picture, type the word. */
-export function PictureWordGame(props: GamePlayerProps) {
+/** Name the Picture (`image`): look at the picture, type the word. */
+export function NameThePictureGame(props: GamePlayerProps) {
   return (
     <AnswerGame
       {...props}

@@ -1,13 +1,13 @@
 import type { GamePlayerProps } from "../lib/gamePlayer";
-import { definifyQuestionSchema, gameSessionSchema } from "../schemas";
+import { gameSessionSchema, pickTheWordQuestionSchema } from "../schemas";
 import { AnswerGame } from "./AnswerGame";
 import { ChoiceAnswer } from "./ChoiceAnswer";
 import { DefinitionsPrompt } from "./DefinitionsPrompt";
 
-const sessionSchema = gameSessionSchema(definifyQuestionSchema);
+const sessionSchema = gameSessionSchema(pickTheWordQuestionSchema);
 
-/** Definify (`select_word`): read the definitions, pick the word. */
-export function DefinifyGame(props: GamePlayerProps) {
+/** Pick the Word (`select_word`): read the definitions, pick the word. */
+export function PickTheWordGame(props: GamePlayerProps) {
   return (
     <AnswerGame
       {...props}

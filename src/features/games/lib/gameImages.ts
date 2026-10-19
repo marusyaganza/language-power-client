@@ -1,18 +1,19 @@
-import wordEcho from "@/assets/games/word-echo.webp";
-import lexiSense from "@/assets/games/lexi-sense.webp";
-import definify from "@/assets/games/definify.webp";
-import wordRecall from "@/assets/games/word-recall.webp";
-import pictureWordBlitz from "@/assets/games/picture-word-blitz.webp";
-import genderWordChallenge from "@/assets/games/gender-word-challenge.webp";
+import pickTheMeaning from "@/assets/games/pick-the-meaning.webp";
+import pickTheWord from "@/assets/games/pick-the-word.webp";
+import typeTheWord from "@/assets/games/type-the-word.webp";
+import listenAndType from "@/assets/games/listen-and-type.webp";
+import nameThePicture from "@/assets/games/name-the-picture.webp";
+import nounGender from "@/assets/games/noun-gender.webp";
 import fallback from "@/assets/games/fallback.webp";
 
+// Keyed by the game's slug.
 const GAME_IMAGES: Record<string, string> = {
-  "word-echo": wordEcho,
-  "lexi-sense": lexiSense,
-  definify,
-  "word-recall": wordRecall,
-  "picture-word-blitz": pictureWordBlitz,
-  "gender-word-challenge": genderWordChallenge,
+  "pick-the-meaning": pickTheMeaning,
+  "pick-the-word": pickTheWord,
+  "type-the-word": typeTheWord,
+  "listen-and-type": listenAndType,
+  "name-the-picture": nameThePicture,
+  "noun-gender": nounGender,
 };
 
 export function getGameImage(slug: string): string {

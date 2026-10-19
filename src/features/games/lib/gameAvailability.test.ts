@@ -4,8 +4,8 @@ import { formatTimeUntil, getGameAvailability, lockedMessage, nextUnlockTime } f
 
 const game = (counts: Partial<Game>): Game => ({
   id: 2,
-  slug: "lexi-sense",
-  title: "LexiSense",
+  slug: "pick-the-meaning",
+  title: "PickTheMeaning",
   description: "",
   game_type: "select_def",
   total_word_count: 10,

@@ -4,12 +4,12 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/context/language";
 import { GameMessage } from "../components/GameMessage";
 import { GameScreen } from "../components/GameScreen";
-import { DefinifyGame } from "../components/DefinifyGame";
-import { GenderGame } from "../components/GenderGame";
-import { LexiSenseGame } from "../components/LexiSenseGame";
-import { PictureWordGame } from "../components/PictureWordGame";
-import { WordEchoGame } from "../components/WordEchoGame";
-import { WordRecallGame } from "../components/WordRecallGame";
+import { ListenAndTypeGame } from "../components/ListenAndTypeGame";
+import { NameThePictureGame } from "../components/NameThePictureGame";
+import { NounGenderGame } from "../components/NounGenderGame";
+import { PickTheMeaningGame } from "../components/PickTheMeaningGame";
+import { PickTheWordGame } from "../components/PickTheWordGame";
+import { TypeTheWordGame } from "../components/TypeTheWordGame";
 import { gamesListPath, parseGameOptions } from "../lib/gameOptions";
 import type { GamePlayerProps } from "../lib/gamePlayer";
 import { clearStoredGame } from "../lib/gameStorage";
@@ -20,12 +20,12 @@ import { useGames } from "../queries";
  * so adding a game type is a new entry here and leaves the other games untouched.
  */
 const PLAYERS: Partial<Record<string, ComponentType<GamePlayerProps>>> = {
-  type_word: WordRecallGame,
-  audio: WordEchoGame,
-  image: PictureWordGame,
-  select_def: LexiSenseGame,
-  select_word: DefinifyGame,
-  gender: GenderGame,
+  type_word: TypeTheWordGame,
+  audio: ListenAndTypeGame,
+  image: NameThePictureGame,
+  select_def: PickTheMeaningGame,
+  select_word: PickTheWordGame,
+  gender: NounGenderGame,
 };
 
 export function GamePage() {

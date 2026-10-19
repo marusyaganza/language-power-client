@@ -1,13 +1,13 @@
 import type { GamePlayerProps } from "../lib/gamePlayer";
-import { gameSessionSchema, genderQuestionSchema } from "../schemas";
+import { gameSessionSchema, nounGenderQuestionSchema } from "../schemas";
 import { AnswerGame } from "./AnswerGame";
 import { GenderAnswer } from "./GenderAnswer";
 import { WordPrompt } from "./WordPrompt";
 
-const sessionSchema = gameSessionSchema(genderQuestionSchema);
+const sessionSchema = gameSessionSchema(nounGenderQuestionSchema);
 
-/** GenderWord Challenge (`gender`): see the noun, tick its gender (or both). */
-export function GenderGame(props: GamePlayerProps) {
+/** Noun Gender (`gender`): see the noun, tick its gender (or both). */
+export function NounGenderGame(props: GamePlayerProps) {
   return (
     <AnswerGame
       {...props}

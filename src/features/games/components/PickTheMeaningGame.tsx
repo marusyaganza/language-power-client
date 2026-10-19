@@ -1,13 +1,13 @@
 import type { GamePlayerProps } from "../lib/gamePlayer";
-import { gameSessionSchema, lexiSenseQuestionSchema } from "../schemas";
+import { gameSessionSchema, pickTheMeaningQuestionSchema } from "../schemas";
 import { AnswerGame } from "./AnswerGame";
 import { ChoiceAnswer } from "./ChoiceAnswer";
 import { WordPrompt } from "./WordPrompt";
 
-const sessionSchema = gameSessionSchema(lexiSenseQuestionSchema);
+const sessionSchema = gameSessionSchema(pickTheMeaningQuestionSchema);
 
-/** LexiSense (`select_def`): see the word, pick its definition. */
-export function LexiSenseGame(props: GamePlayerProps) {
+/** Pick the Meaning (`select_def`): see the word, pick its definition. */
+export function PickTheMeaningGame(props: GamePlayerProps) {
   return (
     <AnswerGame
       {...props}

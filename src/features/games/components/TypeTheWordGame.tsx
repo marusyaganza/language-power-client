@@ -1,13 +1,13 @@
 import type { GamePlayerProps } from "../lib/gamePlayer";
-import { gameSessionSchema, wordRecallQuestionSchema } from "../schemas";
+import { gameSessionSchema, typeTheWordQuestionSchema } from "../schemas";
 import { AnswerGame } from "./AnswerGame";
 import { DefinitionsPrompt } from "./DefinitionsPrompt";
 import { TextAnswer } from "./TextAnswer";
 
-const sessionSchema = gameSessionSchema(wordRecallQuestionSchema);
+const sessionSchema = gameSessionSchema(typeTheWordQuestionSchema);
 
-/** WordRecall (`type_word`): read the definitions, type the word. */
-export function WordRecallGame(props: GamePlayerProps) {
+/** Type the Word (`type_word`): read the definitions, type the word. */
+export function TypeTheWordGame(props: GamePlayerProps) {
   return (
     <AnswerGame
       {...props}
