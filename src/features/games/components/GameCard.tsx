@@ -16,11 +16,12 @@ interface GameCardProps {
 
 export function GameCard({ game, options, now }: GameCardProps) {
   const availability = getGameAvailability(game, options.mode);
+  const image = getGameImage(game.slug);
 
   // An array, not a fragment: Card only bleeds the image to the edges when Card.Section is a direct child.
   const content = [
-    <Card.Section key="image">
-      <Image src={getGameImage(game.slug)} height={160} alt="" />
+    <Card.Section key="image" className={classes.media} style={{ "--game-image": `url(${image})` }}>
+      <Image src={image} h="100%" fit="contain" alt="" className={classes.image} />
     </Card.Section>,
     <Stack key="body" gap="xs" mt="md">
       <Text size="lg" className={classes.title}>

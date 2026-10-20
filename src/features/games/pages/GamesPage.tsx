@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import {
-  ActionIcon,
+  Button,
   Container,
   Group,
   SegmentedControl,
@@ -9,7 +9,6 @@ import {
   Stack,
   Switch,
   Text,
-  Tooltip,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconSettings } from "@tabler/icons-react";
@@ -72,13 +71,6 @@ export function GamesPage() {
         <PageHeader
           title="Your words are ready. Are you?"
           description="Pick a game below and start practicing."
-          actions={
-            <Tooltip label="Spaced repetition settings">
-              <ActionIcon variant="subtle" size="lg" onClick={settingsModal.open} aria-label="Spaced repetition settings">
-                <IconSettings size={22} />
-              </ActionIcon>
-            </Tooltip>
-          }
         />
 
         <Stack gap={6}>
@@ -88,12 +80,25 @@ export function GamesPage() {
               value={options.mode}
               onChange={(value) => changeOptions({ mode: value as GameMode })}
               aria-label="Game mode"
+              mod="accent"
             />
             <Switch
               label="New words first"
               checked={options.newWordsFirst}
               onChange={(e) => changeOptions({ newWordsFirst: e.currentTarget.checked })}
             />
+            {/* The schedule only applies to spaced repetition; review ignores it. */}
+            {options.mode === "spaced" && (
+              <Button
+                variant="subtle"
+                color="gray"
+                size="compact-sm"
+                leftSection={<IconSettings size={16} />}
+                onClick={settingsModal.open}
+              >
+                Schedule settings
+              </Button>
+            )}
           </Group>
           <Text size="sm" c="dimmed">
             {MODE_DESCRIPTIONS[options.mode]}

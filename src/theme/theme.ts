@@ -2,7 +2,7 @@
 // Dark-first theme; the light scheme keeps the same hues and overrides tokens in cssVariablesResolver.
 import {
     createTheme, Button, Card, Paper, Input, InputWrapper, SegmentedControl,
-    Pagination, Badge, Tooltip, Combobox, Modal, ActionIcon,
+    Pagination, Badge, Tooltip, Combobox, Modal, ActionIcon, Switch,
     type MantineColorsTuple,
 } from '@mantine/core'
 import classes from './components.module.css'
@@ -78,9 +78,10 @@ export const theme = createTheme({
             styles: { label: uiFont, description: uiFont, error: uiFont },
         }),
         SegmentedControl: SegmentedControl.extend({
-            classNames: { root: classes.segmented },
+            classNames: { root: classes.segmented }, // adds mod="accent"
             styles: { label: uiFont },
         }),
+        Switch: Switch.extend({ classNames: { input: classes.switchInput, track: classes.switchTrack } }),
         Pagination: Pagination.extend({ styles: { control: uiFont } }),
         Badge: Badge.extend({ styles: { root: uiFont } }),
         Tooltip: Tooltip.extend({ styles: { tooltip: uiFont } }),
@@ -110,6 +111,9 @@ export function cssVariablesResolver() {
             '--app-accent': 'var(--mantine-color-rose-5)',
             '--app-signal': 'var(--mantine-color-signal-4)',
             '--app-tag-bg': 'var(--mantine-color-olive-9)',
+            '--app-highlight-bg': 'var(--mantine-color-signal-4)',
+            '--app-highlight-text': 'var(--mantine-color-black)',
+            '--app-switch-off': 'var(--mantine-color-dark-3)', // Mantine's dark-5 vanishes on the navy page
             '--app-tag-text': 'var(--mantine-color-olive-2)',
             '--app-success-text': 'var(--mantine-color-green-4)',
             '--mantine-color-body': '#090940',
@@ -137,6 +141,9 @@ export function cssVariablesResolver() {
             '--app-accent': 'var(--mantine-color-rose-5)', // borders and fills only
             '--app-signal': '#68684F', // yellow can't be text on white; tentative, revisit
             '--app-tag-bg': 'var(--mantine-color-olive-1)',
+            '--app-highlight-bg': 'var(--app-sage)',
+            '--app-highlight-text': 'var(--mantine-color-olive-9)',
+            '--app-switch-off': 'var(--app-border-strong)', // Mantine's gray-3 vanishes on the tinted page
             '--app-tag-text': 'var(--mantine-color-olive-8)',
             '--app-success-text': '#237032',
             '--mantine-color-body': '#FFFFFF',

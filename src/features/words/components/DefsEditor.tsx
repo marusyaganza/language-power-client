@@ -1,5 +1,11 @@
-import { ActionIcon, Button, Group, Radio, Stack, Text, TextInput } from "@mantine/core";
+import { ActionIcon, Button, Group, Radio, Stack, Text, TextInput, Tooltip } from "@mantine/core";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { HelpLabel } from "@/shared/components/HelpLabel";
+
+const MAIN_DEF_HELP =
+  "The main definition is the word's key meaning, shown first. It's the right answer in Pick the Meaning " +
+  "and the first clue in Pick the Word and Type the Word. Listen & Type, Name the Picture and Noun Gender " +
+  "show it after you answer.";
 
 interface DefsEditorProps {
   defs: string[];
@@ -30,20 +36,22 @@ export function DefsEditor({ defs, mainIndex, onDefsChange, onMainIndexChange }:
 
   return (
     <Stack gap="xs">
-      <Text size="sm" fw={600}>
-        Definitions
+      <Text size="sm" fw={600} component="div">
+        <HelpLabel label="Definitions" help={MAIN_DEF_HELP} />
       </Text>
       {defs.map((def, i) => (
         <Group key={i} gap="xs" wrap="nowrap">
           <TextInput value={def} onChange={(e) => updateDef(i, e.currentTarget.value)} style={{ flex: 1 }} />
-          {i !== mainIndex && (
-            <Radio aria-label="Set as main definition" checked={false} onChange={() => onMainIndexChange(i)} />
-          )}
-          {i === mainIndex && (
-            <Text size="xs" c="dimmed" w={40}>
-              main
-            </Text>
-          )}
+          <Tooltip label={i === mainIndex ? "This is the main definition" : "Make this the main definition"}>
+            <Radio
+              label="main"
+              size="xs"
+              color="olive"
+              checked={i === mainIndex}
+              onChange={() => onMainIndexChange(i)}
+              aria-label={i === mainIndex ? "Main definition" : "Make this the main definition"}
+            />
+          </Tooltip>
           <ActionIcon
             variant="subtle"
             color="scarlet"

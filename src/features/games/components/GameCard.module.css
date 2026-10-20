@@ -14,6 +14,25 @@ a.card:hover {
   cursor: not-allowed;
 }
 
+/* The whole square logo, never cropped; the band around it is a blurred, dimmed copy of the logo. */
+.media {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+}
+
+.media::before {
+  content: "";
+  position: absolute;
+  inset: -24px;
+  background: var(--game-image) center / cover;
+  filter: blur(24px) brightness(0.7);
+}
+
+.image {
+  position: relative;
+}
+
 .title {
   color: var(--app-word);
 }

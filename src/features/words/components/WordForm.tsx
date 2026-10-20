@@ -1,8 +1,16 @@
 import { Button, Group, Select, Stack, Text, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { HelpLabel } from "@/shared/components/HelpLabel";
 import { wordFormValidation, type WordFormMode, type WordFormValues } from "../lib/wordForm";
 import { DefsEditor } from "./DefsEditor";
 import { ExamplesEditor } from "./ExamplesEditor";
+
+const AUDIO_URL_HELP =
+  "A link to the word's pronunciation. Listen & Type only uses words that have one, so add it to practice " +
+  "this word there. Other games let you play it after you answer.";
+const IMG_URL_HELP =
+  "A link to a picture of the word. Name the Picture only uses words that have one, so add it to practice " +
+  "this word there. Other games show it after you answer.";
 
 const FL_OPTIONS = [
   { value: "noun", label: "Noun" },
@@ -23,7 +31,8 @@ interface WordFormProps {
   submitLabel: string;
   isPending: boolean;
   onSubmit: (values: WordFormValues) => void;
-  onCancel?: () => void;
+  /** Gets whether the form was changed, so the caller can ask before discarding it. */
+  onCancel?: (isDirty: boolean) => void;
 }
 
 export function WordForm({
@@ -69,13 +78,13 @@ export function WordForm({
           hideTranslation={!showTranslations}
         />
 
-        <TextInput label="Audio URL" placeholder="Optional" {...form.getInputProps("audioUrl")} />
-        <TextInput label="Image URL" placeholder="Optional" {...form.getInputProps("imgUrl")} />
+        <TextInput label={<HelpLabel label="Audio URL" help={AUDIO_URL_HELP} />} placeholder="Optional" {...form.getInputProps("audioUrl")} />
+        <TextInput label={<HelpLabel label="Image URL" help={IMG_URL_HELP} />} placeholder="Optional" {...form.getInputProps("imgUrl")} />
         <TextInput label="Image description" placeholder="Optional" {...form.getInputProps("imgDesc")} />
 
         <Group justify="flex-end">
           {onCancel && (
-            <Button variant="default" onClick={onCancel}>
+            <Button variant="default" onClick={() => onCancel(form.isDirty())}>
               Cancel
             </Button>
           )}

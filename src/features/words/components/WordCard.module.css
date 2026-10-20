@@ -68,10 +68,16 @@
 
 .figure {
     flex-shrink: 0;
+    width: 200px;
 }
 
+/* Fixed square, whole picture shown: tall or wide art is letterboxed on white, like the dictionary prints it. */
 .image {
+    width: 200px;
+    height: 200px;
+    background-color: var(--mantine-color-white);
     border: 1px solid var(--app-border);
+    border-radius: var(--mantine-radius-sm);
 }
 
 .caption {

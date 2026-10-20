@@ -6,7 +6,7 @@ interface HelpLabelProps {
   help: string;
 }
 
-/** An input label with an info icon that explains the setting on hover or focus. */
+/** An input label with an info icon that explains the field on hover, focus or tap. */
 export function HelpLabel({ label, help }: HelpLabelProps) {
   return (
     <Group gap={4} wrap="nowrap" component="span">

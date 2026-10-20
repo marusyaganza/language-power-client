@@ -15,6 +15,17 @@
     border: 1px solid var(--app-border);
 }
 
+/* Opt-in accent for the selected option: <SegmentedControl mod="accent">. Signal on dark, sage on light. */
+.segmented[data-accent] {
+    --sc-color: var(--app-highlight-bg);
+    --sc-label-color: var(--app-highlight-text);
+}
+
+/* Unchecked track, visible on both page backgrounds; checked keeps the primary color. */
+.switchInput:not(:checked, :disabled, [data-disabled]) + .switchTrack {
+    --switch-bg: var(--app-switch-off);
+}
+
 /* Secondary action: sage fill, dark olive text (5.8:1), olive border. */
 .button[data-variant='sage'] {
     background-color: var(--app-sage);

@@ -1,6 +1,7 @@
 import { ActionIcon, Button, Group, NumberInput, Select, Stack, Switch, Text } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { HelpLabel } from "@/shared/components/HelpLabel";
 import {
   MAX_GRADUATING_DAYS,
   MAX_LEARNING_STEPS,
@@ -13,7 +14,6 @@ import {
   type StepUnit,
 } from "../lib/gameSettingsForm";
 import type { GameSettings, GameSettingsPreset, GameSettingsUpdate } from "../schemas";
-import { HelpLabel } from "./HelpLabel";
 import { SettingsTimeline } from "./SettingsTimeline";
 
 const CUSTOM = "custom";
