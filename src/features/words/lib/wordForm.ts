@@ -96,6 +96,20 @@ export function toWordUpdate(values: WordFormValues, language: string): WordUpda
   };
 }
 
+/** Blank is fine (the field is optional); otherwise an absolute http(s) link. */
+export function isOptionalUrl(value: string): boolean {
+  const trimmed = value.trim();
+  if (trimmed === "") return true;
+  try {
+    const { protocol } = new URL(trimmed);
+    return protocol === "http:" || protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+const URL_ERROR = "Enter a full link, starting with http:// or https://";
+
 export type WordFormMode = "create" | "edit";
 
 /** Mantine form validation rules; `create` also requires name and part of speech. */
@@ -104,5 +118,7 @@ export function wordFormValidation(mode: WordFormMode) {
     name: (value: string) => (mode === "create" && value.trim() === "" ? "Enter the word" : null),
     fl: (value: string | null) => (mode === "create" && value === null ? "Choose a part of speech" : null),
     defs: (value: string[]) => (value.some((d) => d.trim() !== "") ? null : "Add at least one definition"),
+    audioUrl: (value: string) => (isOptionalUrl(value) ? null : URL_ERROR),
+    imgUrl: (value: string) => (isOptionalUrl(value) ? null : URL_ERROR),
   };
 }

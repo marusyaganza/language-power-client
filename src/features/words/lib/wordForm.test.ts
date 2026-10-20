@@ -3,6 +3,7 @@ import type { Word } from "../schemas";
 import {
   cleanExamples,
   emptyWordForm,
+  isOptionalUrl,
   orderDefs,
   toWordCreate,
   toWordUpdate,
@@ -117,5 +118,22 @@ describe("wordFormValidation", () => {
   it("requires at least one non-blank definition", () => {
     expect(wordFormValidation("edit").defs(["", "  "])).toBe("Add at least one definition");
     expect(wordFormValidation("edit").defs(["", "ok"])).toBeNull();
+  });
+});
+
+describe("isOptionalUrl", () => {
+  it("accepts blank and http(s) links", () => {
+    expect(isOptionalUrl("")).toBe(true);
+    expect(isOptionalUrl("  ")).toBe(true);
+    expect(isOptionalUrl("https://media.merriam-webster.com/audio/hola.mp3")).toBe(true);
+    expect(isOptionalUrl(" http://img.test/cat.png ")).toBe(true);
+  });
+
+  it("rejects text, relative paths and other schemes", () => {
+    expect(isOptionalUrl("cat.png")).toBe(false);
+    expect(isOptionalUrl("www.img.test/cat.png")).toBe(false);
+    expect(isOptionalUrl("/images/cat.png")).toBe(false);
+    expect(isOptionalUrl("javascript:alert(1)")).toBe(false);
+    expect(isOptionalUrl("ftp://files.test/cat.png")).toBe(false);
   });
 });
