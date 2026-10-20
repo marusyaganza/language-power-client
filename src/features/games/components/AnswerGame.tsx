@@ -1,8 +1,11 @@
-import { useEffect, useReducer, useState, type ReactNode } from "react";
-import { ActionIcon, Box, Button, Flex, Group, Loader, Progress, Text } from "@mantine/core";
+import { useEffect, useEffectEvent, useReducer, useState, type ReactNode } from "react";
+import { ActionIcon, Box, Button, Flex, Group, Loader, Progress, Text, Tooltip } from "@mantine/core";
 import { modals } from "@mantine/modals";
-import { IconX } from "@tabler/icons-react";
+import { IconVolume, IconVolumeOff, IconX } from "@tabler/icons-react";
 import { z } from "zod";
+import { useCurrentUser } from "@/features/auth";
+import { useGameAudio, type GameAudio } from "../hooks/useGameAudio";
+import { autoPlayUrl, type AutoPlayMoment } from "../lib/gameAudio";
 import { randomMessage } from "../lib/gameMessages";
 import type { GamePlayerProps } from "../lib/gamePlayer";
 import { gameProgressSchema, gameReducer, initialProgress, isLastQuestion } from "../lib/gameReducer";
@@ -29,14 +32,16 @@ export interface AnswerInputProps {
 interface AnswerGameProps<Q extends AnswerQuestion> extends GamePlayerProps {
   /** This game's session format. Keep it stable (define it at module level). */
   sessionSchema: z.ZodType<GameSession<Q>>;
-  /** What the player answers, shown above the input. */
-  renderPrompt: (question: Q) => ReactNode;
+  /** What the player answers, shown above the input. Sound goes through `audio`, the game's one player. */
+  renderPrompt: (question: Q, audio: GameAudio) => ReactNode;
   /** Where the player answers. The answer is sent exactly as the input reports it. */
   renderAnswer: (input: AnswerInputProps, question: Q) => ReactNode;
   /** False when the answer input marks the correct answer itself. */
   showCorrectAnswer?: boolean;
   /** Extra details shown with the feedback once the question is answered. */
   renderFeedback?: (question: Q) => ReactNode;
+  /** When the word's audio plays on its own (unless muted). Defaults to `feedback`. */
+  autoPlay?: AutoPlayMoment;
 }
 
 /**
@@ -53,6 +58,7 @@ export function AnswerGame<Q extends AnswerQuestion>({
   renderAnswer,
   showCorrectAnswer,
   renderFeedback,
+  autoPlay = "feedback",
 }: AnswerGameProps<Q>) {
   // Reload resumes the stored copy; arriving from the games list (which clears it) starts fresh.
   const [stored] = useState(() =>
@@ -65,6 +71,25 @@ export function AnswerGame<Q extends AnswerQuestion>({
   const [footerMessage, setFooterMessage] = useState(() => randomMessage("initial"));
   const answer = useSubmitAnswer(gameId);
   const finish = useFinishGame();
+  const { data: user } = useCurrentUser();
+  const audio = useGameAudio(user?.id);
+
+  // Play the word on its own. Depends on the URL, not on `answered`: a `start` game doesn't replay
+  // on feedback, a `feedback` game starts once answered, muting stops it, and a new question stops the last.
+  const currentQuestion = session?.questions[Math.min(progress.index, session.questions.length - 1)];
+  const playUrl = autoPlayUrl({
+    moment: autoPlay,
+    answered: progress.feedback !== null,
+    muted: audio.muted,
+    audioUrl: currentQuestion?.additional_info.audio_url,
+  });
+  const playOnItsOwn = useEffectEvent((url: string) => audio.play(url));
+  const stopAudio = useEffectEvent(() => audio.stop());
+  useEffect(() => {
+    if (!playUrl) return;
+    playOnItsOwn(playUrl);
+    return () => stopAudio();
+  }, [playUrl, progress.index]);
 
   // Keep the reload copy in sync while the game runs.
   useEffect(() => {
@@ -149,6 +174,17 @@ export function AnswerGame<Q extends AnswerQuestion>({
           style={{ flex: 1 }}
           aria-label={`Question ${index + 1} of ${questionCount}`}
         />
+        <Tooltip label={audio.muted ? "Sound off: nothing plays or loads on its own" : "Sound on"}>
+          <ActionIcon
+            variant="subtle"
+            onClick={audio.toggleMuted}
+            size="lg"
+            aria-label={audio.muted ? "Turn sound on" : "Mute sound"}
+            aria-pressed={audio.muted}
+          >
+            {audio.muted ? <IconVolumeOff size={20} /> : <IconVolume size={20} />}
+          </ActionIcon>
+        </Tooltip>
         <ActionIcon variant="subtle" onClick={confirmFinish} size="lg" aria-label="Finish game">
           <IconX size={20} />
         </ActionIcon>
@@ -159,7 +195,7 @@ export function AnswerGame<Q extends AnswerQuestion>({
         <Box maw={420} w="100%">
           <QuestionView
             task={session.task}
-            prompt={renderPrompt(question)}
+            prompt={renderPrompt(question, audio)}
             answerInput={renderAnswer(
               {
                 value: progress.answer,
@@ -172,6 +208,8 @@ export function AnswerGame<Q extends AnswerQuestion>({
             showCorrectAnswer={showCorrectAnswer}
             info={question.additional_info}
             feedbackDetails={renderFeedback?.(question)}
+            onPlayAudio={audio.play}
+            showAudioBeforeAnswer={autoPlay === "start"}
             progress={progress}
             onCheck={handleCheck}
             onContinue={handleContinue}

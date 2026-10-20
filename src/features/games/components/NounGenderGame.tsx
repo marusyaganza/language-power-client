@@ -12,6 +12,8 @@ export function NounGenderGame(props: GamePlayerProps) {
     <AnswerGame
       {...props}
       sessionSchema={sessionSchema}
+      // The question shows the word, so hearing it gives nothing away.
+      autoPlay="start"
       renderPrompt={(question) => <WordPrompt word={question.question} />}
       renderAnswer={(input, question) => (
         <GenderAnswer

@@ -13,7 +13,7 @@ export function ListenAndTypeGame(props: GamePlayerProps) {
     <AnswerGame
       {...props}
       sessionSchema={sessionSchema}
-      renderPrompt={(question) => <AudioPrompt url={question.question} />}
+      renderPrompt={(question, audio) => <AudioPrompt url={question.question} audio={audio} />}
       renderAnswer={(input) => <TextAnswer {...input} />}
       renderFeedback={(question) => <DefinitionNote def={question.additional_info.def} />}
     />

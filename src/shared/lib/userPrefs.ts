@@ -1,4 +1,4 @@
-// Per-user settings (theme, study language) in localStorage, keyed by user id so people sharing
+// Per-user settings (theme, study language, game sound) in localStorage, keyed by user id so people sharing
 // a device keep their own. Logout leaves them in place.
 import { z } from "zod";
 
@@ -7,6 +7,8 @@ const PREFIX = "prefs:";
 const userPrefsSchema = z.object({
   theme: z.enum(["light", "dark"]).optional(),
   language: z.string().optional(),
+  /** Games play no sound on their own (and load none). */
+  muted: z.boolean().optional(),
 });
 export type UserPrefs = z.infer<typeof userPrefsSchema>;
 

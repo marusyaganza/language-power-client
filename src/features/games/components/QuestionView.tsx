@@ -23,6 +23,10 @@ interface QuestionViewProps {
   info: QuestionInfo;
   /** Game-specific details shown with the feedback, above the examples. */
   feedbackDetails?: ReactNode;
+  /** Plays the word's audio when the player asks (the play button next to the task). */
+  onPlayAudio: (url: string) => void;
+  /** Offer the play button from the start, for games that already show the word. Otherwise it comes with the feedback. */
+  showAudioBeforeAnswer: boolean;
   progress: GameProgress;
   onCheck: () => void;
   onContinue: () => void;
@@ -37,6 +41,8 @@ export function QuestionView({
   showCorrectAnswer = true,
   info,
   feedbackDetails,
+  onPlayAudio,
+  showAudioBeforeAnswer,
   progress,
   onCheck,
   onContinue,
@@ -57,10 +63,6 @@ export function QuestionView({
     e.preventDefault();
     if (feedback) onContinue();
     else if (answer.trim()) onCheck();
-  }
-
-  function playAudio(url: string) {
-    new Audio(url).play().catch(() => {});
   }
 
   const correctAnswer = showCorrectAnswer && feedback && feedback.grade !== "correct" ? feedback.correctAnswer : null;
@@ -97,9 +99,9 @@ export function QuestionView({
             <ActionIcon
               variant="subtle"
               size="sm"
-              onClick={() => playAudio(info.audio_url!)}
+              onClick={() => onPlayAudio(info.audio_url!)}
               aria-label="Play pronunciation"
-              style={hiddenUntilFeedback}
+              style={showAudioBeforeAnswer ? undefined : hiddenUntilFeedback}
             >
               <IconPlayerPlay size={14} />
             </ActionIcon>
