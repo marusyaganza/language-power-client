@@ -71,6 +71,7 @@ export function WordForm({
 
         <TextInput label="Audio URL" placeholder="Optional" {...form.getInputProps("audioUrl")} />
         <TextInput label="Image URL" placeholder="Optional" {...form.getInputProps("imgUrl")} />
+        <TextInput label="Image description" placeholder="Optional" {...form.getInputProps("imgDesc")} />
 
         <Group justify="flex-end">
           {onCancel && (

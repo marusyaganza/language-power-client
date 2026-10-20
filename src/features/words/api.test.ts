@@ -26,6 +26,7 @@ const dictionaryWord = {
   audio_url: null,
   transcription: null,
   img_url: null,
+  img_desc: null,
   examples: [{ text: "¡Hola!", translation: null }],
 };
 

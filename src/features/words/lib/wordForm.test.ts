@@ -22,6 +22,7 @@ const word: Word = {
   audio_url: null,
   transcription: "ba'ʎena",
   img_url: "https://img/whale.png",
+  img_desc: "A blue whale",
   examples: [{ text: "La ballena azul.", translation: null }],
   saved: true,
 };
@@ -83,6 +84,7 @@ describe("toWordCreate", () => {
       examples: [{ text: "El gato.", translation: "The cat." }],
       audio_url: null,
       img_url: null,
+      img_desc: null,
     });
   });
 });
@@ -94,6 +96,7 @@ describe("wordToFormValues / toWordUpdate", () => {
       examples: [{ text: "La ballena azul.", translation: null }],
       audio_url: null,
       img_url: "https://img/whale.png",
+      img_desc: "A blue whale",
     });
   });
 

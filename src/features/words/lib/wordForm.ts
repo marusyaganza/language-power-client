@@ -17,6 +17,7 @@ export interface WordFormValues {
   examples: ExampleDraft[];
   audioUrl: string;
   imgUrl: string;
+  imgDesc: string;
 }
 
 export function emptyWordForm(): WordFormValues {
@@ -29,6 +30,7 @@ export function emptyWordForm(): WordFormValues {
     examples: [],
     audioUrl: "",
     imgUrl: "",
+    imgDesc: "",
   };
 }
 
@@ -42,6 +44,7 @@ export function wordToFormValues(word: Word): WordFormValues {
     examples: word.examples.map((e) => ({ text: e.text, translation: e.translation ?? "" })),
     audioUrl: word.audio_url ?? "",
     imgUrl: word.img_url ?? "",
+    imgDesc: word.img_desc ?? "",
   };
 }
 
@@ -79,6 +82,7 @@ export function toWordCreate(values: WordFormValues, language: string): WordCrea
     examples: cleanExamples(values.examples, usesTranslations(language)),
     audio_url: emptyToNull(values.audioUrl),
     img_url: emptyToNull(values.imgUrl),
+    img_desc: emptyToNull(values.imgDesc),
   };
 }
 
@@ -88,6 +92,7 @@ export function toWordUpdate(values: WordFormValues, language: string): WordUpda
     examples: cleanExamples(values.examples, usesTranslations(language)),
     audio_url: emptyToNull(values.audioUrl),
     img_url: emptyToNull(values.imgUrl),
+    img_desc: emptyToNull(values.imgDesc),
   };
 }
 

@@ -110,15 +110,17 @@ export function WordCard({ word, onSave, onEdit, onDelete, isSaving }: WordCardP
         </Stack>
 
         {word.img_url && (
-          <Image
-            src={word.img_url}
-            alt={word.name}
-            w={{ base: 88, sm: 160 }}
-            h={{ base: 88, sm: 160 }}
-            radius="sm"
-            fit="cover"
-            className={classes.image}
-          />
+          <Stack gap={6} w={{ base: 88, sm: 160 }} className={classes.figure}>
+            <Image
+              src={word.img_url}
+              alt={word.img_desc ?? word.name}
+              h={{ base: 88, sm: 160 }}
+              radius="sm"
+              fit="cover"
+              className={classes.image}
+            />
+            {word.img_desc && <Text className={classes.caption}>{word.img_desc}</Text>}
+          </Stack>
         )}
       </Group>
     </Card>

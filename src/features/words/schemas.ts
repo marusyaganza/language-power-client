@@ -19,6 +19,7 @@ export const wordSchema = z.object({
   audio_url: z.string().nullable(),
   transcription: z.string().nullable(),
   img_url: z.string().nullable(),
+  img_desc: z.string().nullable(),
   examples: z.array(exampleSchema),
   saved: z.boolean().default(false),
   gender: z.enum(["masculine", "feminine", "both"]).nullable().optional(),
@@ -67,6 +68,7 @@ export interface WordCreate {
   audio_url?: string | null;
   transcription?: string | null;
   img_url?: string | null;
+  img_desc?: string | null;
   gender?: "masculine" | "feminine" | "both" | null;
   examples?: Example[];
 }
@@ -77,4 +79,5 @@ export interface WordUpdate {
   examples?: Example[];
   audio_url?: string | null;
   img_url?: string | null;
+  img_desc?: string | null;
 }
