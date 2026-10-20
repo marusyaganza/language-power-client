@@ -77,17 +77,10 @@ export function GenderAnswer({ value, onChange, feedback, questionIndex, options
         })}
       </fieldset>
 
-      {feedback ? (
-        <Text size="sm" ff="var(--app-font-ui)" c="dimmed">
-          {GRADE_LABELS[feedback.grade]}
-        </Text>
-      ) : (
-        questionIndex === 0 && (
-          <Text size="sm" ff="var(--app-font-ui)" c="dimmed">
-            Tick both if the word takes either.
-          </Text>
-        )
-      )}
+      {/* Always rendered, so the grade appearing doesn't push the button down. */}
+      <Text size="sm" ff="var(--app-font-ui)" c="dimmed">
+        {feedback ? GRADE_LABELS[feedback.grade] : questionIndex === 0 ? "Tick both if the word takes either." : "\u00a0"}
+      </Text>
     </Stack>
   );
 }

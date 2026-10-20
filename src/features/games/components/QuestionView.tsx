@@ -1,9 +1,15 @@
-import type { FormEvent, ReactNode } from "react";
-import { ActionIcon, Alert, Box, Button, Group, Image, Stack, Text } from "@mantine/core";
-import { IconPlayerPlay } from "@tabler/icons-react";
+import { useEffect, useRef, type FormEvent, type ReactNode } from "react";
+import { ActionIcon, Alert, Box, Button, Group, Image, Modal, Stack, Text } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { IconPhoto, IconPlayerPlay } from "@tabler/icons-react";
+import { ExampleList } from "@/shared/components/ExampleList";
 import type { GameProgress } from "../lib/gameReducer";
 import type { QuestionInfo } from "../schemas";
 import classes from "./QuestionView.module.css";
+
+const IMAGE_SIZE = 160;
+/** Keeps an empty line's height, so text appearing there later doesn't move what's below. */
+const BLANK = "\u00a0";
 
 interface QuestionViewProps {
   task: string;
@@ -39,6 +45,13 @@ export function QuestionView({
 }: QuestionViewProps) {
   const { answer, feedback } = progress;
   const examples = info.examples ?? [];
+  const continueRef = useRef<HTMLButtonElement>(null);
+  const [imageOpened, imageModal] = useDisclosure(false);
+
+  // The answer input is disabled once graded, which drops focus; move it to Continue so Enter goes on.
+  useEffect(() => {
+    if (feedback) continueRef.current?.focus();
+  }, [feedback]);
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -50,18 +63,57 @@ export function QuestionView({
     new Audio(url).play().catch(() => {});
   }
 
+  const correctAnswer = showCorrectAnswer && feedback && feedback.grade !== "correct" ? feedback.correctAnswer : null;
+  // Feedback-only bits keep their space from the start (hidden), so nothing moves when they appear.
+  const hiddenUntilFeedback = feedback ? undefined : { visibility: "hidden" as const };
+
   return (
     <form onSubmit={handleSubmit} style={{ width: "100%" }}>
       <Stack align="center" gap="md">
-        {showCorrectAnswer && feedback && feedback.grade !== "correct" && feedback.correctAnswer && (
-          <span className={classes.correctAnswer}>{feedback.correctAnswer}</span>
+        {info.img_url && (
+          // Loaded (hidden) with the question, so it's ready when shown. Phones get a button instead.
+          <Image
+            src={info.img_url}
+            w={IMAGE_SIZE}
+            h={IMAGE_SIZE}
+            fit="contain"
+            radius="md"
+            alt=""
+            visibleFrom="sm"
+            className={classes.image}
+            style={hiddenUntilFeedback}
+          />
+        )}
+
+        {showCorrectAnswer && (
+          <span className={classes.correctAnswer} style={correctAnswer ? undefined : { visibility: "hidden" }}>
+            {correctAnswer || BLANK}
+          </span>
         )}
 
         <Group gap={6} justify="center">
           <Text fs="italic">{task}</Text>
-          {feedback && info.audio_url && (
-            <ActionIcon variant="subtle" size="sm" onClick={() => playAudio(info.audio_url!)} aria-label="Play pronunciation">
+          {info.audio_url && (
+            <ActionIcon
+              variant="subtle"
+              size="sm"
+              onClick={() => playAudio(info.audio_url!)}
+              aria-label="Play pronunciation"
+              style={hiddenUntilFeedback}
+            >
               <IconPlayerPlay size={14} />
+            </ActionIcon>
+          )}
+          {info.img_url && (
+            <ActionIcon
+              variant="subtle"
+              size="sm"
+              onClick={imageModal.open}
+              aria-label="Show picture"
+              hiddenFrom="sm"
+              style={hiddenUntilFeedback}
+            >
+              <IconPhoto size={14} />
             </ActionIcon>
           )}
         </Group>
@@ -84,7 +136,7 @@ export function QuestionView({
             Check
           </Button>
         ) : (
-          <Button type="submit" autoFocus>
+          <Button type="submit" ref={continueRef}>
             Continue
           </Button>
         )}
@@ -92,21 +144,18 @@ export function QuestionView({
         {feedback && feedbackDetails}
 
         {feedback && examples.length > 0 && (
-          <Stack gap={4} mt="md" style={{ alignSelf: "flex-start" }}>
-            <Text size="sm" fw={600}>
-              Examples
-            </Text>
-            {examples.map((ex, i) => (
-              <Text key={i} size="sm" fs="italic" c="dimmed">
-                {ex.text}
-                {ex.translation && ` (${ex.translation})`}
-              </Text>
-            ))}
+          <Stack gap="xs" w="100%" className={classes.examples}>
+            <span className="app-label">Examples</span>
+            <ExampleList examples={examples} />
           </Stack>
         )}
-
-        {feedback && info.img_url && <Image src={info.img_url} w={160} radius="md" mt="md" alt="" />}
       </Stack>
+
+      {info.img_url && (
+        <Modal opened={imageOpened} onClose={imageModal.close} title="Picture" centered>
+          <Image src={info.img_url} fit="contain" mah="70vh" radius="md" alt="" className={classes.image} />
+        </Modal>
+      )}
     </form>
   );
 }

@@ -58,11 +58,10 @@ export function ChoiceAnswer({ value, onChange, feedback, options, label }: Choi
         })}
       </fieldset>
 
-      {feedback && (
-        <Text size="sm" ff="var(--app-font-ui)" c="dimmed">
-          {GRADE_LABELS[feedback.grade]}
-        </Text>
-      )}
+      {/* Always rendered, so the grade appearing doesn't push the button down. */}
+      <Text size="sm" ff="var(--app-font-ui)" c="dimmed">
+        {feedback ? GRADE_LABELS[feedback.grade] : "\u00a0"}
+      </Text>
     </Stack>
   );
 }

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import type { GameResult } from "../schemas";
 
@@ -7,6 +8,13 @@ interface ResultScreenProps {
 }
 
 export function ResultScreen({ result, onFinish }: ResultScreenProps) {
+  const finishRef = useRef<HTMLButtonElement>(null);
+
+  // Focus Finish, as Continue is focused on feedback, so Enter leaves the result.
+  useEffect(() => {
+    finishRef.current?.focus();
+  }, []);
+
   const rows = [
     { label: "Correct", value: result.correct, color: "green.5" },
     { label: "Almost", value: result.close, color: "orange.5" },
@@ -42,7 +50,9 @@ export function ResultScreen({ result, onFinish }: ResultScreenProps) {
         </Stack>
       </Paper>
 
-      <Button onClick={onFinish}>Finish</Button>
+      <Button ref={finishRef} onClick={onFinish}>
+        Finish
+      </Button>
     </Stack>
   );
 }

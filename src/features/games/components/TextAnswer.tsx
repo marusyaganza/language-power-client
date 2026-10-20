@@ -13,7 +13,8 @@ export function TextAnswer({ value, onChange, feedback }: AnswerInputProps) {
       data-grade={feedback?.grade}
       classNames={{ input: classes.answer }}
       aria-label="Your answer"
-      description={feedback ? GRADE_LABELS[feedback.grade] : undefined}
+      // Always rendered, so the grade appearing doesn't push the button down.
+      description={feedback ? GRADE_LABELS[feedback.grade] : "\u00a0"}
       inputWrapperOrder={["label", "input", "description", "error"]}
       size="md"
       autoFocus

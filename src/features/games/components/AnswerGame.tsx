@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useState, type ReactNode } from "react";
-import { ActionIcon, Box, Button, Center, Group, Loader, Progress, Text } from "@mantine/core";
+import { ActionIcon, Box, Button, Flex, Group, Loader, Progress, Text } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { IconX } from "@tabler/icons-react";
 import { z } from "zod";
@@ -14,6 +14,7 @@ import { GameMessage } from "./GameMessage";
 import { GameScreen } from "./GameScreen";
 import { QuestionView } from "./QuestionView";
 import { ResultScreen } from "./ResultScreen";
+import classes from "./AnswerGame.module.css";
 
 /** What an answer input (text field, options, …) gets from the game. */
 export interface AnswerInputProps {
@@ -139,15 +140,22 @@ export function AnswerGame<Q extends AnswerQuestion>({
   }
 
   return (
-    <Box mih="100vh">
-      <Group gap={0} align="center" wrap="nowrap">
-        <Progress value={(index / questionCount) * 100} radius={0} size="sm" style={{ flex: 1 }} />
-        <ActionIcon variant="subtle" onClick={confirmFinish} size="lg" mx="sm" aria-label="Finish game">
+    <Flex direction="column" mih="100vh">
+      <Group gap="md" align="center" wrap="nowrap" px="lg" pt="lg">
+        <Progress
+          value={(index / questionCount) * 100}
+          size="md"
+          radius="xl"
+          style={{ flex: 1 }}
+          aria-label={`Question ${index + 1} of ${questionCount}`}
+        />
+        <ActionIcon variant="subtle" onClick={confirmFinish} size="lg" aria-label="Finish game">
           <IconX size={20} />
         </ActionIcon>
       </Group>
 
-      <Center mih="calc(100vh - 80px)" px="md">
+      {/* Top-aligned, not centered: feedback grows below the question instead of moving it. */}
+      <Flex justify="center" px="md" pt={{ base: "xl", sm: 64 }} pb="xl" style={{ flex: 1 }}>
         <Box maw={420} w="100%">
           <QuestionView
             task={session.task}
@@ -171,11 +179,13 @@ export function AnswerGame<Q extends AnswerQuestion>({
             checkError={answer.error}
           />
         </Box>
-      </Center>
+      </Flex>
 
-      <Text ta="center" fs="italic" size="sm" c="dimmed" py="md">
-        {footerMessage}
-      </Text>
-    </Box>
+      <footer className={classes.footer}>
+        <Text ta="center" fs="italic">
+          {footerMessage}
+        </Text>
+      </footer>
+    </Flex>
   );
 }

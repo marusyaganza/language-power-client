@@ -1,0 +1,5 @@
+.footer {
+  padding: var(--mantine-spacing-md);
+  background-color: var(--app-surface);
+  border-top: 1px solid var(--app-border);
+}

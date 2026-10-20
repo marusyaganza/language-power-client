@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ActionIcon, Card, Flex, Group, Image, Stack, Text, Tooltip, UnstyledButton } from "@mantine/core";
 import { IconBook, IconBookmark, IconBookmarkFilled, IconEdit, IconTrash, IconVolume } from "@tabler/icons-react";
 import type { Word } from "../schemas";
-import { ExampleList } from "./ExampleList";
+import { ExampleList } from "@/shared/components/ExampleList";
 import classes from "./WordCard.module.css";
 
 const STEM_PREVIEW_COUNT = 5;

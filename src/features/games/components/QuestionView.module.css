@@ -5,3 +5,15 @@
   color: var(--app-success-text);
   font-style: italic;
 }
+
+/* Word pictures are often line art on white; a white box shows them as drawn. */
+.image {
+  background-color: var(--mantine-color-white);
+}
+
+.examples {
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  background-color: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--mantine-radius-sm);
+}
