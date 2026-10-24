@@ -8,14 +8,16 @@ interface AuthFormProps {
   onSubmit: (credentials: Credentials) => void;
   isPending: boolean;
   error: Error | null;
+  /** Extra password rule, e.g. signup's length limits. Login passes none: the server only answers 401. */
+  validatePassword?: (password: string) => string | null;
 }
 
-export function AuthForm({ title, submitLabel, onSubmit, isPending, error }: AuthFormProps) {
+export function AuthForm({ title, submitLabel, onSubmit, isPending, error, validatePassword }: AuthFormProps) {
   const form = useForm<Credentials>({
     initialValues: { email: "", password: "" },
     validate: {
       email: (value) => (/^\S+@\S+\.\S+$/.test(value) ? null : "Invalid email"),
-      password: (value) => (value.length >= 8 ? null : "Password must be at least 8 characters"),
+      password: (value) => (validatePassword ? validatePassword(value) : null),
     },
   });
 
