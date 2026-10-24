@@ -1,6 +1,7 @@
 import { Center, Loader } from "@mantine/core";
 import { Navigate, createBrowserRouter } from "react-router-dom";
 import { paths } from "@/shared/paths";
+import { GuestOnly } from "./GuestOnly";
 import { AppShellLayout } from "./layouts/AppShellLayout";
 import { NotFoundPage } from "./NotFoundPage";
 import { RequireAuth } from "./RequireAuth";
@@ -17,9 +18,14 @@ export const router = createBrowserRouter([
       </Center>
     ),
     children: [
-      // Public
-      { path: paths.login, lazy: async () => ({ Component: (await import("@/features/auth/pages/LoginPage")).LoginPage }) },
-      { path: paths.signup, lazy: async () => ({ Component: (await import("@/features/auth/pages/SignUpPage")).SignUpPage }) },
+      // Logged out only
+      {
+        element: <GuestOnly />,
+        children: [
+          { path: paths.login, lazy: async () => ({ Component: (await import("@/features/auth/pages/LoginPage")).LoginPage }) },
+          { path: paths.signup, lazy: async () => ({ Component: (await import("@/features/auth/pages/SignUpPage")).SignUpPage }) },
+        ],
+      },
 
       {
         element: <RequireAuth />,

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError } from "@/api/errors";
-import { getCurrentUser } from "./api";
+import { getCurrentUser, login } from "./api";
 
 const fetchMock = vi.fn<typeof fetch>();
 
@@ -34,5 +34,27 @@ describe("getCurrentUser", () => {
     fetchMock.mockResolvedValue(jsonResponse({ detail: "boom" }, 500));
 
     await expect(getCurrentUser()).rejects.toBeInstanceOf(ApiError);
+  });
+});
+
+describe("login", () => {
+  const credentials = { email: "a@b.c", password: "secret" };
+
+  it.each([
+    [401, { detail: "Invalid credentials" }],
+    [422, { detail: [{ loc: ["body", "password"], msg: "Value error, Password is too long" }] }],
+  ])("reports %i as incorrect credentials", async (status, body) => {
+    fetchMock.mockResolvedValue(jsonResponse(body, status));
+
+    await expect(login(credentials)).rejects.toMatchObject({
+      message: "Incorrect email or password",
+      status,
+    });
+  });
+
+  it("keeps the server's message for other failures", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ detail: "Service unavailable" }, 503));
+
+    await expect(login(credentials)).rejects.toMatchObject({ message: "Service unavailable", status: 503 });
   });
 });

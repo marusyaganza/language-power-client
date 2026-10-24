@@ -1,6 +1,9 @@
-import { Alert, Button, Paper, PasswordInput, TextInput, Title } from "@mantine/core";
+import type { ReactNode } from "react";
+import { Alert, Button, PasswordInput, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { IconAlertTriangle } from "@tabler/icons-react";
 import type { Credentials } from "../schemas";
+import { AuthCard } from "./AuthCard";
 
 interface AuthFormProps {
   title: string;
@@ -10,9 +13,11 @@ interface AuthFormProps {
   error: Error | null;
   /** Extra password rule, e.g. signup's length limits. Login passes none: the server only answers 401. */
   validatePassword?: (password: string) => string | null;
+  /** Shown under the form, e.g. a link to the other auth page. */
+  footer?: ReactNode;
 }
 
-export function AuthForm({ title, submitLabel, onSubmit, isPending, error, validatePassword }: AuthFormProps) {
+export function AuthForm({ title, submitLabel, onSubmit, isPending, error, validatePassword, footer }: AuthFormProps) {
   const form = useForm<Credentials>({
     initialValues: { email: "", password: "" },
     validate: {
@@ -22,12 +27,9 @@ export function AuthForm({ title, submitLabel, onSubmit, isPending, error, valid
   });
 
   return (
-    <Paper maw={400} mx="auto" mt="xl" p="lg" withBorder>
-      <Title order={3} mb="md">
-        {title}
-      </Title>
+    <AuthCard title={title} footer={footer}>
       {error && (
-        <Alert color="red" mb="md">
+        <Alert color="rose" variant="light" icon={<IconAlertTriangle size={18} />} mb="md">
           {error.message}
         </Alert>
       )}
@@ -38,6 +40,6 @@ export function AuthForm({ title, submitLabel, onSubmit, isPending, error, valid
           {submitLabel}
         </Button>
       </form>
-    </Paper>
+    </AuthCard>
   );
 }
