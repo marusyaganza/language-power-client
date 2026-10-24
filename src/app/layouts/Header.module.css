@@ -19,3 +19,14 @@
     color: var(--mantine-color-text);
     border-bottom-color: var(--app-accent);
 }
+
+/* Logo link home: no underline or extra line height around the image. */
+.logo {
+    display: flex;
+}
+
+/* Phone menu: bigger text and tap targets than the bar. */
+.menuLink {
+    font-size: 0.9rem;
+    padding: 10px 0;
+}
