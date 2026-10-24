@@ -1,6 +1,8 @@
 import type { z } from "zod";
-import { config } from "@/config";
 import { ApiError, formatIssuePath, messageFromErrorBody } from "./errors";
+
+/** Same-origin in every environment: Netlify (prod) and Vite (dev) proxy /api/* to the backend. */
+const API_BASE = "/api";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -35,7 +37,6 @@ export async function apiFetch(
   try {
     response = await fetch(buildUrl(path, query), {
       method,
-      credentials: "include",
       headers: {
         Accept: "application/json",
         ...(body !== undefined && { "Content-Type": "application/json" }),
@@ -74,7 +75,7 @@ function buildUrl(path: string, query?: QueryParams): string {
     if (value !== null && value !== undefined) params.set(key, String(value));
   }
   const search = params.toString();
-  return `${config.apiBaseUrl}${path}${search ? `?${search}` : ""}`;
+  return `${API_BASE}${path}${search ? `?${search}` : ""}`;
 }
 
 /** Parses a JSON body; returns undefined for empty or non-JSON bodies. */

@@ -1,0 +1,27 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+# The browser only talks to this site: /api/* is proxied (status 200, not a redirect) to Cloud Run
+# without the /api prefix, so the session cookie stays first-party and there is no CORS.
+# Must come before the SPA fallback; Netlify uses the first matching rule.
+[[redirects]]
+  from = "/api/*"
+  to = "https://py-lp-api-463683887111.us-east5.run.app/:splat"
+  status = 200
+  force = true
+
+# Single-page app: every other path serves index.html and React Router handles it.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Built assets have content hashes in their names, so they never change.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

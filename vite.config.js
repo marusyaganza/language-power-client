@@ -8,8 +8,14 @@ export default defineConfig({
       "@": `${import.meta.dirname}/src`,
     },
   },
-  test: {
-    // Fixed base URL so tests don't depend on the developer's .env.
-    env: { VITE_API_BASE_URL: "http://api.test" },
+  server: {
+    // Same mapping as the Netlify proxy (netlify.toml): /api/auth/me → http://localhost:8000/auth/me.
+    proxy: {
+      "/api": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
   },
 });

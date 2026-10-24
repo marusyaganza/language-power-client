@@ -32,7 +32,7 @@ async function expectApiError(promise: Promise<unknown>): Promise<ApiError> {
 const userSchema = z.object({ id: z.number(), email: z.string() });
 
 describe("apiFetch", () => {
-  it("sends a GET with credentials and query params, and returns parsed data", async () => {
+  it("sends a GET with query params, and returns parsed data", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ id: 1, email: "a@b.c", extra: true }));
 
     const user = await apiFetch("/auth/me", {
@@ -42,8 +42,8 @@ describe("apiFetch", () => {
 
     expect(user).toEqual({ id: 1, email: "a@b.c" });
     const [url, init] = fetchMock.mock.calls[0];
-    expect(url).toBe("http://api.test/auth/me?language=es&page=2");
-    expect(init).toMatchObject({ method: "GET", credentials: "include", body: undefined });
+    expect(url).toBe("/api/auth/me?language=es&page=2");
+    expect(init).toMatchObject({ method: "GET", body: undefined });
     expect(init?.headers).not.toHaveProperty("Content-Type");
   });
 

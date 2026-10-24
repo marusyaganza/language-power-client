@@ -7,7 +7,7 @@ Language Power is a web app for language learners. Users look up words, save the
 ## Status
 
 - Active development
-- Private app, not publicly deployed yet
+- Deployed privately: frontend on Netlify, API on Google Cloud Run
 - Built and tested against the v4 FastAPI backend
 - UI and API may still change
 
@@ -47,7 +47,6 @@ Code is organised by feature over a thin shared layer.
 | ---------------- | ---------------------------------------------------------------------------------- |
 | `src/app`        | Entry point, providers, router, layouts, auth guard, error and 404 screens         |
 | `src/api`        | `apiFetch` (fetch + Zod validation) and `ApiError`                                 |
-| `src/config.ts`  | The only module that reads environment variables                                   |
 | `src/context`    | Study language (the only React context)                                            |
 | `src/features`   | Feature modules: `auth`, `words` (search and vocabulary), `games`                  |
 | `src/shared`     | Components, hooks and helpers used by more than one feature, route paths          |
@@ -86,44 +85,33 @@ The Node version is pinned in the `volta` field of `package.json`, so Volta sele
    npm ci
    ```
 
-3. Create a `.env` file and point it at the backend:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-4. Start the [backend](https://github.com/marusyaganza/py-lp) locally. The frontend expects it on `http://localhost:8000`.
-5. Start the frontend:
+3. Start the [backend](https://github.com/marusyaganza/py-lp) locally. The frontend expects it on `http://localhost:8000`.
+4. Start the frontend:
 
    ```bash
    npm run dev
    ```
 
-   The dev server runs on `http://localhost:5173`. Open the app on `localhost`, not `127.0.0.1` (see [Configuration](#configuration)).
+   The dev server runs on `http://localhost:5173`.
 
 To check a production build locally, run `npm run build` and then `npm run preview`.
 
 ## Configuration
 
-The app reads one environment variable, through Vite's `import.meta.env`:
+The client needs no environment variables. It calls the API on its own origin under `/api`, and a proxy forwards those requests to the backend without the prefix (`/api/auth/me` → `/auth/me`):
 
-| Variable            | Required | Notes                                                                 |
-| ------------------- | -------- | --------------------------------------------------------------------- |
-| `VITE_API_BASE_URL` | Yes      | Base URL of the backend API, e.g. `http://localhost:8000`. Trailing slash is optional |
+| Environment | Proxy                                                | Backend                 |
+| ----------- | ---------------------------------------------------- | ----------------------- |
+| Development | Vite dev server (`server.proxy` in `vite.config.js`) | `http://localhost:8000` |
+| Production  | Netlify rewrite rule in `netlify.toml`               | Google Cloud Run        |
 
-`src/config.ts` is the only module that reads it, and the app fails at startup with a clear error if it is missing. Like all `VITE_*` variables, it is built into the bundle, so changing it needs a restart of the dev server or a new build.
-
-There are no feature flags in the client. Runtime settings that belong to the backend are fetched from it: `/auth/config` says whether sign-up is enabled, and the backend decides whether dictionary search runs in demo mode.
+There are no feature flags in the client either. Runtime settings that belong to the backend are fetched from it: `/auth/config` says whether sign-up is enabled, and the backend decides whether dictionary search runs in demo mode.
 
 ### Auth and cookies
 
-Authentication uses a server-side session. The backend sets an `HttpOnly` session cookie on login, and every request is sent with `credentials: "include"`. The client never reads or stores a token.
+Authentication uses a server-side session. The backend sets an `HttpOnly`, `SameSite=Lax` session cookie on login. The client never reads or stores a token.
 
-This puts a few requirements on the setup:
-
-- The backend's CORS settings must allow the frontend origin with credentials. The backend currently allows `http://localhost:5173`, which is Vite's default port. If the dev server starts on another port, the requests are blocked.
-- The cookie is `SameSite=Lax`, so the frontend and the API must be on the same site. `localhost:5173` and `localhost:8000` work. Mixing `localhost` and `127.0.0.1` does not.
-- When the backend runs with secure cookies on, the session works only over HTTPS.
+Because of the proxy, the browser only ever talks to the site's own origin. The cookie is first-party, there are no CORS preflights, and the API's address never reaches the browser. Calling the API directly from another site would not work: a `Lax` cookie isn't sent on cross-site requests.
 
 Any 401 or 403 response makes the app re-check `/auth/me`. If the session is gone, the auth guard redirects to the login page.
 

@@ -1,4 +1,4 @@
-import { Button, Center, Stack, Text } from "@mantine/core";
+import { Button, Center, Loader, Stack, Text } from "@mantine/core";
 import { Navigate, Outlet } from "react-router-dom";
 import { LanguageProvider } from "@/context/LanguageProvider";
 import { useCurrentUser } from "@/features/auth";
@@ -9,7 +9,14 @@ export function RequireAuth() {
   const { data: user, isPending, isError, error, refetch, isFetching } = useCurrentUser();
   useApplyUserTheme(user?.id);
 
-  if (isPending) return null;
+  // The first request after the API has been idle can take several seconds (Cloud Run cold start).
+  if (isPending) {
+    return (
+      <Center mih="60vh">
+        <Loader />
+      </Center>
+    );
+  }
 
   // Couldn't ask the server (down, offline): say so instead of pretending the user is logged out.
   if (isError) {

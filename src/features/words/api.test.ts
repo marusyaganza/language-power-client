@@ -37,7 +37,7 @@ describe("getVocabulary", () => {
     await getVocabulary({ language: "es", query: "", page: 2, sort_by: "name", sort_order: "desc" });
 
     expect(fetchMock.mock.calls[0][0]).toBe(
-      "http://api.test/words/vocabulary?language=es&page=2&sort_by=name&sort_order=desc",
+      "/api/words/vocabulary?language=es&page=2&sort_by=name&sort_order=desc",
     );
   });
 
@@ -61,7 +61,7 @@ describe("searchWords", () => {
     expect(result.suggestions).toEqual([]);
     expect(result.mock_queries).toEqual([]);
     expect(result.words[0]).toMatchObject({ uuid: "a1b2", saved: false });
-    expect(fetchMock.mock.calls[0][0]).toBe("http://api.test/words/search?query=hola&language=es");
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/words/search?query=hola&language=es");
   });
 });
 
