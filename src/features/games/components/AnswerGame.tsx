@@ -74,7 +74,8 @@ export function AnswerGame<Q extends AnswerQuestion>({
   const start = useStartGame(gameId, language, options, sessionSchema, stored === null);
   const session = stored?.session ?? start.data;
   const [progress, dispatch] = useReducer(gameReducer, stored?.progress ?? initialProgress);
-  const [footerMessage, setFooterMessage] = useState(() => randomMessage("initial"));
+  // A resumed game is past its first question, so it doesn't greet again.
+  const [footerMessage, setFooterMessage] = useState(() => randomMessage(stored?.progress.index ? "next" : "initial"));
   /** Set once the backend has dropped the session; the game stops and explains before leaving. */
   const [expiredMessage, setExpiredMessage] = useState<string | null>(null);
   const answer = useSubmitAnswer();
@@ -181,8 +182,12 @@ export function AnswerGame<Q extends AnswerQuestion>({
   }
 
   function handleContinue() {
-    if (isLastQuestion(progress, questionCount)) finishGame();
-    else dispatch({ type: "next" });
+    if (isLastQuestion(progress, questionCount)) {
+      finishGame();
+    } else {
+      dispatch({ type: "next" });
+      setFooterMessage(randomMessage("next"));
+    }
   }
 
   return (

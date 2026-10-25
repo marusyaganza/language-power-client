@@ -24,6 +24,17 @@ const GAME_MESSAGES = {
     "Stay positive! You've got this! ☀️",
   ],
   initial: ["Let's get started 👋"],
+  // Shown under each question after the first, so they don't refer to the last answer.
+  next: [
+    "Here's the next one 👀",
+    "On to the next word 🧭",
+    "Take your time 🍵",
+    "Ready for another? 🚀",
+    "Fresh word, fresh start 🌱",
+    "Let's keep going 🚶",
+    "Next one, same focus 🎯",
+    "One word at a time 🧩",
+  ],
 };
 
 export function randomMessage(key: keyof typeof GAME_MESSAGES): string {
