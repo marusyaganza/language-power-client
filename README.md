@@ -124,7 +124,7 @@ Any 401 or 403 response makes the app re-check `/auth/me`. If the session is gon
 - **Shareable view state lives in the URL**: vocabulary search, page and sort, and game mode survive reloads and can be linked.
 - **Per-user preferences** (theme, study language, sound) are kept in `localStorage`, keyed by user id.
 
-Starting a game is a side effect on the backend, so its query is fetched once per visit: no background refetch, no retry, not abortable. It is dropped when the page unmounts. A copy in `sessionStorage` lets a reload resume the game, and opening the games list clears it, so clicking a game card always starts a new session.
+Starting a game creates a session on the backend (`POST`), so its query runs once per visit: no background refetch, no retry, not abortable. It is dropped when the page unmounts. Asking for the result ends the session and is safe to repeat. If the backend has dropped the session (20 minutes without an answer), the game stops and explains which answers were saved before sending the player back to the games list. A copy in `sessionStorage` lets a reload resume the game, and opening the games list clears it, so clicking a game card always starts a new session.
 
 ## Scripts
 

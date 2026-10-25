@@ -1,5 +1,5 @@
 import { useEffect, useEffectEvent, useReducer, useState, type ReactNode } from "react";
-import { ActionIcon, Box, Button, Flex, Group, Loader, Progress, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Box, Button, Flex, Group, Loader, Modal, Progress, Text, Tooltip } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { IconVolume, IconVolumeOff, IconX } from "@tabler/icons-react";
 import { z } from "zod";
@@ -10,7 +10,13 @@ import { randomMessage } from "../lib/gameMessages";
 import type { GamePlayerProps } from "../lib/gamePlayer";
 import { gameProgressSchema, gameReducer, initialProgress, isLastQuestion } from "../lib/gameReducer";
 import { clearStoredGame, loadStoredGame, saveStoredGame } from "../lib/gameStorage";
-import { useFinishGame, useStartGame, useSubmitAnswer } from "../queries";
+import {
+  isSessionExpired,
+  SESSION_EXPIRED_TITLE,
+  sessionExpiredMessage,
+  type ExpiredDuring,
+} from "../lib/sessionExpiry";
+import { useGameResult, useStartGame, useSubmitAnswer } from "../queries";
 import type { Feedback } from "../lib/gameReducer";
 import type { AnswerQuestion, GameSession } from "../schemas";
 import { GameMessage } from "./GameMessage";
@@ -69,8 +75,10 @@ export function AnswerGame<Q extends AnswerQuestion>({
   const session = stored?.session ?? start.data;
   const [progress, dispatch] = useReducer(gameReducer, stored?.progress ?? initialProgress);
   const [footerMessage, setFooterMessage] = useState(() => randomMessage("initial"));
-  const answer = useSubmitAnswer(gameId);
-  const finish = useFinishGame();
+  /** Set once the backend has dropped the session; the game stops and explains before leaving. */
+  const [expiredMessage, setExpiredMessage] = useState<string | null>(null);
+  const answer = useSubmitAnswer();
+  const result = useGameResult();
   const { data: user } = useCurrentUser();
   const audio = useGameAudio(user?.id);
 
@@ -93,12 +101,23 @@ export function AnswerGame<Q extends AnswerQuestion>({
 
   // Keep the reload copy in sync while the game runs.
   useEffect(() => {
-    if (session && finish.isIdle) saveStoredGame(gameId, { session, progress });
-  }, [gameId, session, progress, finish.isIdle]);
+    if (session && result.isIdle && expiredMessage === null) saveStoredGame(gameId, { session, progress });
+  }, [gameId, session, progress, result.isIdle, expiredMessage]);
+
+  // The backend dropped the session (20 minutes without an answer). Stop the game and say what was saved:
+  // every graded answer is, an answer sent after expiry isn't. A reload must not resume it.
+  function stopIfExpired(during: ExpiredDuring) {
+    return (error: Error) => {
+      if (!isSessionExpired(error)) return;
+      const savedAnswers = progress.index + (progress.feedback ? 1 : 0);
+      clearStoredGame(gameId);
+      setExpiredMessage(sessionExpiredMessage(during, savedAnswers));
+    };
+  }
 
   function finishGame() {
     if (!session) return;
-    finish.mutate(session.session_id, { onSuccess: () => clearStoredGame(gameId) });
+    result.mutate(session.session_id, { onSuccess: () => clearStoredGame(gameId), onError: stopIfExpired("result") });
   }
 
   function confirmFinish() {
@@ -112,23 +131,24 @@ export function AnswerGame<Q extends AnswerQuestion>({
     });
   }
 
-  if (finish.data) {
+  if (result.data) {
     return (
       <GameScreen>
-        <ResultScreen result={finish.data} onFinish={onLeave} />
+        <ResultScreen result={result.data} onFinish={onLeave} />
       </GameScreen>
     );
   }
-  if (finish.isPending || (!session && start.isPending)) {
+  if (result.isPending || (!session && start.isPending)) {
     return (
       <GameScreen>
         <Loader size="lg" />
       </GameScreen>
     );
   }
-  if (finish.isError) {
+  // An expired session stays on the question, under the timeout modal, instead of this retry screen.
+  if (result.isError && !isSessionExpired(result.error)) {
     return (
-      <GameMessage title="Couldn't load your result" message={finish.error.message} onBack={onLeave}>
+      <GameMessage title="Couldn't load your result" message={result.error.message} onBack={onLeave}>
         <Button variant="default" onClick={finishGame}>
           Try again
         </Button>
@@ -149,12 +169,13 @@ export function AnswerGame<Q extends AnswerQuestion>({
   function handleCheck() {
     if (!session) return;
     answer.mutate(
-      { session_id: session.session_id, word_id: question.id, answer: progress.answer },
+      { sessionId: session.session_id, word_id: question.id, answer: progress.answer },
       {
         onSuccess: (response) => {
           dispatch({ type: "graded", response });
           setFooterMessage(randomMessage(response.grade === "wrong" ? "error" : "success"));
         },
+        onError: stopIfExpired("answer"),
       },
     );
   }
@@ -214,7 +235,7 @@ export function AnswerGame<Q extends AnswerQuestion>({
             onCheck={handleCheck}
             onContinue={handleContinue}
             isChecking={answer.isPending}
-            checkError={answer.error}
+            checkError={isSessionExpired(answer.error) ? null : answer.error}
           />
         </Box>
       </Flex>
@@ -224,6 +245,22 @@ export function AnswerGame<Q extends AnswerQuestion>({
           {footerMessage}
         </Text>
       </footer>
+
+      <Modal
+        opened={expiredMessage !== null}
+        onClose={onLeave}
+        title={SESSION_EXPIRED_TITLE}
+        withCloseButton={false}
+        closeOnClickOutside={false}
+        centered
+      >
+        <Text size="sm">{expiredMessage}</Text>
+        <Group justify="flex-end" mt="lg">
+          <Button onClick={onLeave} data-autofocus>
+            Back to games
+          </Button>
+        </Group>
+      </Modal>
     </Flex>
   );
 }

@@ -100,9 +100,15 @@ export interface GameSession<Q> {
   questions: Q[];
 }
 
-// AnswerRequest
+// GameSessionCreate
+export interface GameSessionCreate {
+  language: string;
+  mode: GameMode;
+  new_words_first: boolean;
+}
+
+// AnswerRequest — the session is in the path.
 export interface AnswerRequest {
-  session_id: string;
   word_id: number;
   answer: string;
 }

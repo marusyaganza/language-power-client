@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import type { GameOptions } from "./lib/gameOptions";
 import {
-  finishGame,
+  getGameResult,
   getGames,
   getGameSettings,
   getGameSettingsPresets,
@@ -31,9 +31,10 @@ export function useGames(language: string) {
 }
 
 /**
- * Starts a session when the game page mounts. Starting one is a side effect on the backend,
- * so it's fetched once per visit: never refetched in the background, never retried, and dropped
- * from the cache as soon as the page unmounts so the next visit starts a fresh session.
+ * Starts a session when the game page mounts. It's a POST that creates a session, but a query rather
+ * than a mutation because the page renders from its result. Every call creates another session, so it
+ * runs once per visit: never refetched in the background, never retried, and dropped from the cache as
+ * soon as the page unmounts so the next visit starts a fresh session.
  * The request is deliberately not abortable: if it were, React's dev double-mount would cancel
  * it on the brief unmount and send a second one, creating two sessions.
  * `schema` is the session format of this game's type.
@@ -57,16 +58,17 @@ export function useStartGame<T>(
   });
 }
 
-export function useSubmitAnswer(gameId: number) {
+export function useSubmitAnswer() {
   return useMutation({
-    mutationFn: (answer: AnswerRequest) => submitAnswer(gameId, answer),
+    mutationFn: ({ sessionId, ...answer }: AnswerRequest & { sessionId: string }) => submitAnswer(sessionId, answer),
   });
 }
 
-export function useFinishGame() {
+/** Ends the session (if still running) and returns its result. Safe to repeat: the backend returns the same result. */
+export function useGameResult() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: finishGame,
+    mutationFn: getGameResult,
     onSuccess: () => {
       // Due counts changed; the games list should show them when the user goes back.
       queryClient.invalidateQueries({ queryKey: gameKeys.lists() });
