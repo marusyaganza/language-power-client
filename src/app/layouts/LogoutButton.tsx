@@ -8,7 +8,7 @@ export function LogoutButton() {
   const logout = useLogout();
 
   function handleLogout() {
-    logout.mutate(undefined, { onSettled: () => navigate(paths.login) });
+    logout.mutate(undefined, { onSettled: () => navigate(paths.home) });
   }
 
   return (

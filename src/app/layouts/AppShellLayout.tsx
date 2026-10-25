@@ -1,5 +1,6 @@
-import { AppShell } from "@mantine/core";
+import { AppShell, Box } from "@mantine/core";
 import { Outlet } from "react-router-dom";
+import { AppFooter } from "@/shared/components/AppFooter";
 import { Header } from "./Header";
 
 const headerStyles = {
@@ -10,13 +11,16 @@ const headerStyles = {
   },
 };
 
-/** Logged-in pages with the top navigation. */
+/** Logged-in pages with the top navigation. The footer follows the page content, at the bottom of short pages. */
 export function AppShellLayout() {
   return (
     <AppShell header={{ height: 60 }} padding="md" styles={headerStyles}>
       <Header />
-      <AppShell.Main>
-        <Outlet />
+      <AppShell.Main display="flex" style={{ flexDirection: "column" }}>
+        <Box flex={1}>
+          <Outlet />
+        </Box>
+        <AppFooter />
       </AppShell.Main>
     </AppShell>
   );

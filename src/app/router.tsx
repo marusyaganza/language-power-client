@@ -1,5 +1,5 @@
 import { Center, Loader } from "@mantine/core";
-import { Navigate, createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import { paths } from "@/shared/paths";
 import { GuestOnly } from "./GuestOnly";
 import { AppShellLayout } from "./layouts/AppShellLayout";
@@ -18,10 +18,11 @@ export const router = createBrowserRouter([
       </Center>
     ),
     children: [
-      // Logged out only
+      // Logged out only; a logged-in user goes to the app
       {
         element: <GuestOnly />,
         children: [
+          { path: paths.home, lazy: async () => ({ Component: (await import("@/features/landing/pages/LandingPage")).LandingPage }) },
           { path: paths.login, lazy: async () => ({ Component: (await import("@/features/auth/pages/LoginPage")).LoginPage }) },
           { path: paths.signup, lazy: async () => ({ Component: (await import("@/features/auth/pages/SignUpPage")).SignUpPage }) },
         ],
@@ -35,7 +36,6 @@ export const router = createBrowserRouter([
             element: <AppShellLayout />,
             errorElement: <RouteError />,
             children: [
-              { index: true, element: <Navigate to={paths.search} replace /> },
               { path: paths.search, lazy: async () => ({ Component: (await import("@/features/words/pages/SearchPage")).SearchPage }) },
               { path: paths.vocabulary, lazy: async () => ({ Component: (await import("@/features/words/pages/VocabularyPage")).VocabularyPage }) },
               { path: paths.newWord, lazy: async () => ({ Component: (await import("@/features/words/pages/NewWordPage")).NewWordPage }) },

@@ -10,6 +10,8 @@ export type User = z.infer<typeof userSchema>;
 // GET /auth/config
 export const authConfigSchema = z.object({
   signup_enabled: z.boolean(),
+  /** The dictionary is mocked: the demo deployment. */
+  use_mocks: z.boolean(),
 });
 export type AuthConfig = z.infer<typeof authConfigSchema>;
 

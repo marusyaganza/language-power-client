@@ -48,7 +48,7 @@ Code is organised by feature over a thin shared layer.
 | `src/app`        | Entry point, providers, router, layouts, auth guard, error and 404 screens         |
 | `src/api`        | `apiFetch` (fetch + Zod validation) and `ApiError`                                 |
 | `src/context`    | Study language (the only React context)                                            |
-| `src/features`   | Feature modules: `auth`, `words` (search and vocabulary), `games`                  |
+| `src/features`   | Feature modules: `landing` (public home page), `auth`, `words` (search and vocabulary), `games` |
 | `src/shared`     | Components, hooks and helpers used by more than one feature, route paths          |
 | `src/theme`      | Mantine theme, design tokens, global styles                                        |
 
