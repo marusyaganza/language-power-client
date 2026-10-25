@@ -1,5 +1,7 @@
 # Language Power Frontend
 
+[![CI](https://github.com/marusyaganza/client/actions/workflows/ci.yml/badge.svg)](https://github.com/marusyaganza/client/actions/workflows/ci.yml)
+
 React + TypeScript client for the current version of the Language Power application.
 
 Language Power is a web app for language learners. Users look up words, save them to a personal vocabulary, edit them, and practise them in small learning games scheduled with spaced repetition. This is the React client for Language Power v4, built with Vite and TypeScript. It consumes the v4 FastAPI backend ([py-lp](https://github.com/marusyaganza/py-lp)), which owns data, accounts, dictionary lookups and game scheduling. Everything except the landing, login and sign-up pages requires a signed-in user.
@@ -148,6 +150,8 @@ Starting a game creates a session on the backend (`POST`), so its query runs onc
 | `npm test`          | Run Vitest unit tests                             |
 
 Unit tests cover pure logic: form-to-request transforms, URL state, game progress and availability rules, settings forms, error parsing and the API client. They don't need a running backend. UI is checked by running the app against a real backend.
+
+CI (`.github/workflows/ci.yml`) runs typecheck, lint, tests and build on every push to `main` and on pull requests.
 
 ## Related backend
 
