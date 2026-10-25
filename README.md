@@ -2,7 +2,7 @@
 
 React + TypeScript client for the current version of the Language Power application.
 
-Language Power is a web app for language learners. Users look up words, save them to a personal vocabulary, edit them, and practise them in small learning games scheduled with spaced repetition. This is the React client for Language Power v4, built with Vite and TypeScript. It consumes the v4 FastAPI backend ([py-lp](https://github.com/marusyaganza/py-lp)), which owns data, accounts, dictionary lookups and game scheduling. Everything except the login and sign-up screens requires a signed-in user.
+Language Power is a web app for language learners. Users look up words, save them to a personal vocabulary, edit them, and practise them in small learning games scheduled with spaced repetition. This is the React client for Language Power v4, built with Vite and TypeScript. It consumes the v4 FastAPI backend ([py-lp](https://github.com/marusyaganza/py-lp)), which owns data, accounts, dictionary lookups and game scheduling. Everything except the landing, login and sign-up pages requires a signed-in user.
 
 ## Status
 
@@ -38,6 +38,12 @@ In demo mode the backend mocks the dictionary, and search only works for a fixed
 - Vitest
 - ESLint (typescript-eslint, React Hooks rules)
 - Volta with Node `24.19.0`
+
+## System architecture
+
+![System architecture: the React client talks to the FastAPI backend over HTTPS/JSON with a session cookie. The backend uses PostgreSQL for users, words and learning progress, Redis for auth and game sessions, and the Merriam-Webster Dictionary API (recorded fixtures in mock mode).](docs/architecture.png)
+
+The client is the top box: it renders the UI and keeps server data in TanStack Query. Everything else (accounts, the dictionary, vocabulary, scheduling and grading) belongs to the [backend](https://github.com/marusyaganza/py-lp).
 
 ## Project structure
 
@@ -104,6 +110,10 @@ The client needs no environment variables. It calls the API on its own origin un
 | ----------- | ---------------------------------------------------- | ----------------------- |
 | Development | Vite dev server (`server.proxy` in `vite.config.js`) | `http://localhost:8000` |
 | Production  | Netlify rewrite rule in `netlify.toml`               | Google Cloud Run        |
+
+![Deployment: the browser loads the React build from Netlify, which proxies /api/* to the API container on Google Cloud Run (same origin). The API uses Upstash Redis, Neon PostgreSQL and the Merriam-Webster API, and on start runs migrations and seeds the games before starting uvicorn.](docs/deployment.png)
+
+In production the rewrite is also signed: Netlify adds an `X-Nf-Sign` header to every request it forwards, and the API rejects requests without a valid one, so it can only be reached through the site.
 
 There are no feature flags in the client either. Runtime settings that belong to the backend are fetched from it: `/auth/config` says whether sign-up is enabled, and the backend decides whether dictionary search runs in demo mode.
 
