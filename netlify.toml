@@ -8,11 +8,14 @@
 # The browser only talks to this site: /api/* is proxied (status 200, not a redirect) to Cloud Run
 # without the /api prefix, so the session cookie stays first-party and there is no CORS.
 # Must come before the SPA fallback; Netlify uses the first matching rule.
+# `signed`: Netlify adds an X-Nf-Sign header signed with the secret in that environment variable,
+# and the API rejects requests without a valid one, so it can only be reached through this site.
 [[redirects]]
   from = "/api/*"
   to = "https://py-lp-api-463683887111.us-east5.run.app/:splat"
   status = 200
   force = true
+  signed = "API_SIGNATURE_TOKEN"   # the variable's NAME, not the secret itself
 
 # Single-page app: every other path serves index.html and React Router handles it.
 [[redirects]]
