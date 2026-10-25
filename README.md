@@ -6,6 +6,10 @@ React + TypeScript client for the current version of the Language Power applicat
 
 Language Power is a web app for language learners. Users look up words, save them to a personal vocabulary, edit them, and practise them in small learning games scheduled with spaced repetition. This is the React client for Language Power v4, built with Vite and TypeScript. It consumes the v4 FastAPI backend ([py-lp](https://github.com/marusyaganza/py-lp)), which owns data, accounts, dictionary lookups and game scheduling. Everything except the landing, login and sign-up pages requires a signed-in user.
 
+![Search results for "lever": two dictionary entries (noun and verb) with pronunciation, audio, definitions, an example, an illustration, word forms and a save button.](docs/screenshot-search.png)
+
+![The Noun Gender game after a wrong answer: "el" is marked wrong, "la" is outlined as correct for "manzana", with a Continue button.](docs/screenshot-game.png)
+
 ## Status
 
 - Active development
