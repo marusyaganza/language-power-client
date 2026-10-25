@@ -1,0 +1,6 @@
+/* "Can't find it?" before "Add your own word": dropped on the narrowest phones, where the full label doesn't fit. */
+@media (max-width: 22.5em) {
+    .addWordPrefix {
+        display: none;
+    }
+}
