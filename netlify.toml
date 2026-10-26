@@ -5,6 +5,16 @@
 [build.environment]
   NODE_VERSION = "24"
 
+# Tags error reports by deploy type. The DSN, auth token, org and project are set in Netlify's UI.
+[context.production.environment]
+  VITE_SENTRY_ENVIRONMENT = "production"
+
+[context.deploy-preview.environment]
+  VITE_SENTRY_ENVIRONMENT = "deploy-preview"
+
+[context.branch-deploy.environment]
+  VITE_SENTRY_ENVIRONMENT = "branch-deploy"
+
 # The browser only talks to this site: /api/* is proxied (status 200, not a redirect) to Cloud Run
 # without the /api prefix, so the session cookie stays first-party and there is no CORS.
 # Must come before the SPA fallback; Netlify uses the first matching rule.
@@ -16,6 +26,9 @@
   status = 200
   force = true
   signed = "API_SIGNATURE_TOKEN"   # the variable's NAME, not the secret itself
+
+# /sentry (error reports) is proxied by a rule in dist/_redirects, which the build writes from
+# VITE_SENTRY_DSN (see vite.config.js), so the DSN isn't kept in the repo. _redirects rules run first.
 
 # Single-page app: every other path serves index.html and React Router handles it.
 [[redirects]]

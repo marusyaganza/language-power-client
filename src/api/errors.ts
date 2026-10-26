@@ -59,3 +59,21 @@ export function formatIssuePath(path: readonly PropertyKey[]): string {
     .map((key, i) => (typeof key === "number" ? `[${key}]` : `${i === 0 ? "" : "."}${String(key)}`))
     .join("");
 }
+
+/**
+ * Whether an error from a request is worth reporting to error tracking: a bug on either side,
+ * not an expected answer. 4xx are part of the API, network errors mean the user is offline, and
+ * 503 is the backend's "dictionary unavailable", an outage of the third-party API it uses.
+ * Anything that isn't an ApiError was thrown by client code, so it's a bug.
+ */
+export function shouldReport(error: unknown): boolean {
+  if (!isApiError(error)) return true;
+  switch (error.kind) {
+    case "contract":
+      return true;
+    case "network":
+      return false;
+    case "http":
+      return error.status !== null && error.status >= 500 && error.status !== 503;
+  }
+}

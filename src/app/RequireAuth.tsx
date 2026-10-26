@@ -4,10 +4,12 @@ import { LanguageProvider } from "@/context/LanguageProvider";
 import { useCurrentUser } from "@/features/auth";
 import { paths } from "@/shared/paths";
 import { useApplyUserTheme } from "@/theme/userTheme";
+import { useErrorReportingUser } from "./sentry";
 
 export function RequireAuth() {
   const { data: user, isPending, isError, error, refetch, isFetching } = useCurrentUser();
   useApplyUserTheme(user?.id);
+  useErrorReportingUser(user?.id);
 
   // The first request after the API has been idle can take several seconds (Cloud Run cold start).
   if (isPending) {

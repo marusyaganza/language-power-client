@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatIssuePath, messageFromErrorBody } from "./errors";
+import { ApiError, formatIssuePath, messageFromErrorBody, shouldReport } from "./errors";
 
 describe("messageFromErrorBody", () => {
   it("uses a string detail as is", () => {
@@ -39,5 +39,20 @@ describe("formatIssuePath", () => {
 
   it("names the root", () => {
     expect(formatIssuePath([])).toBe("(root)");
+  });
+});
+
+describe("shouldReport", () => {
+  it.each([
+    ["a contract error", new ApiError("contract", "Unexpected response", 200), true],
+    ["a server error", new ApiError("http", "Internal Server Error", 500), true],
+    ["a proxy timeout", new ApiError("http", "Request failed (504)", 504), true],
+    ["a client bug", new TypeError("Cannot read properties of undefined"), true],
+    ["the dictionary outage", new ApiError("http", "Dictionary is unavailable, try again later", 503), false],
+    ["a 4xx answer", new ApiError("http", "Word not found", 404), false],
+    ["a missing session", new ApiError("http", "Not authenticated", 403), false],
+    ["a network error", new ApiError("network", "Can't reach the server", null), false],
+  ])("%s → %s", (_, error, expected) => {
+    expect(shouldReport(error)).toBe(expected);
   });
 });

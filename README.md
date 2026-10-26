@@ -57,8 +57,9 @@ Code is organised by feature over a thin shared layer.
 
 | Path             | Responsibility                                                                     |
 | ---------------- | ---------------------------------------------------------------------------------- |
-| `src/app`        | Entry point, providers, router, layouts, auth guard, error and 404 screens         |
+| `src/app`        | Entry point, providers, router, layouts, auth guard, error and 404 screens, error reporting |
 | `src/api`        | `apiFetch` (fetch + Zod validation) and `ApiError`                                 |
+| `src/config.ts`  | The only module that reads environment variables                                   |
 | `src/context`    | Study language (the only React context)                                            |
 | `src/features`   | Feature modules: `landing` (public home page), `auth`, `words` (search and vocabulary), `games` |
 | `src/shared`     | Components, hooks and helpers used by more than one feature, route paths          |
@@ -110,7 +111,7 @@ To check a production build locally, run `npm run build` and then `npm run previ
 
 ## Configuration
 
-The client needs no environment variables. It calls the API on its own origin under `/api`, and a proxy forwards those requests to the backend without the prefix (`/api/auth/me` → `/auth/me`):
+The client calls the API on its own origin under `/api`, and a proxy forwards those requests to the backend without the prefix (`/api/auth/me` → `/auth/me`):
 
 | Environment | Proxy                                                | Backend                 |
 | ----------- | ---------------------------------------------------- | ----------------------- |
@@ -121,7 +122,7 @@ The client needs no environment variables. It calls the API on its own origin un
 
 In production the rewrite is also signed: Netlify adds an `X-Nf-Sign` header to every request it forwards, and the API rejects requests without a valid one, so it can only be reached through the site.
 
-There are no feature flags in the client either. Runtime settings that belong to the backend are fetched from it: `/auth/config` says whether sign-up is enabled, and the backend decides whether dictionary search runs in demo mode.
+There are no feature flags in the client. Runtime settings that belong to the backend are fetched from it: `/auth/config` says whether sign-up is enabled, and the backend decides whether dictionary search runs in demo mode.
 
 ### Auth and cookies
 
@@ -130,6 +131,28 @@ Authentication uses a server-side session. The backend sets an `HttpOnly`, `Same
 Because of the proxy, the browser only ever talks to the site's own origin. The cookie is first-party, there are no CORS preflights, and the API's address never reaches the browser. Calling the API directly from another site would not work: a `Lax` cookie isn't sent on cross-site requests.
 
 Any 401 or 403 response makes the app re-check `/auth/me`. If the session is gone, the auth guard redirects to the login page.
+
+## Error reporting
+
+Crashes and unexpected errors are reported to [Sentry](https://sentry.io). It runs in error-only mode: no performance tracing and no session replay, so the only cost is the SDK in the main bundle (about 30 kB gzipped), and a request goes out only when an error is sent.
+
+What gets reported:
+
+- Uncaught errors and unhandled promise rejections
+- Errors caught by the route error screen, including page chunks that fail to load
+- React errors outside the router
+- Failed requests that point to a bug: responses that don't match the Zod schema, 5xx answers, and exceptions thrown by client code. Expected answers (4xx), the dictionary outage (503) and network errors are not reported
+
+Reports carry the user's id, never the email. They are sent through a same-origin `/sentry` route that Netlify forwards to Sentry, so ad blockers don't drop them. The build writes that rule to `dist/_redirects` from the DSN, so the DSN isn't kept in the repo. It isn't secret either: the browser needs it, so it is part of the bundle.
+
+| Variable                  | Where             | Notes                                                                        |
+| ------------------------- | ----------------- | ---------------------------------------------------------------------------- |
+| `VITE_SENTRY_DSN`         | Netlify           | Turns reporting on. Without it (local dev, tests) the SDK isn't started      |
+| `VITE_SENTRY_ENVIRONMENT` | `netlify.toml`    | Set per deploy context: `production`, `deploy-preview`, `branch-deploy`      |
+| `SENTRY_AUTH_TOKEN`       | Netlify (secret)  | Build only. Uploads source maps, then deletes them from `dist`               |
+| `SENTRY_ORG`, `SENTRY_PROJECT` | Netlify      | Build only. Where the source maps go                                         |
+
+Without `SENTRY_AUTH_TOKEN` the build makes no source maps at all, so they are never published.
 
 ## Data flow
 
