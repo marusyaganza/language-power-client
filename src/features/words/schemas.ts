@@ -23,6 +23,7 @@ export const wordSchema = z.object({
   examples: z.array(exampleSchema),
   saved: z.boolean().default(false),
   gender: z.enum(["masculine", "feminine", "both"]).nullable().optional(),
+  offensive: z.boolean().default(false),
 });
 export type Word = z.infer<typeof wordSchema>;
 
@@ -71,6 +72,7 @@ export interface WordCreate {
   img_desc?: string | null;
   gender?: "masculine" | "feminine" | "both" | null;
   examples?: Example[];
+  offensive?: boolean;
 }
 
 // WordUpdate — fields left out are unchanged.

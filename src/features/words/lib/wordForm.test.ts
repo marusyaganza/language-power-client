@@ -26,6 +26,7 @@ const word: Word = {
   img_desc: "A blue whale",
   examples: [{ text: "La ballena azul.", translation: null }],
   saved: true,
+  offensive: false,
 };
 
 describe("orderDefs", () => {

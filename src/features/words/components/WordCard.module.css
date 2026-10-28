@@ -30,6 +30,22 @@
     color: var(--app-tag-text);
 }
 
+/* Same type as .tag, outlined instead of filled so it reads as a warning, not a category. */
+.offensive {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--app-font-ui);
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border: 1px solid currentColor;
+    border-radius: var(--mantine-radius-xs);
+    color: var(--app-offensive);
+}
+
 .defs {
     list-style: none;
     margin: 0;

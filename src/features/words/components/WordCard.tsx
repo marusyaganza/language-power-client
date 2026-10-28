@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ActionIcon, Card, Flex, Group, Image, Stack, Text, Tooltip, UnstyledButton } from "@mantine/core";
-import { IconBook, IconBookmark, IconBookmarkFilled, IconEdit, IconTrash, IconVolume } from "@tabler/icons-react";
+import { IconBook, IconBookmark, IconBookmarkFilled, IconEdit, IconFlame, IconTrash, IconVolume } from "@tabler/icons-react";
 import type { Word } from "../schemas";
 import { ExampleList } from "@/shared/components/ExampleList";
 import classes from "./WordCard.module.css";
@@ -41,6 +41,12 @@ export function WordCard({ word, onSave, onEdit, onDelete, isSaving }: WordCardP
                 <ActionIcon variant="subtle" size="sm" onClick={playAudio} aria-label="Play pronunciation">
                   <IconVolume size={16} />
                 </ActionIcon>
+              )}
+              {word.offensive && (
+                <span className={classes.offensive}>
+                  <IconFlame size={13} stroke={2} aria-hidden />
+                  offensive
+                </span>
               )}
             </Group>
 

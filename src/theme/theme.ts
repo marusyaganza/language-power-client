@@ -116,6 +116,7 @@ export function cssVariablesResolver() {
             '--app-switch-off': 'var(--mantine-color-dark-3)', // Mantine's dark-5 vanishes on the navy page
             '--app-tag-text': 'var(--mantine-color-olive-2)',
             '--app-success-text': 'var(--mantine-color-green-4)',
+            '--app-offensive': 'var(--mantine-color-scarlet-4)',
             '--mantine-color-body': '#090940',
             // Mantine's dark light/subtle variants use shade 0 (near white); keep these hues visible.
             '--mantine-color-olive-light-color': 'var(--mantine-color-olive-3)',
@@ -146,6 +147,7 @@ export function cssVariablesResolver() {
             '--app-switch-off': 'var(--app-border-strong)', // Mantine's gray-3 vanishes on the tinted page
             '--app-tag-text': 'var(--mantine-color-olive-8)',
             '--app-success-text': '#237032',
+            '--app-offensive': 'var(--mantine-color-scarlet-7)', // scarlet-5 is too light as text on white
             '--mantine-color-body': '#FFFFFF',
             '--mantine-color-dimmed': '#55557F',
             // Mantine's light/subtle variants use the primary shade (5) as text: too light on white.
