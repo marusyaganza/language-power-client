@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getVocabulary, searchWords } from "./api";
+import { getSearchLimits, getVocabulary, searchWords } from "./api";
 
 const fetchMock = vi.fn<typeof fetch>();
 
@@ -53,13 +53,14 @@ describe("getVocabulary", () => {
 });
 
 describe("searchWords", () => {
-  it("applies the contract's defaults for `saved` and `suggestions`", async () => {
+  it("applies the contract's defaults for `saved`, `suggestions` and `searches_left`", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ words: [dictionaryWord] }));
 
     const result = await searchWords("hola", "es");
 
     expect(result.suggestions).toEqual([]);
     expect(result.mock_queries).toEqual([]);
+    expect(result.searches_left).toBeNull();
     expect(result.words[0]).toMatchObject({ uuid: "a1b2", saved: false });
     expect(fetchMock.mock.calls[0][0]).toBe("/api/words/search?query=hola&language=es");
   });
@@ -71,6 +72,31 @@ describe("searchWords in mock mode", () => {
 
     const result = await searchWords("casa", "es");
 
-    expect(result).toEqual({ words: [], suggestions: [], mock_queries: ["hola", "ser"] });
+    expect(result).toEqual({ words: [], suggestions: [], mock_queries: ["hola", "ser"], searches_left: null });
+  });
+});
+
+describe("searchWords with limited searches", () => {
+  it("parses the searches left", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ words: [dictionaryWord], searches_left: 9 }));
+
+    const result = await searchWords("hola", "es");
+
+    expect(result.searches_left).toBe(9);
+  });
+});
+
+describe("getSearchLimits", () => {
+  it("parses limited and unlimited languages", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ limit: 10, searches_left: { en: 3, es: 10 } }));
+
+    await expect(getSearchLimits()).resolves.toEqual({ limit: 10, searches_left: { en: 3, es: 10 } });
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/words/search-limits");
+  });
+
+  it("parses the unlimited answer", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ limit: null, searches_left: { en: null, es: null } }));
+
+    await expect(getSearchLimits()).resolves.toEqual({ limit: null, searches_left: { en: null, es: null } });
   });
 });

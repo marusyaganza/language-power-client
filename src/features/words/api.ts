@@ -1,5 +1,6 @@
 import { apiFetch } from "@/api/http";
 import {
+  searchLimitsSchema,
   vocabularyPageSchema,
   wordSchema,
   wordSearchResponseSchema,
@@ -10,6 +11,10 @@ import {
 
 export function searchWords(query: string, language: string, signal?: AbortSignal) {
   return apiFetch("/words/search", { query: { query, language }, schema: wordSearchResponseSchema, signal });
+}
+
+export function getSearchLimits(signal?: AbortSignal) {
+  return apiFetch("/words/search-limits", { schema: searchLimitsSchema, signal });
 }
 
 export function getVocabulary(params: VocabularyParams, signal?: AbortSignal) {

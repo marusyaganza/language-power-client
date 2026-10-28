@@ -1,13 +1,14 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { isApiError } from "@/api/errors";
-import { deleteWord, getVocabulary, saveWord, searchWords, updateWord } from "./api";
+import { deleteWord, getSearchLimits, getVocabulary, saveWord, searchWords, updateWord } from "./api";
 import type { VocabularyParams, WordCreate, WordSearchResponse, WordUpdate } from "./schemas";
 
 export const wordKeys = {
   all: ["words"] as const,
   searches: () => [...wordKeys.all, "search"] as const,
   search: (query: string, language: string) => [...wordKeys.searches(), { query, language }] as const,
+  searchLimits: () => [...wordKeys.all, "search-limits"] as const,
   vocabularies: () => [...wordKeys.all, "vocabulary"] as const,
   vocabulary: (params: VocabularyParams) => [...wordKeys.vocabularies(), params] as const,
 };
@@ -17,6 +18,14 @@ export function useWordSearch(query: string, language: string) {
     queryKey: wordKeys.search(query, language),
     queryFn: ({ signal }) => searchWords(query, language, signal),
     enabled: query !== "",
+  });
+}
+
+/** Searches left per language, for every language at once. */
+export function useSearchLimits() {
+  return useQuery({
+    queryKey: wordKeys.searchLimits(),
+    queryFn: ({ signal }) => getSearchLimits(signal),
   });
 }
 

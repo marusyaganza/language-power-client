@@ -13,13 +13,22 @@ export class ApiError extends Error {
   readonly status: number | null;
   /** Raw error body (http) or zod issues (contract), for debugging. */
   readonly details: unknown;
+  /** Seconds until a retry can succeed, from the `Retry-After` header (429s); null when not sent. */
+  readonly retryAfter: number | null;
 
-  constructor(kind: ApiErrorKind, message: string, status: number | null, details?: unknown) {
+  constructor(
+    kind: ApiErrorKind,
+    message: string,
+    status: number | null,
+    details?: unknown,
+    retryAfter: number | null = null,
+  ) {
     super(message);
     this.name = "ApiError";
     this.kind = kind;
     this.status = status;
     this.details = details;
+    this.retryAfter = retryAfter;
   }
 }
 

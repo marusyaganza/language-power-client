@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
-import { apiFetch } from "./http";
+import { apiFetch, parseRetryAfter } from "./http";
 import { ApiError } from "./errors";
 
 const fetchMock = vi.fn<typeof fetch>();
@@ -90,6 +90,27 @@ describe("apiFetch", () => {
     });
   });
 
+  it("keeps Retry-After on an http error", async () => {
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ detail: "Sorry, registration is closed for today, try again tomorrow" }), {
+        status: 429,
+        headers: { "Content-Type": "application/json", "Retry-After": "3600" },
+      }),
+    );
+
+    const error = await expectApiError(apiFetch("/auth/signup", { method: "POST", body: {}, schema: userSchema }));
+
+    expect(error).toMatchObject({ kind: "http", status: 429, retryAfter: 3600 });
+  });
+
+  it("has no retryAfter when the header isn't sent", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ detail: "Word not found" }, 404));
+
+    const error = await expectApiError(apiFetch("/words/1", { method: "DELETE", schema: null }));
+
+    expect(error.retryAfter).toBeNull();
+  });
+
   it("falls back to the status when the error body isn't JSON", async () => {
     fetchMock.mockResolvedValue(new Response("Internal Server Error", { status: 500 }));
 
@@ -131,5 +152,28 @@ describe("apiFetch", () => {
     fetchMock.mockRejectedValue(abort);
 
     await expect(apiFetch("/auth/me", { schema: userSchema })).rejects.toBe(abort);
+  });
+});
+
+describe("parseRetryAfter", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("reads seconds", () => {
+    expect(parseRetryAfter("120")).toBe(120);
+  });
+
+  it("reads an HTTP date as seconds from now", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-10-28T23:00:00Z"));
+
+    expect(parseRetryAfter("Thu, 29 Oct 2026 00:00:00 GMT")).toBe(3600);
+  });
+
+  it("returns null for a missing or invalid header", () => {
+    expect(parseRetryAfter(null)).toBeNull();
+    expect(parseRetryAfter("")).toBeNull();
+    expect(parseRetryAfter("soon")).toBeNull();
   });
 });

@@ -33,8 +33,17 @@ export const wordSearchResponseSchema = z.object({
   suggestions: z.array(z.string()).default([]),
   /** Filled only when the backend runs with mocked dictionaries and the query isn't one of them. */
   mock_queries: z.array(z.string()).default([]),
+  /** Searches left in this language after this one; null when searches aren't limited. */
+  searches_left: z.number().nullable().default(null),
 });
 export type WordSearchResponse = z.infer<typeof wordSearchResponseSchema>;
+
+// SearchLimits — `searches_left` is keyed by language; null values mean unlimited.
+export const searchLimitsSchema = z.object({
+  limit: z.number().nullable(),
+  searches_left: z.record(z.string(), z.number().nullable()),
+});
+export type SearchLimits = z.infer<typeof searchLimitsSchema>;
 
 // VocabularyPage
 export const vocabularyPageSchema = z.object({

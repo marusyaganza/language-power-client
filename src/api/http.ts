@@ -53,7 +53,8 @@ export async function apiFetch(
   if (!response.ok) {
     const errorBody = await readJson(response);
     const fallback = `Request failed (${response.status})`;
-    throw new ApiError("http", messageFromErrorBody(errorBody, fallback), response.status, errorBody);
+    const retryAfter = parseRetryAfter(response.headers.get("Retry-After"));
+    throw new ApiError("http", messageFromErrorBody(errorBody, fallback), response.status, errorBody, retryAfter);
   }
 
   if (schema === null) return;
@@ -67,6 +68,16 @@ export async function apiFetch(
     throw new ApiError("contract", message, response.status, result.error.issues);
   }
   return result.data;
+}
+
+/** `Retry-After` is either a number of seconds or an HTTP date; returns seconds, or null if absent or invalid. */
+export function parseRetryAfter(header: string | null): number | null {
+  if (header === null || header.trim() === "") return null;
+  const seconds = Number(header);
+  if (Number.isFinite(seconds)) return Math.max(0, seconds);
+  const date = Date.parse(header);
+  if (Number.isNaN(date)) return null;
+  return Math.max(0, Math.ceil((date - Date.now()) / 1000));
 }
 
 function buildUrl(path: string, query?: QueryParams): string {
