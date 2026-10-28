@@ -1,7 +1,7 @@
-import { Button, Container, Flex, Group, List, Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
-import { IconBookmark, IconDeviceGamepad2, IconFlask, IconSearch } from "@tabler/icons-react";
+import { Button, Container, Flex, SimpleGrid, Stack, Text, Title } from "@mantine/core";
+import { IconBookmark, IconDeviceGamepad2, IconSearch } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
-import { useAuthConfig } from "@/features/auth";
+import { DemoNotice, useAuthConfig } from "@/features/auth";
 import { AppFooter } from "@/shared/components/AppFooter";
 import { paths } from "@/shared/paths";
 import { LandingHeader } from "../components/LandingHeader";
@@ -52,24 +52,7 @@ export function LandingPage() {
             ))}
           </SimpleGrid>
 
-          {config?.use_mocks && (
-            <Paper withBorder p="lg" maw={520} className="app-frame" style={{ borderColor: "var(--app-border)" }}>
-              <Group gap="xs" mb="sm" wrap="nowrap">
-                <IconFlask size={20} color="var(--app-signal)" aria-hidden />
-                <Title order={2} size="h4">
-                  This is a demo
-                </Title>
-              </Group>
-              <List size="sm" spacing={6}>
-                <List.Item>
-                  The dictionary is a sample, so search works for a fixed list of words. Search for anything to see
-                  them.
-                </List.Item>
-                <List.Item>Any email address works. We never send emails.</List.Item>
-                <List.Item>Accounts and their data are deleted after 7 days.</List.Item>
-              </List>
-            </Paper>
-          )}
+          {config && <DemoNotice config={config} />}
         </Stack>
       </Container>
 
