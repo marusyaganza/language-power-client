@@ -5,6 +5,7 @@ import { isApiError } from "@/api/errors";
 import { useLanguage } from "@/context/language";
 import { QueryState } from "@/shared/components/QueryState";
 import { paths } from "@/shared/paths";
+import { DictionaryCredit } from "../components/DictionaryCredit";
 import { QueryLinks } from "../components/QueryLinks";
 import { SearchBar } from "../components/SearchBar";
 import { SearchLimit } from "../components/SearchLimit";
@@ -94,6 +95,12 @@ export function SearchPage() {
                   {words.map((word) => (
                     <WordCard key={word.uuid ?? word.name} word={word} onSave={save} isSaving={isSaving} />
                   ))}
+                  {/* After the results, so it doesn't compete with them; the logo can't be smaller than 50 px. */}
+                  {words.length > 0 && (
+                    <Group justify="flex-end">
+                      <DictionaryCredit />
+                    </Group>
+                  )}
                 </Stack>
               </>
             )}
