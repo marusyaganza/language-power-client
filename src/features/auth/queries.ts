@@ -1,5 +1,6 @@
 import { useMantineColorScheme } from "@mantine/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { isApiError } from "@/api/errors";
 import { getAuthConfig, getCurrentUser, login, logout, signup } from "./api";
 
 export const authKeys = {
@@ -42,6 +43,13 @@ export function useSignup() {
     onSuccess: () => {
       // Signup may or may not start a session; let the next protected route ask the server.
       queryClient.removeQueries({ queryKey: authKeys.currentUser() });
+    },
+    onError: (error) => {
+      // A 429 is either the per-IP limit or the day's accounts running out. Refetching the config
+      // tells them apart: when the day is full, the page switches to "closed for today".
+      if (isApiError(error) && error.status === 429) {
+        queryClient.invalidateQueries({ queryKey: authKeys.config() });
+      }
     },
   });
 }
