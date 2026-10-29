@@ -1,5 +1,9 @@
 [build]
-  command = "npm run build"
+  # Both sites (personal and demo) build from this repo, so the API's address comes from each site's
+  # API_ORIGIN variable (e.g. https://py-lp-api-463683887111.us-east5.run.app). netlify.toml can't read
+  # variables itself, but [[redirects]] and [[headers]] are read after the build, so the command
+  # writes it in. `:?` fails the build when the variable is missing, instead of proxying to nowhere.
+  command = "sed -i \"s|API_ORIGIN_PLACEHOLDER|${API_ORIGIN:?Set API_ORIGIN in the Netlify site settings}|g\" netlify.toml && npm run build"
   publish = "dist"
 
 [build.environment]
@@ -22,7 +26,7 @@
 # and the API rejects requests without a valid one, so it can only be reached through this site.
 [[redirects]]
   from = "/api/*"
-  to = "https://py-lp-api-463683887111.us-east5.run.app/:splat"
+  to = "API_ORIGIN_PLACEHOLDER/:splat"   # replaced by the build command
   status = 200
   force = true
   signed = "API_SIGNATURE_TOKEN"   # the variable's NAME, not the secret itself
@@ -35,6 +39,28 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Security headers for every response. The CSP allows only this site's own scripts and requests
+# (the API and the Sentry tunnel are same-origin), Google Fonts, and images and audio from any https:
+# host, since users can add their own picture and audio links. 'unsafe-inline' styles: Mantine sets
+# CSS variables in style attributes and <style> tags at runtime.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = """\
+      default-src 'self'; \
+      script-src 'self'; \
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; \
+      font-src 'self' https://fonts.gstatic.com; \
+      img-src 'self' data: blob: https:; \
+      media-src 'self' blob: https:; \
+      connect-src 'self'; \
+      object-src 'none'; \
+      base-uri 'self'; \
+      form-action 'self'; \
+      frame-ancestors 'none'"""
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
 
 # Built assets have content hashes in their names, so they never change.
 [[headers]]
