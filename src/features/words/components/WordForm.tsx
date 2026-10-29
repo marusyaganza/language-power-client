@@ -1,7 +1,7 @@
 import { Button, Group, Select, Stack, Text, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { HelpLabel } from "@/shared/components/HelpLabel";
-import { wordFormValidation, type WordFormMode, type WordFormValues } from "../lib/wordForm";
+import { partOfSpeechOptions, wordFormValidation, type WordFormMode, type WordFormValues } from "../lib/wordForm";
 import { DefsEditor } from "./DefsEditor";
 import { ExamplesEditor } from "./ExamplesEditor";
 
@@ -12,19 +12,11 @@ const IMG_URL_HELP =
   "A link to a picture of the word. Name the Picture only uses words that have one, so add it to practice " +
   "this word there. Other games show it after you answer.";
 
-const FL_OPTIONS = [
-  { value: "noun", label: "Noun" },
-  { value: "verb", label: "Verb" },
-  { value: "adjective", label: "Adjective" },
-  { value: "adverb", label: "Adverb" },
-  { value: "phrase", label: "Phrase" },
-  { value: "idiom", label: "Idiom" },
-  { value: "other", label: "Other" },
-];
-
 interface WordFormProps {
   /** `create` also asks for the word, part of speech and transcription. */
   mode: WordFormMode;
+  /** The word's language, which sets the part-of-speech choices. */
+  language: string;
   /** Read once on mount; remount with a new `key` to edit a different word. */
   initialValues: WordFormValues;
   showTranslations: boolean;
@@ -37,6 +29,7 @@ interface WordFormProps {
 
 export function WordForm({
   mode,
+  language,
   initialValues,
   showTranslations,
   submitLabel,
@@ -44,7 +37,7 @@ export function WordForm({
   onSubmit,
   onCancel,
 }: WordFormProps) {
-  const form = useForm<WordFormValues>({ initialValues, validate: wordFormValidation(mode) });
+  const form = useForm<WordFormValues>({ initialValues, validate: wordFormValidation(mode, language) });
   const { values } = form;
 
   return (
@@ -53,7 +46,7 @@ export function WordForm({
         {mode === "create" && (
           <>
             <TextInput label="Word" withAsterisk {...form.getInputProps("name")} />
-            <Select label="Part of speech" data={FL_OPTIONS} withAsterisk {...form.getInputProps("fl")} />
+            <Select label="Part of speech" data={partOfSpeechOptions(language)} withAsterisk {...form.getInputProps("fl")} />
             <TextInput label="Transcription" placeholder="Optional" {...form.getInputProps("transcription")} />
           </>
         )}

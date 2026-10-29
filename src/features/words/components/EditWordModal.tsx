@@ -20,6 +20,7 @@ export function EditWordModal({ word, onClose }: EditWordModalProps) {
         <WordForm
           key={wordId} // fresh form state for each word
           mode="edit"
+          language={word.language}
           initialValues={wordToFormValues(word)}
           showTranslations={usesTranslations(word.language)}
           submitLabel="Save"

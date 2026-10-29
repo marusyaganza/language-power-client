@@ -36,6 +36,7 @@ export function NewWordPage() {
         <Title order={2}>Add a new word</Title>
         <WordForm
           mode="create"
+          language={language}
           initialValues={emptyWordForm()}
           showTranslations={usesTranslations(language)}
           submitLabel="Save word"

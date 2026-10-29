@@ -3,8 +3,10 @@ import type { Word } from "../schemas";
 import {
   cleanExamples,
   emptyWordForm,
+  genderFromFl,
   isOptionalUrl,
   orderDefs,
+  partOfSpeechOptions,
   toWordCreate,
   toWordUpdate,
   wordFormValidation,
@@ -68,7 +70,7 @@ describe("toWordCreate", () => {
     const values: WordFormValues = {
       ...emptyWordForm(),
       name: " gato ",
-      fl: "noun",
+      fl: "masculine noun",
       defs: ["", "cat", "tomcat"],
       mainDefIndex: 2,
       examples: [{ text: "El gato.", translation: "The cat." }],
@@ -80,14 +82,43 @@ describe("toWordCreate", () => {
       name: "gato",
       language: "es",
       stems: [],
-      fl: "noun",
+      fl: "masculine noun",
       transcription: null,
       defs: ["tomcat", "cat"],
       examples: [{ text: "El gato.", translation: "The cat." }],
       audio_url: null,
       img_url: null,
       img_desc: null,
+      gender: "masculine",
     });
+  });
+
+  it("sends no gender for a part of speech without one", () => {
+    expect(toWordCreate({ ...emptyWordForm(), name: "run", fl: "verb", defs: ["move fast"] }, "en").gender).toBeNull();
+  });
+});
+
+describe("partOfSpeechOptions", () => {
+  const values = (language: string) => partOfSpeechOptions(language).map((o) => o.value);
+
+  it("offers gendered nouns in a language with grammatical gender", () => {
+    expect(values("es")).toEqual(expect.arrayContaining(["masculine noun", "feminine noun", "masculine or feminine noun"]));
+    expect(values("es")).not.toContain("noun");
+  });
+
+  it("offers a plain noun otherwise", () => {
+    expect(values("en")).toContain("noun");
+    expect(values("en")).not.toContain("masculine noun");
+  });
+});
+
+describe("genderFromFl", () => {
+  it("reads the gender from the part of speech", () => {
+    expect(genderFromFl("masculine noun")).toBe("masculine");
+    expect(genderFromFl("feminine noun")).toBe("feminine");
+    expect(genderFromFl("masculine or feminine noun")).toBe("both");
+    expect(genderFromFl("noun")).toBeNull();
+    expect(genderFromFl("verb")).toBeNull();
   });
 });
 
@@ -110,21 +141,24 @@ describe("wordToFormValues / toWordUpdate", () => {
 
 describe("wordFormValidation", () => {
   it("requires name and part of speech only when creating", () => {
-    expect(wordFormValidation("create").name("  ")).toBe("Enter the word");
-    expect(wordFormValidation("create").fl(null)).toBe("Choose a part of speech");
-    expect(wordFormValidation("edit").name("")).toBeNull();
-    expect(wordFormValidation("edit").fl(null)).toBeNull();
+    expect(wordFormValidation("create", "es").name("  ")).toBe("Enter the word");
+    expect(wordFormValidation("create", "es").fl(null)).toBe("Choose a part of speech");
+    expect(wordFormValidation("edit", "es").name("")).toBeNull();
+    expect(wordFormValidation("edit", "es").fl(null)).toBeNull();
+    expect(wordFormValidation("create", "es").fl("masculine noun")).toBeNull();
+    // chosen before switching from Spanish to English
+    expect(wordFormValidation("create", "en").fl("masculine noun")).toBe("Choose a part of speech");
   });
 
   it("requires at least one non-blank definition", () => {
-    expect(wordFormValidation("edit").defs(["", "  "])).toBe("Add at least one definition");
-    expect(wordFormValidation("edit").defs(["", "ok"])).toBeNull();
+    expect(wordFormValidation("edit", "es").defs(["", "  "])).toBe("Add at least one definition");
+    expect(wordFormValidation("edit", "es").defs(["", "ok"])).toBeNull();
   });
 });
 
 describe("wordFormValidation limits", () => {
-  const create = wordFormValidation("create");
-  const edit = wordFormValidation("edit");
+  const create = wordFormValidation("create", "es");
+  const edit = wordFormValidation("edit", "es");
 
   it("limits the word and transcription to 100 characters, in create only", () => {
     expect(create.name("a".repeat(100))).toBeNull();

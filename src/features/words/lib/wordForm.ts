@@ -1,6 +1,8 @@
 // Pure helpers behind WordForm: initial values, validation and the request bodies built from it.
 import type { Example, Word, WordCreate, WordUpdate } from "../schemas";
 
+type Gender = NonNullable<WordCreate["gender"]>;
+
 export interface ExampleDraft {
   text: string;
   translation: string;
@@ -48,6 +50,47 @@ export function wordToFormValues(word: Word): WordFormValues {
   };
 }
 
+export interface PartOfSpeechOption {
+  value: string;
+  label: string;
+}
+
+// Languages whose nouns have grammatical gender, which the Noun Gender game practises.
+const GENDERED_LANGUAGES = new Set(["es"]);
+
+// The values match Merriam-Webster's Spanish "fl", so custom nouns read like dictionary ones.
+const GENDERED_NOUN_OPTIONS: PartOfSpeechOption[] = [
+  { value: "masculine noun", label: "Masculine noun" },
+  { value: "feminine noun", label: "Feminine noun" },
+  { value: "masculine or feminine noun", label: "Masculine or feminine noun" },
+];
+
+const OTHER_PART_OF_SPEECH_OPTIONS: PartOfSpeechOption[] = [
+  { value: "verb", label: "Verb" },
+  { value: "adjective", label: "Adjective" },
+  { value: "adverb", label: "Adverb" },
+  { value: "phrase", label: "Phrase" },
+  { value: "idiom", label: "Idiom" },
+  { value: "other", label: "Other" },
+];
+
+/** The part-of-speech choices for a language: a gendered language picks the noun's gender with it. */
+export function partOfSpeechOptions(language: string): PartOfSpeechOption[] {
+  const nouns = GENDERED_LANGUAGES.has(language) ? GENDERED_NOUN_OPTIONS : [{ value: "noun", label: "Noun" }];
+  return [...nouns, ...OTHER_PART_OF_SPEECH_OPTIONS];
+}
+
+/** Same rule as the server's extract_gender (dictionary/merriam_webster/api.py). */
+export function genderFromFl(fl: string): Gender | null {
+  const lower = fl.toLowerCase();
+  const masculine = lower.includes("masculine");
+  const feminine = lower.includes("feminine");
+  if (masculine && feminine) return "both";
+  if (feminine) return "feminine";
+  if (masculine) return "masculine";
+  return null;
+}
+
 /** Translations are only asked for when learning a language other than English. */
 export function usesTranslations(language: string): boolean {
   return language !== "en";
@@ -83,6 +126,7 @@ export function toWordCreate(values: WordFormValues, language: string): WordCrea
     audio_url: emptyToNull(values.audioUrl),
     img_url: emptyToNull(values.imgUrl),
     img_desc: emptyToNull(values.imgDesc),
+    gender: genderFromFl(values.fl),
   };
 }
 
@@ -160,13 +204,16 @@ export type WordFormMode = "create" | "edit";
 /**
  * Mantine form validation rules. Name, part of speech and transcription are only checked in `create`,
  * the only mode that shows them: an error on a hidden field would block saving without a message.
+ * The part of speech must be one of `language`'s choices, so one picked before switching language is caught.
  */
-export function wordFormValidation(mode: WordFormMode) {
+export function wordFormValidation(mode: WordFormMode, language: string) {
   const creating = mode === "create";
+  const flValues = partOfSpeechOptions(language).map((o) => o.value);
   return {
     name: (value: string) =>
       !creating ? null : value.trim() === "" ? "Enter the word" : tooLong(value, WORD_LIMITS.name),
-    fl: (value: string | null) => (creating && value === null ? "Choose a part of speech" : null),
+    fl: (value: string | null) =>
+      creating && (value === null || !flValues.includes(value)) ? "Choose a part of speech" : null,
     transcription: (value: string) => (creating ? tooLong(value, WORD_LIMITS.transcription) : null),
     defs: defsError,
     examples: examplesError,
