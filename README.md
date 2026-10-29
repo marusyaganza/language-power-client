@@ -30,7 +30,18 @@ Language Power is a web app for language learners. Users look up words, save the
 - Pronunciation audio in games, with a mute option
 - Light and dark theme. Theme, study language and sound are remembered per user on the device
 
-In demo mode the backend mocks the dictionary, and search only works for a fixed list of words. The search page shows that list when a query isn't available.
+Search results come from the [Merriam-Webster Dictionary API](https://dictionaryapi.com/) and credit it with the Merriam-Webster logo, as the API's terms require. For local development and tests, the backend has a mock mode with a few made-up entries in Merriam-Webster's format; the search page lists them, and shows a "Mock dictionary" label instead of the logo.
+
+## Demo
+
+The public demo runs the same build as the private deployment. The backend's settings make it a demo, and `/auth/config` tells the client about them:
+
+- Sign-up is open, and any email address works. Nothing is ever sent to it
+- Search uses the live Merriam-Webster API, limited to 10 searches per language per account. The search page shows how many are left
+- Accounts and their data are deleted after 24 hours, and each can save up to 100 words
+- New users see a short "search, save, play" guide on the games page
+
+The limits exist because Merriam-Webster's free plan allows 1,000 queries a day per dictionary. The backend also caps the whole demo at 800 searches per language and 50 new accounts a day; when the day's accounts are taken, the sign-up page says when it opens again, in the visitor's own time.
 
 ## Tech stack
 
@@ -47,7 +58,7 @@ In demo mode the backend mocks the dictionary, and search only works for a fixed
 
 ## System architecture
 
-![System architecture: the React client talks to the FastAPI backend over HTTPS/JSON with a session cookie. The backend uses PostgreSQL for users, words and learning progress, Redis for auth and game sessions, and the Merriam-Webster Dictionary API (recorded fixtures in mock mode).](docs/architecture.png)
+![System architecture: the React client talks to the FastAPI backend over HTTPS/JSON with a session cookie. The backend uses PostgreSQL for users, words and learning progress, Redis for auth and game sessions, and the Merriam-Webster Dictionary API (made-up entries for tests and local development).](docs/architecture.png)
 
 The client is the top box: it renders the UI and keeps server data in TanStack Query. Everything else (accounts, the dictionary, vocabulary, scheduling and grading) belongs to the [backend](https://github.com/marusyaganza/py-lp).
 
@@ -116,13 +127,15 @@ The client calls the API on its own origin under `/api`, and a proxy forwards th
 | Environment | Proxy                                                | Backend                 |
 | ----------- | ---------------------------------------------------- | ----------------------- |
 | Development | Vite dev server (`server.proxy` in `vite.config.js`) | `http://localhost:8000` |
-| Production  | Netlify rewrite rule in `netlify.toml`               | Google Cloud Run        |
+| Production  | Netlify rewrite rule in `netlify.toml`               | Google Cloud Run, from the site's `API_ORIGIN` variable |
 
 ![Deployment: the browser loads the React build from Netlify, which proxies /api/* to the API container on Google Cloud Run (same origin). The API uses Upstash Redis, Neon PostgreSQL and the Merriam-Webster API, and on start runs migrations and seeds the games before starting uvicorn.](docs/deployment.png)
 
 In production the rewrite is also signed: Netlify adds an `X-Nf-Sign` header to every request it forwards, and the API rejects requests without a valid one, so it can only be reached through the site.
 
-There are no feature flags in the client. Runtime settings that belong to the backend are fetched from it: `/auth/config` says whether sign-up is enabled, and the backend decides whether dictionary search runs in demo mode.
+Both Netlify sites (private and demo) build from this repo. `netlify.toml` can't read environment variables, so the build command writes each site's `API_ORIGIN` into the rewrite rule, and fails if it isn't set. `netlify.toml` also sets security headers: a Content-Security-Policy that allows only the site's own scripts and requests (plus Google Fonts, and images and audio from any `https:` host, since users can add their own links), `X-Content-Type-Options` and `Referrer-Policy`.
+
+There are no feature flags in the client. Runtime settings that belong to the backend are fetched from it: `/auth/config` says whether sign-up is enabled and open today, whether the dictionary is mocked, and the demo's limits (searches per language, account lifetime), which are `null` on the private deployment.
 
 ### Auth and cookies
 
@@ -134,7 +147,7 @@ Any 401 or 403 response makes the app re-check `/auth/me`. If the session is gon
 
 ## Error reporting
 
-Crashes and unexpected errors are reported to [Sentry](https://sentry.io). It runs in error-only mode: no performance tracing and no session replay, so the only cost is the SDK in the main bundle (about 30 kB gzipped), and a request goes out only when an error is sent.
+Crashes and unexpected errors on the public demo are reported to [Sentry](https://sentry.io). The private deployment has no DSN, so reporting is off there. It runs in error-only mode: no performance tracing and no session replay, so the only cost is the SDK in the main bundle (about 30 kB gzipped), and a request goes out only when an error is sent.
 
 What gets reported:
 
@@ -147,7 +160,7 @@ Reports carry the user's id, never the email. They are sent through a same-origi
 
 | Variable                  | Where             | Notes                                                                        |
 | ------------------------- | ----------------- | ---------------------------------------------------------------------------- |
-| `VITE_SENTRY_DSN`         | Netlify           | Turns reporting on. Without it (local dev, tests) the SDK isn't started      |
+| `VITE_SENTRY_DSN`         | Netlify (demo)    | Turns reporting on. Without it (private site, local dev, tests) the SDK isn't started |
 | `VITE_SENTRY_ENVIRONMENT` | `netlify.toml`    | Set per deploy context: `production`, `deploy-preview`, `branch-deploy`      |
 | `SENTRY_AUTH_TOKEN`       | Netlify (secret)  | Build only. Uploads source maps, then deletes them from `dist`               |
 | `SENTRY_ORG`, `SENTRY_PROJECT` | Netlify      | Build only. Where the source maps go                                         |
@@ -162,6 +175,8 @@ Without `SENTRY_AUTH_TOKEN` the build makes no source maps at all, so they are n
 - **Mantine** provides the UI components, forms, modals and notifications. All colors are tokens defined in `src/theme/theme.ts`.
 - **Shareable view state lives in the URL**: vocabulary search, page and sort, and game mode survive reloads and can be linked.
 - **Per-user preferences** (theme, study language, sound) are kept in `localStorage`, keyed by user id.
+
+Dictionary search results are kept for the whole visit and never refetched, because on the demo every search request uses up one of the account's searches. Saving or deleting a word updates the `saved` flag in the cached results instead.
 
 Starting a game creates a session on the backend (`POST`), so its query runs once per visit: no background refetch, no retry, not abortable. It is dropped when the page unmounts. Asking for the result ends the session and is safe to repeat. If the backend has dropped the session (20 minutes without an answer), the game stops and explains which answers were saved before sending the player back to the games list. A copy in `sessionStorage` lets a reload resume the game, and opening the games list clears it, so clicking a game card always starts a new session.
 
@@ -191,6 +206,6 @@ Almost every flow depends on this API: accounts, dictionary search, vocabulary a
 - Private app, no public demo yet
 - Requires a running backend. There is no mock API on the client side
 - Most features require a signed-in user
-- The dictionary is mocked in demo mode, so search only covers a fixed list of words
+- The demo limits dictionary searches (10 per language per account) to stay within Merriam-Webster's free plan
 - No end-to-end tests yet. Automated tests cover pure logic only
 - UI and API may still change during active development
