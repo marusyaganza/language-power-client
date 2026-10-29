@@ -6,6 +6,8 @@ React + TypeScript client for the current version of the Language Power applicat
 
 Language Power is a web app for language learners. Users look up words, save them to a personal vocabulary, edit them, and practise them in small learning games scheduled with spaced repetition. This is the React client for Language Power v4, built with Vite and TypeScript. It consumes the v4 FastAPI backend ([py-lp](https://github.com/marusyaganza/py-lp)), which owns data, accounts, dictionary lookups and game scheduling. Everything except the landing, login and sign-up pages requires a signed-in user.
 
+**Live demo: [language-power.netlify.app](https://language-power.netlify.app/)**. Sign up with any email address; demo accounts are deleted after 24 hours. See [Demo](#demo) for the limits.
+
 ![Search results for "lever": two dictionary entries (noun and verb) with pronunciation, audio, definitions, an example, an illustration, word forms and a save button.](docs/screenshot-search.png)
 
 ![The Noun Gender game after a wrong answer: "el" is marked wrong, "la" is outlined as correct for "manzana", with a Continue button.](docs/screenshot-game.png)
@@ -13,9 +15,8 @@ Language Power is a web app for language learners. Users look up words, save the
 ## Status
 
 - Active development
-- Deployed privately: frontend on Netlify, API on Google Cloud Run
+- Deployed twice from the same build: a public demo and a private instance. Frontend on Netlify, API on Google Cloud Run
 - Built and tested against the v4 FastAPI backend
-- UI and API may still change
 
 ## Features
 
@@ -34,7 +35,7 @@ Search results come from the [Merriam-Webster Dictionary API](https://dictionary
 
 ## Demo
 
-The public demo runs the same build as the private deployment. The backend's settings make it a demo, and `/auth/config` tells the client about them:
+The public demo is at [language-power.netlify.app](https://language-power.netlify.app/). It runs the same build as the private deployment. The backend's settings make it a demo, and `/auth/config` tells the client about them:
 
 - Sign-up is open, and any email address works. Nothing is ever sent to it
 - Search uses the live Merriam-Webster API, limited to 10 searches per language per account. The search page shows how many are left
@@ -199,11 +200,10 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint, tests and build on every p
 
 Backend repository: [py-lp](https://github.com/marusyaganza/py-lp) (FastAPI, PostgreSQL, Redis).
 
-Almost every flow depends on this API: accounts, dictionary search, vocabulary and games. Without it the frontend loads, but only shows the login page and request errors.
+Almost every flow depends on this API: accounts, dictionary search, vocabulary and games. Without it the frontend loads, but only shows the public pages and request errors.
 
 ## Limitations
 
-- Private app, no public demo yet
 - Requires a running backend. There is no mock API on the client side
 - Most features require a signed-in user
 - The demo limits dictionary searches (10 per language per account) to stay within Merriam-Webster's free plan
