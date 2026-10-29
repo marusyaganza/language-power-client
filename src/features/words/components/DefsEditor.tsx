@@ -1,6 +1,7 @@
 import { ActionIcon, Button, Group, Radio, Stack, Text, TextInput, Tooltip } from "@mantine/core";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { HelpLabel } from "@/shared/components/HelpLabel";
+import { WORD_LIMITS } from "../lib/wordForm";
 
 const MAIN_DEF_HELP =
   "The main definition is the word's key meaning, shown first. It's the right answer in Pick the Meaning " +
@@ -63,7 +64,13 @@ export function DefsEditor({ defs, mainIndex, onDefsChange, onMainIndexChange }:
           </ActionIcon>
         </Group>
       ))}
-      <Button variant="sage" size="xs" leftSection={<IconPlus size={14} />} onClick={addDef}>
+      <Button
+        variant="sage"
+        size="xs"
+        leftSection={<IconPlus size={14} />}
+        onClick={addDef}
+        disabled={defs.length >= WORD_LIMITS.defs}
+      >
         Add definition
       </Button>
     </Stack>

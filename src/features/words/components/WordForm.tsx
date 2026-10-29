@@ -72,11 +72,18 @@ export function WordForm({
           )}
         </Stack>
 
-        <ExamplesEditor
-          examples={values.examples}
-          onExamplesChange={(examples) => form.setFieldValue("examples", examples)}
-          hideTranslation={!showTranslations}
-        />
+        <Stack gap={4}>
+          <ExamplesEditor
+            examples={values.examples}
+            onExamplesChange={(examples) => form.setFieldValue("examples", examples)}
+            hideTranslation={!showTranslations}
+          />
+          {form.errors.examples && (
+            <Text c="red" size="sm">
+              {form.errors.examples}
+            </Text>
+          )}
+        </Stack>
 
         <TextInput label={<HelpLabel label="Audio URL" help={AUDIO_URL_HELP} />} placeholder="Optional" {...form.getInputProps("audioUrl")} />
         <TextInput label={<HelpLabel label="Image URL" help={IMG_URL_HELP} />} placeholder="Optional" {...form.getInputProps("imgUrl")} />

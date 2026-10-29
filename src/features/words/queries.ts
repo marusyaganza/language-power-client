@@ -71,8 +71,9 @@ export function useSaveWord() {
     },
     onError: (error) => {
       notifications.show(
+        // 409: already saved, or the demo's word cap; the server's message says which.
         isApiError(error) && error.status === 409
-          ? { message: "This word is already in your vocabulary", color: "yellow" }
+          ? { message: error.message, color: "yellow" }
           : { message: "Something went wrong saving this word", color: "red" },
       );
     },
@@ -88,8 +89,12 @@ export function useCreateWord() {
       queryClient.invalidateQueries({ queryKey: wordKeys.vocabularies() });
       notifications.show({ message: `"${word.name}" added to vocabulary`, color: "green" });
     },
-    onError: () => {
-      notifications.show({ message: "Failed to save word", color: "red" });
+    onError: (error) => {
+      notifications.show(
+        isApiError(error) && error.status === 409
+          ? { message: error.message, color: "yellow" }
+          : { message: "Failed to save word", color: "red" },
+      );
     },
   });
 }

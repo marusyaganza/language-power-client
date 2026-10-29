@@ -110,15 +110,68 @@ export function isOptionalUrl(value: string): boolean {
 
 const URL_ERROR = "Enter a full link, starting with http:// or https://";
 
+// Mirrors the server's limits on WordCreate/WordUpdate (words/schemas.py), so a long paste is caught
+// here instead of coming back as a 422.
+export const WORD_LIMITS = {
+  name: 100,
+  transcription: 100,
+  defs: 10,
+  defLength: 1000,
+  examples: 50,
+  exampleLength: 500,
+  url: 2048,
+  imgDesc: 1000,
+} as const;
+
+/** Characters as the server counts them (code points, like Python's len()), after trimming. */
+function length(value: string): number {
+  return [...value.trim()].length;
+}
+
+function tooLong(value: string, max: number): string | null {
+  return length(value) > max ? `At most ${max.toLocaleString("en-US")} characters` : null;
+}
+
+function urlError(value: string): string | null {
+  return isOptionalUrl(value) ? tooLong(value, WORD_LIMITS.url) : URL_ERROR;
+}
+
+function defsError(defs: string[]): string | null {
+  const filled = defs.filter((d) => d.trim() !== "");
+  if (filled.length === 0) return "Add at least one definition";
+  if (filled.length > WORD_LIMITS.defs) return `At most ${WORD_LIMITS.defs} definitions`;
+  if (filled.some((d) => length(d) > WORD_LIMITS.defLength)) {
+    return `Each definition can be at most ${WORD_LIMITS.defLength.toLocaleString("en-US")} characters`;
+  }
+  return null;
+}
+
+function examplesError(examples: ExampleDraft[]): string | null {
+  const filled = examples.filter((e) => e.text.trim() !== "");
+  if (filled.length > WORD_LIMITS.examples) return `At most ${WORD_LIMITS.examples} examples`;
+  if (filled.some((e) => length(e.text) > WORD_LIMITS.exampleLength || length(e.translation) > WORD_LIMITS.exampleLength)) {
+    return `Each example and translation can be at most ${WORD_LIMITS.exampleLength} characters`;
+  }
+  return null;
+}
+
 export type WordFormMode = "create" | "edit";
 
-/** Mantine form validation rules; `create` also requires name and part of speech. */
+/**
+ * Mantine form validation rules. Name, part of speech and transcription are only checked in `create`,
+ * the only mode that shows them: an error on a hidden field would block saving without a message.
+ */
 export function wordFormValidation(mode: WordFormMode) {
+  const creating = mode === "create";
   return {
-    name: (value: string) => (mode === "create" && value.trim() === "" ? "Enter the word" : null),
-    fl: (value: string | null) => (mode === "create" && value === null ? "Choose a part of speech" : null),
-    defs: (value: string[]) => (value.some((d) => d.trim() !== "") ? null : "Add at least one definition"),
-    audioUrl: (value: string) => (isOptionalUrl(value) ? null : URL_ERROR),
-    imgUrl: (value: string) => (isOptionalUrl(value) ? null : URL_ERROR),
+    name: (value: string) =>
+      !creating ? null : value.trim() === "" ? "Enter the word" : tooLong(value, WORD_LIMITS.name),
+    fl: (value: string | null) => (creating && value === null ? "Choose a part of speech" : null),
+    transcription: (value: string) => (creating ? tooLong(value, WORD_LIMITS.transcription) : null),
+    defs: defsError,
+    examples: examplesError,
+    audioUrl: urlError,
+    imgUrl: urlError,
+    imgDesc: (value: string) => tooLong(value, WORD_LIMITS.imgDesc),
   };
 }

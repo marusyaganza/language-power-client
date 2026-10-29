@@ -1,6 +1,6 @@
 import { ActionIcon, Button, Group, Stack, Text, TextInput } from "@mantine/core";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
-import type { ExampleDraft } from "../lib/wordForm";
+import { WORD_LIMITS, type ExampleDraft } from "../lib/wordForm";
 
 interface ExamplesEditorProps {
   examples: ExampleDraft[];
@@ -49,7 +49,13 @@ export function ExamplesEditor({ examples, onExamplesChange, hideTranslation }: 
           </ActionIcon>
         </Group>
       ))}
-      <Button variant="sage" size="xs" leftSection={<IconPlus size={14} />} onClick={addExample}>
+      <Button
+        variant="sage"
+        size="xs"
+        leftSection={<IconPlus size={14} />}
+        onClick={addExample}
+        disabled={examples.length >= WORD_LIMITS.examples}
+      >
         Add example
       </Button>
     </Stack>

@@ -122,6 +122,51 @@ describe("wordFormValidation", () => {
   });
 });
 
+describe("wordFormValidation limits", () => {
+  const create = wordFormValidation("create");
+  const edit = wordFormValidation("edit");
+
+  it("limits the word and transcription to 100 characters, in create only", () => {
+    expect(create.name("a".repeat(100))).toBeNull();
+    expect(create.name("a".repeat(101))).toBe("At most 100 characters");
+    expect(create.transcription("a".repeat(101))).toBe("At most 100 characters");
+    expect(edit.name("a".repeat(101))).toBeNull();
+    expect(edit.transcription("a".repeat(101))).toBeNull();
+  });
+
+  it("counts characters like the server, after trimming", () => {
+    expect(create.name(`  ${"a".repeat(100)}  `)).toBeNull();
+    // 100 emoji are 200 UTF-16 units but 100 characters.
+    expect(create.name("😀".repeat(100))).toBeNull();
+  });
+
+  it("allows at most 10 definitions of 1,000 characters, ignoring blanks", () => {
+    expect(edit.defs([...Array(10).fill("def"), ""])).toBeNull();
+    expect(edit.defs(Array(11).fill("def"))).toBe("At most 10 definitions");
+    expect(edit.defs(["a".repeat(1000)])).toBeNull();
+    expect(edit.defs(["ok", "a".repeat(1001)])).toBe("Each definition can be at most 1,000 characters");
+  });
+
+  it("allows at most 50 examples, with text and translation up to 500 characters", () => {
+    const example = { text: "ok", translation: "" };
+    expect(edit.examples([...Array(50).fill(example), { text: " ", translation: "" }])).toBeNull();
+    expect(edit.examples(Array(51).fill(example))).toBe("At most 50 examples");
+    expect(edit.examples([{ text: "a".repeat(500), translation: "b".repeat(500) }])).toBeNull();
+    const longText = "Each example and translation can be at most 500 characters";
+    expect(edit.examples([{ text: "a".repeat(501), translation: "" }])).toBe(longText);
+    expect(edit.examples([{ text: "ok", translation: "b".repeat(501) }])).toBe(longText);
+  });
+
+  it("limits links to 2,048 characters and the image description to 1,000", () => {
+    const url = "https://example.com/";
+    expect(edit.imgUrl(url + "a".repeat(2048 - url.length))).toBeNull();
+    expect(edit.imgUrl(url + "a".repeat(2049 - url.length))).toBe("At most 2,048 characters");
+    expect(edit.audioUrl("ftp://example.com/a.mp3")).toBe("Enter a full link, starting with http:// or https://");
+    expect(edit.imgDesc("a".repeat(1000))).toBeNull();
+    expect(edit.imgDesc("a".repeat(1001))).toBe("At most 1,000 characters");
+  });
+});
+
 describe("isOptionalUrl", () => {
   it("accepts blank and http(s) links", () => {
     expect(isOptionalUrl("")).toBe(true);
