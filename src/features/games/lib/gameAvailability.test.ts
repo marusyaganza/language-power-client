@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Game } from "../schemas";
-import { formatTimeUntil, getGameAvailability, lockedMessage, nextUnlockTime } from "./gameAvailability";
+import { formatTimeUntil, getGameAvailability, hasNoWords, lockedMessage, nextUnlockTime } from "./gameAvailability";
 
 const game = (counts: Partial<Game>): Game => ({
   id: 2,
@@ -63,6 +63,28 @@ describe("formatTimeUntil", () => {
   it("returns null once the time has passed", () => {
     expect(formatTimeUntil(new Date(NOW), NOW)).toBeNull();
     expect(formatTimeUntil(new Date(NOW - 1000), NOW)).toBeNull();
+  });
+});
+
+describe("lockedMessage for games that use only some words", () => {
+  const needs = (missingWords: number) => ({ playable: false, reason: "needs-words", missingWords }) as const;
+
+  it("says what the words need", () => {
+    expect(lockedMessage(needs(4), NOW, "name-the-picture")).toBe("Add a picture to 4 more words to unlock");
+    expect(lockedMessage(needs(1), NOW, "name-the-picture")).toBe("Add a picture to 1 more word to unlock");
+    expect(lockedMessage(needs(2), NOW, "listen-and-type")).toBe("Add audio to 2 more words to unlock");
+    expect(lockedMessage(needs(1), NOW, "noun-gender")).toBe("Add 1 more noun to unlock");
+  });
+
+  it("falls back to words for other games", () => {
+    expect(lockedMessage(needs(3), NOW, "pick-the-meaning")).toBe("Add 3 more words to unlock");
+  });
+});
+
+describe("hasNoWords", () => {
+  it("is true only when no game has any words", () => {
+    expect(hasNoWords([game({ total_word_count: 0 }), game({ total_word_count: 0 })])).toBe(true);
+    expect(hasNoWords([game({ total_word_count: 0 }), game({ total_word_count: 1 })])).toBe(false);
   });
 });
 

@@ -17,9 +17,10 @@ import { useLanguage } from "@/context/language";
 import { useNow } from "@/shared/hooks/useNow";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { QueryState } from "@/shared/components/QueryState";
+import { FirstStepsHint } from "../components/FirstStepsHint";
 import { GameCard } from "../components/GameCard";
 import { GameSettingsModal } from "../components/GameSettingsModal";
-import { nextUnlockTime } from "../lib/gameAvailability";
+import { hasNoWords, nextUnlockTime } from "../lib/gameAvailability";
 import { clearStoredGames } from "../lib/gameStorage";
 import { gameOptionsToParams, parseGameOptions, type GameOptions } from "../lib/gameOptions";
 import { useGames } from "../queries";
@@ -118,11 +119,14 @@ export function GamesPage() {
           }
         >
           {(list) => (
-            <SimpleGrid cols={GRID_COLS} spacing="lg">
-              {list.map((game) => (
-                <GameCard key={game.id} game={game} options={options} now={now} />
-              ))}
-            </SimpleGrid>
+            <Stack gap="lg">
+              {hasNoWords(list) && <FirstStepsHint />}
+              <SimpleGrid cols={GRID_COLS} spacing="lg">
+                {list.map((game) => (
+                  <GameCard key={game.id} game={game} options={options} now={now} />
+                ))}
+              </SimpleGrid>
+            </Stack>
           )}
         </QueryState>
       </Stack>

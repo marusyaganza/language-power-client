@@ -36,7 +36,7 @@ export function GameCard({ game, options, now }: GameCardProps) {
       {!availability.playable && (
         <Group gap={6} wrap="nowrap" className={classes.locked}>
           {availability.reason === "needs-words" ? <IconLock size={14} /> : <IconClock size={14} />}
-          <span>{lockedMessage(availability, now)}</span>
+          <span>{lockedMessage(availability, now, game.slug)}</span>
         </Group>
       )}
     </Stack>,

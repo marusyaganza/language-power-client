@@ -31,15 +31,37 @@ export function formatTimeUntil(target: Date, now: number): string | null {
   return `${Math.round(ms / DAY)}d`;
 }
 
-/** The line a locked card shows. */
-export function lockedMessage(availability: Exclude<GameAvailability, { playable: true }>, now: number): string {
+const words = (n: number) => (n === 1 ? "word" : "words");
+
+/**
+ * Games that only use some of the saved words say which ones to add. Few dictionary entries have a
+ * picture (none in Spanish), so "add 3 more words" would send the user to save words that still don't count.
+ */
+const NEEDS_WORDS_MESSAGES: Record<string, (n: number) => string> = {
+  "name-the-picture": (n) => `Add a picture to ${n} more ${words(n)} to unlock`,
+  "listen-and-type": (n) => `Add audio to ${n} more ${words(n)} to unlock`,
+  "noun-gender": (n) => `Add ${n} more ${n === 1 ? "noun" : "nouns"} to unlock`,
+};
+
+/** The line a locked card shows; `slug` picks a game-specific "needs words" message. */
+export function lockedMessage(
+  availability: Exclude<GameAvailability, { playable: true }>,
+  now: number,
+  slug?: string,
+): string {
   if (availability.reason === "needs-words") {
     const n = availability.missingWords;
-    return `Add ${n} more ${n === 1 ? "word" : "words"} to unlock`;
+    const message = slug ? NEEDS_WORDS_MESSAGES[slug] : undefined;
+    return message ? message(n) : `Add ${n} more ${words(n)} to unlock`;
   }
   if (!availability.nextDueAt) return "Nothing due right now";
   const wait = formatTimeUntil(availability.nextDueAt, now);
   return wait ? `Next word due in ${wait}` : "Next word due any moment";
+}
+
+/** No game has any words: the account has no saved words yet (every game can use some saved words). */
+export function hasNoWords(games: Game[]): boolean {
+  return games.every((g) => g.total_word_count === 0);
 }
 
 /**
