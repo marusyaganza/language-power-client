@@ -2,9 +2,7 @@
 
 [![CI](https://github.com/marusyaganza/language-power-client/actions/workflows/ci.yml/badge.svg)](https://github.com/marusyaganza/language-power-client/actions/workflows/ci.yml)
 
-React + TypeScript client for the current version of the Language Power application.
-
-Language Power is a web app for language learners. Users look up words, save them to a personal vocabulary, edit them, and practise them in small learning games scheduled with spaced repetition. This is the React client for Language Power v3, built with Vite and TypeScript. It consumes the v3 FastAPI backend ([language-power-api](https://github.com/marusyaganza/language-power-api)), which owns data, accounts, dictionary lookups and game scheduling. Everything except the landing, login and sign-up pages requires a signed-in user.
+Language Power is a web app for language learners: look up words, save them to a personal vocabulary, and practise them in short games scheduled with spaced repetition. This repository is the React + TypeScript client (Vite) for Language Power v3. The FastAPI backend ([language-power-api](https://github.com/marusyaganza/language-power-api)) owns data, accounts, dictionary lookups and game scheduling. Everything except the landing, login and sign-up pages requires a signed-in user.
 
 **Live demo: [language-power.netlify.app](https://language-power.netlify.app/)**. Sign up with any email address; demo accounts are deleted after 24 hours. See [Demo](#demo) for the limits.
 
@@ -62,6 +60,19 @@ The limits exist because Merriam-Webster's free plan allows 1,000 queries a day 
 ![System architecture: the React client talks to the FastAPI backend over HTTPS/JSON with a session cookie. The backend uses PostgreSQL for users, words and learning progress, Redis for auth and game sessions, and the Merriam-Webster Dictionary API (made-up entries for tests and local development).](docs/architecture.png)
 
 The client is the top box: it renders the UI and keeps server data in TanStack Query. Everything else (accounts, the dictionary, vocabulary, scheduling and grading) belongs to the [backend](https://github.com/marusyaganza/language-power-api).
+
+## Data flow
+
+- **React Router** handles navigation. Routes are lazy-loaded, and everything behind the auth guard requires a session.
+- **React Query is the only store for server data.** Components never call `fetch`. Every query and mutation is a named hook with keys from a per-feature key factory. Mutation hooks own cache updates and toasts, pages own navigation. 4xx responses are not retried.
+- **Zod checks the API contract at runtime.** Frontend and backend live in separate repositories with no shared types or code generation, so `apiFetch` parses every response with the feature's schema. A mismatch fails loudly with the request and the field (`Unexpected response from GET /games: … at [0].due_word_count`) instead of turning into `undefined` deep in a component. Request bodies are plain TypeScript types, and the backend validates them.
+- **Mantine** provides the UI components, forms, modals and notifications. All colors are tokens defined in `src/theme/theme.ts`.
+- **Shareable view state lives in the URL**: vocabulary search, page and sort, and game mode survive reloads and can be linked.
+- **Per-user preferences** (theme, study language, sound) are kept in `localStorage`, keyed by user id.
+
+Dictionary search results are kept for the whole visit and never refetched, because on the demo every search request uses up one of the account's searches. Saving or deleting a word updates the `saved` flag in the cached results instead.
+
+Starting a game creates a session on the backend (`POST`), so its query runs once per visit: no background refetch, no retry, not abortable. It is dropped when the page unmounts. Asking for the result ends the session and is safe to repeat. If the backend has dropped the session (20 minutes without an answer), the game stops and explains which answers were saved before sending the player back to the games list. A copy in `sessionStorage` lets a reload resume the game, and opening the games list clears it, so clicking a game card always starts a new session.
 
 ## Project structure
 
@@ -168,19 +179,6 @@ Reports carry the user's id, never the email. They are sent through a same-origi
 
 Without `SENTRY_AUTH_TOKEN` the build makes no source maps at all, so they are never published.
 
-## Data flow
-
-- **React Router** handles navigation. Routes are lazy-loaded, and everything behind the auth guard requires a session.
-- **React Query is the only store for server data.** Components never call `fetch`. Every query and mutation is a named hook with keys from a per-feature key factory. Mutation hooks own cache updates and toasts, pages own navigation. 4xx responses are not retried.
-- **Zod checks the API contract at runtime.** Frontend and backend live in separate repositories with no shared types or code generation, so `apiFetch` parses every response with the feature's schema. A mismatch fails loudly with the request and the field (`Unexpected response from GET /games: … at [0].due_word_count`) instead of turning into `undefined` deep in a component. Request bodies are plain TypeScript types, and the backend validates them.
-- **Mantine** provides the UI components, forms, modals and notifications. All colors are tokens defined in `src/theme/theme.ts`.
-- **Shareable view state lives in the URL**: vocabulary search, page and sort, and game mode survive reloads and can be linked.
-- **Per-user preferences** (theme, study language, sound) are kept in `localStorage`, keyed by user id.
-
-Dictionary search results are kept for the whole visit and never refetched, because on the demo every search request uses up one of the account's searches. Saving or deleting a word updates the `saved` flag in the cached results instead.
-
-Starting a game creates a session on the backend (`POST`), so its query runs once per visit: no background refetch, no retry, not abortable. It is dropped when the page unmounts. Asking for the result ends the session and is safe to repeat. If the backend has dropped the session (20 minutes without an answer), the game stops and explains which answers were saved before sending the player back to the games list. A copy in `sessionStorage` lets a reload resume the game, and opening the games list clears it, so clicking a game card always starts a new session.
-
 ## Scripts
 
 | Script              | Description                                       |
@@ -209,3 +207,7 @@ Almost every flow depends on this API: accounts, dictionary search, vocabulary a
 - The demo limits dictionary searches (10 per language per account) to stay within Merriam-Webster's free plan
 - No end-to-end tests yet. Automated tests cover pure logic only
 - UI and API may still change during active development
+
+## License
+
+[MIT](LICENSE)
