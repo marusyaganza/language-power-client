@@ -2,7 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { notifications } from "@mantine/notifications";
 import { isApiError } from "@/api/errors";
 import { deleteWord, getSearchLimits, getVocabulary, saveWord, searchWords, updateWord } from "./api";
-import type { VocabularyParams, WordCreate, WordSearchResponse, WordUpdate } from "./schemas";
+import type { SearchLimits, VocabularyParams, WordCreate, WordSearchResponse, WordUpdate } from "./schemas";
 
 export const wordKeys = {
   all: ["words"] as const,
@@ -14,10 +14,30 @@ export const wordKeys = {
 };
 
 export function useWordSearch(query: string, language: string) {
+  const queryClient = useQueryClient();
   return useQuery({
     queryKey: wordKeys.search(query, language),
-    queryFn: ({ signal }) => searchWords(query, language, signal),
+    queryFn: async ({ signal }) => {
+      try {
+        const result = await searchWords(query, language, signal);
+        queryClient.setQueryData<SearchLimits>(
+          wordKeys.searchLimits(),
+          (old) => old && { ...old, searches_left: { ...old.searches_left, [language]: result.searches_left } },
+        );
+        return result;
+      } catch (error) {
+        // Refused by a limit: refetch the counts (a cheap request that doesn't use up a search).
+        if (isApiError(error) && error.status === 429) {
+          queryClient.invalidateQueries({ queryKey: wordKeys.searchLimits() });
+        }
+        throw error;
+      }
+    },
     enabled: query !== "",
+    // Every request uses up a search on the demo, so a result is kept for the whole visit and never
+    // refetched. Saves and deletes update its `saved` flags in place.
+    staleTime: Infinity,
+    gcTime: Infinity,
   });
 }
 
@@ -91,8 +111,14 @@ export function useEditWord() {
 export function useDeleteWord() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteWord,
-    onSuccess: () => {
+    mutationFn: ({ id }: { id: number; uuid?: string | null }) => deleteWord(id),
+    onSuccess: (_, { uuid }) => {
+      // Search results aren't refetched (see useWordSearch), so unmark the word there.
+      if (uuid) {
+        queryClient.setQueriesData<WordSearchResponse>({ queryKey: wordKeys.searches() }, (old) =>
+          old && { ...old, words: old.words.map((w) => (w.uuid === uuid ? { ...w, saved: false } : w)) },
+        );
+      }
       // Deletes only happen from the vocabulary list; refetch every page/filter combination.
       queryClient.invalidateQueries({ queryKey: wordKeys.vocabularies() });
       notifications.show({ message: "Word deleted", color: "green" });

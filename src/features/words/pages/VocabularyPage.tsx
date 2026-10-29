@@ -117,7 +117,7 @@ export function VocabularyPage() {
       children: <Text size="sm">Remove "{word.name}" from your vocabulary?</Text>,
       labels: { confirm: "Delete", cancel: "Cancel" },
       confirmProps: { color: "scarlet" },
-      onConfirm: () => removeWord(wordId),
+      onConfirm: () => removeWord({ id: wordId, uuid: word.uuid }),
     });
   }
 

@@ -1,11 +1,13 @@
 import { Button, Container, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { IconFlask, IconLanguage, IconMoodConfuzed, IconPlus } from "@tabler/icons-react";
 import { Link, useSearchParams } from "react-router-dom";
+import { isApiError } from "@/api/errors";
 import { useLanguage } from "@/context/language";
 import { QueryState } from "@/shared/components/QueryState";
 import { paths } from "@/shared/paths";
 import { QueryLinks } from "../components/QueryLinks";
 import { SearchBar } from "../components/SearchBar";
+import { SearchLimit } from "../components/SearchLimit";
 import { WordCard } from "../components/WordCard";
 import { useSaveWord, useWordSearch } from "../queries";
 import classes from "./SearchPage.module.css";
@@ -27,8 +29,10 @@ export function SearchPage() {
       <Stack gap="xl">
         {/* Remount when the URL query changes (suggestion click, back/forward) so the input follows it. */}
         <SearchBar key={query} initialQuery={query} onSearch={handleSearch} />
-        <Group justify="flex-end">
+        <Group justify="space-between" gap="xs">
+          <SearchLimit language={language} languageLabel={languageLabel} />
           <Button
+            ml="auto"
             component={Link}
             to={paths.newWord}
             variant="subtle"
@@ -54,7 +58,8 @@ export function SearchPage() {
         ) : (
           <QueryState
             query={search}
-            errorTitle="Search failed"
+            // 429s are the demo's search limits; their messages say which one.
+            errorTitle={isApiError(search.error) && search.error.status === 429 ? "Search limit reached" : "Search failed"}
             isEmpty={(data) =>
               data.words.length === 0 && data.suggestions.length === 0 && data.mock_queries.length === 0
             }
