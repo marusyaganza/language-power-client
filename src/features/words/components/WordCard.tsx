@@ -32,7 +32,7 @@ export function WordCard({ word, onSave, onEdit, onDelete, isSaving }: WordCardP
         <Flex direction={{ base: "column", sm: "row" }} align="flex-start" gap="lg">
           <Stack gap="md" style={{ flex: 1, minWidth: 0 }}>
             <Group gap="sm" align="center" wrap="wrap">
-              <Text component="h3" m={0} className={classes.name}>
+              <Text component="h2" m={0} className={classes.name}>
                 {word.name}
               </Text>
               {word.fl && <span className={classes.tag}>{word.fl}</span>}

@@ -61,6 +61,8 @@
       frame-ancestors 'none'"""
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    # No other window (e.g. one that opened this site) keeps a reference to it.
+    Cross-Origin-Opener-Policy = "same-origin"
 
 # Built assets have content hashes in their names, so they never change.
 [[headers]]
