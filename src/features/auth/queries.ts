@@ -1,7 +1,9 @@
 import { useMantineColorScheme } from "@mantine/core";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { isApiError } from "@/api/errors";
 import { getAuthConfig, getCurrentUser, login, logout, signup } from "./api";
+import { clearDemoSession, markDemoSession } from "./lib/demoSession";
+import type { AuthConfig } from "./schemas";
 
 export const authKeys = {
   all: ["auth"] as const,
@@ -26,12 +28,19 @@ export function useAuthConfig() {
   });
 }
 
+/** On the demo (accounts expire), remember the login so the login page can explain a later 401. */
+function rememberDemoSession(queryClient: QueryClient) {
+  // Both auth pages load the config, so it's cached by the time anyone logs in or signs up.
+  if (queryClient.getQueryData<AuthConfig>(authKeys.config())?.account_ttl_hours != null) markDemoSession();
+}
+
 export function useLogin() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: login,
     onSuccess: (user) => {
       queryClient.setQueryData(authKeys.currentUser(), user);
+      rememberDemoSession(queryClient);
     },
   });
 }
@@ -43,6 +52,7 @@ export function useSignup() {
     onSuccess: () => {
       // Signup may or may not start a session; let the next protected route ask the server.
       queryClient.removeQueries({ queryKey: authKeys.currentUser() });
+      rememberDemoSession(queryClient);
     },
     onError: (error) => {
       // A 429 is either the per-IP limit or the day's accounts running out. Refetching the config
@@ -65,6 +75,7 @@ export function useLogout() {
       queryClient.clear();
       clearSessionStorage(); // in-progress game
       clearColorScheme(); // logged-out pages follow the system; login restores the user's theme
+      clearDemoSession(); // left on purpose: the login page needs no "session ended" hint
     },
   });
 }

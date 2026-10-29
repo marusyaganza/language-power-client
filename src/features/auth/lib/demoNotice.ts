@@ -18,9 +18,13 @@ export function demoNoticeItems(config: AuthConfig): string[] | null {
   }
   items.push("Any email address works. We never send emails.");
   if (account_ttl_hours !== null) {
-    items.push(`Accounts and their data are deleted after ${plural(account_ttl_hours, "hour", "hours")}.`);
+    items.push(`Accounts and their data are deleted after ${formatHours(account_ttl_hours)}.`);
   }
   return items;
+}
+
+export function formatHours(hours: number): string {
+  return plural(hours, "hour", "hours");
 }
 
 function plural(count: number, one: string, many: string): string {

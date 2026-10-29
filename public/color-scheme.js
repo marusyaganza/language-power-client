@@ -5,4 +5,6 @@ try {
   var scheme = stored === "light" || stored === "dark" ? stored
     : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   document.documentElement.setAttribute("data-mantine-color-scheme", scheme);
-} catch (e) {}
+} catch {
+  // Storage blocked: Mantine falls back to the system scheme after it loads.
+}
