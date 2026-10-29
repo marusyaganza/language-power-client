@@ -2,7 +2,7 @@ import { Anchor, Group, Text } from "@mantine/core";
 import { IconBrandGithub } from "@tabler/icons-react";
 import classes from "./AppFooter.module.css";
 
-const REPO_URL = "https://github.com/marusyaganza/client";
+const REPO_URL = "https://github.com/marusyaganza/language-power-client";
 
 /** Bottom of every page except the full-screen game. */
 export function AppFooter() {

@@ -1,10 +1,10 @@
 # Language Power Frontend
 
-[![CI](https://github.com/marusyaganza/client/actions/workflows/ci.yml/badge.svg)](https://github.com/marusyaganza/client/actions/workflows/ci.yml)
+[![CI](https://github.com/marusyaganza/language-power-client/actions/workflows/ci.yml/badge.svg)](https://github.com/marusyaganza/language-power-client/actions/workflows/ci.yml)
 
 React + TypeScript client for the current version of the Language Power application.
 
-Language Power is a web app for language learners. Users look up words, save them to a personal vocabulary, edit them, and practise them in small learning games scheduled with spaced repetition. This is the React client for Language Power v4, built with Vite and TypeScript. It consumes the v4 FastAPI backend ([py-lp](https://github.com/marusyaganza/py-lp)), which owns data, accounts, dictionary lookups and game scheduling. Everything except the landing, login and sign-up pages requires a signed-in user.
+Language Power is a web app for language learners. Users look up words, save them to a personal vocabulary, edit them, and practise them in small learning games scheduled with spaced repetition. This is the React client for Language Power v4, built with Vite and TypeScript. It consumes the v4 FastAPI backend ([language-power-api](https://github.com/marusyaganza/language-power-api)), which owns data, accounts, dictionary lookups and game scheduling. Everything except the landing, login and sign-up pages requires a signed-in user.
 
 **Live demo: [language-power.netlify.app](https://language-power.netlify.app/)**. Sign up with any email address; demo accounts are deleted after 24 hours. See [Demo](#demo) for the limits.
 
@@ -61,7 +61,7 @@ The limits exist because Merriam-Webster's free plan allows 1,000 queries a day 
 
 ![System architecture: the React client talks to the FastAPI backend over HTTPS/JSON with a session cookie. The backend uses PostgreSQL for users, words and learning progress, Redis for auth and game sessions, and the Merriam-Webster Dictionary API (made-up entries for tests and local development).](docs/architecture.png)
 
-The client is the top box: it renders the UI and keeps server data in TanStack Query. Everything else (accounts, the dictionary, vocabulary, scheduling and grading) belongs to the [backend](https://github.com/marusyaganza/py-lp).
+The client is the top box: it renders the UI and keeps server data in TanStack Query. Everything else (accounts, the dictionary, vocabulary, scheduling and grading) belongs to the [backend](https://github.com/marusyaganza/language-power-api).
 
 ## Project structure
 
@@ -97,7 +97,7 @@ Dependencies point one way: `app → features → shared / api / theme / context
 - [Volta](https://volta.sh/)
 - Node.js `24.19.0`
 - npm
-- A running instance of the [v4 backend](https://github.com/marusyaganza/py-lp)
+- A running instance of the [v4 backend](https://github.com/marusyaganza/language-power-api)
 
 The Node version is pinned in the `volta` field of `package.json`, so Volta selects it automatically inside the project directory.
 
@@ -110,7 +110,7 @@ The Node version is pinned in the `volta` field of `package.json`, so Volta sele
    npm ci
    ```
 
-3. Start the [backend](https://github.com/marusyaganza/py-lp) locally. The frontend expects it on `http://localhost:8000`.
+3. Start the [backend](https://github.com/marusyaganza/language-power-api) locally. The frontend expects it on `http://localhost:8000`.
 4. Start the frontend:
 
    ```bash
@@ -198,7 +198,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint, tests and build on every p
 
 ## Related backend
 
-Backend repository: [py-lp](https://github.com/marusyaganza/py-lp) (FastAPI, PostgreSQL, Redis).
+Backend repository: [language-power-api](https://github.com/marusyaganza/language-power-api) (FastAPI, PostgreSQL, Redis).
 
 Almost every flow depends on this API: accounts, dictionary search, vocabulary and games. Without it the frontend loads, but only shows the public pages and request errors.
 
