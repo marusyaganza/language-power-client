@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ApiError, formatIssuePath, messageFromErrorBody, shouldReport } from "./errors";
+import { ApiError, formatIssuePath, messageFromErrorBody, shouldReport, shouldRetry } from "./errors";
 
 describe("messageFromErrorBody", () => {
   it("uses a string detail as is", () => {
@@ -54,5 +54,22 @@ describe("shouldReport", () => {
     ["a network error", new ApiError("network", "Can't reach the server", null), false],
   ])("%s → %s", (_, error, expected) => {
     expect(shouldReport(error)).toBe(expected);
+  });
+});
+
+describe("shouldRetry", () => {
+  it.each([
+    ["a network error", new ApiError("network", "Can't reach the server", null), true],
+    ["a server error", new ApiError("http", "Internal Server Error", 500), true],
+    ["a 4xx answer", new ApiError("http", "Session not found", 404), false],
+    ["a contract error", new ApiError("contract", "Unexpected response", 200), false],
+  ])("%s on the first failure → %s", (_, error, expected) => {
+    expect(shouldRetry(0, error)).toBe(expected);
+  });
+
+  it("gives up after two more attempts", () => {
+    const error = new ApiError("network", "Can't reach the server", null);
+    expect(shouldRetry(1, error)).toBe(true);
+    expect(shouldRetry(2, error)).toBe(false);
   });
 });

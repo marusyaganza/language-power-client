@@ -86,3 +86,9 @@ export function shouldReport(error: unknown): boolean {
       return error.status !== null && error.status >= 500 && error.status !== 503;
   }
 }
+
+/** 4xx answers won't change by retrying; network/5xx errors get two more attempts. */
+export function shouldRetry(failureCount: number, error: Error): boolean {
+  if (isApiError(error) && error.status !== null && error.status < 500) return false;
+  return failureCount < 2;
+}
