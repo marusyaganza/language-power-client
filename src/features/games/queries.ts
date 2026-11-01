@@ -1,6 +1,7 @@
 import type { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
+import { shouldRetry } from "@/api/errors";
 import type { GameOptions } from "./lib/gameOptions";
 import {
   getGameResult,
@@ -58,9 +59,14 @@ export function useStartGame<T>(
   });
 }
 
+/**
+ * Retried like a query: the backend grades each question once and answers a repeat with the first
+ * grade, so an answer whose response was lost on a weak connection is safe to send again.
+ */
 export function useSubmitAnswer() {
   return useMutation({
     mutationFn: ({ sessionId, ...answer }: AnswerRequest & { sessionId: string }) => submitAnswer(sessionId, answer),
+    retry: shouldRetry,
   });
 }
 

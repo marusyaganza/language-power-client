@@ -8,7 +8,7 @@ describe("isSessionExpired", () => {
   });
 
   it.each([
-    ["an answered question (409)", new ApiError("http", "Already answered", 409)],
+    ["a finished session (409)", new ApiError("http", "Session is already finished", 409)],
     ["a network failure", new ApiError("network", "Can't reach the server", null)],
     ["a non-API error", new Error("boom")],
   ])("is false for %s", (_, error) => {

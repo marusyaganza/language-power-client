@@ -72,7 +72,7 @@ The client is the top box: it renders the UI and keeps server data in TanStack Q
 
 Dictionary search results are kept for the whole visit and never refetched, because on the demo every search request uses up one of the account's searches. Saving or deleting a word updates the `saved` flag in the cached results instead.
 
-Starting a game creates a session on the backend (`POST`), so its query runs once per visit: no background refetch, no retry, not abortable. It is dropped when the page unmounts. Asking for the result ends the session and is safe to repeat. If the backend has dropped the session (20 minutes without an answer), the game stops and explains which answers were saved before sending the player back to the games list. A copy in `sessionStorage` lets a reload resume the game, and opening the games list clears it, so clicking a game card always starts a new session.
+Starting a game creates a session on the backend (`POST`), so its query runs once per visit: no background refetch, no retry, not abortable. It is dropped when the page unmounts. Asking for the result ends the session and is safe to repeat. Sending an answer is too: the backend grades each question once and answers a repeat with the first grade, so after a network or server error the answer is sent again up to twice. If the backend has dropped the session (20 minutes without an answer), the game stops and explains which answers were saved before sending the player back to the games list. A copy in `sessionStorage` lets a reload resume the game, and opening the games list clears it, so clicking a game card always starts a new session.
 
 ## Project structure
 

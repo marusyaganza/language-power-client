@@ -1,13 +1,7 @@
 import { MutationCache, QueryCache, QueryClient, type Mutation, type Query } from "@tanstack/react-query";
-import { isApiError, shouldReport } from "@/api/errors";
+import { isApiError, shouldReport, shouldRetry } from "@/api/errors";
 import { authKeys } from "@/features/auth";
 import { reportError } from "./sentry";
-
-/** 4xx answers won't change by retrying; network/5xx errors get two more attempts. */
-function shouldRetry(failureCount: number, error: Error): boolean {
-  if (isApiError(error) && error.status !== null && error.status < 500) return false;
-  return failureCount < 2;
-}
 
 /**
  * 401/403 may mean the session expired mid-use (the backend answers 403 "Not authenticated").
