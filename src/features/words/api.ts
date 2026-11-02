@@ -9,8 +9,14 @@ import {
   type WordUpdate,
 } from "./schemas";
 
+/** A POST: each search can use up one of the account's searches, so the backend doesn't accept a GET. */
 export function searchWords(query: string, language: string, signal?: AbortSignal) {
-  return apiFetch("/words/search", { query: { query, language }, schema: wordSearchResponseSchema, signal });
+  return apiFetch("/words/search", {
+    method: "POST",
+    body: { query, language },
+    schema: wordSearchResponseSchema,
+    signal,
+  });
 }
 
 export function getSearchLimits(signal?: AbortSignal) {

@@ -62,7 +62,10 @@ describe("searchWords", () => {
     expect(result.mock_queries).toEqual([]);
     expect(result.searches_left).toBeNull();
     expect(result.words[0]).toMatchObject({ uuid: "a1b2", saved: false });
-    expect(fetchMock.mock.calls[0][0]).toBe("/api/words/search?query=hola&language=es");
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("/api/words/search");
+    expect(init?.method).toBe("POST");
+    expect(init?.body).toBe(JSON.stringify({ query: "hola", language: "es" }));
   });
 });
 

@@ -70,7 +70,7 @@ The client is the top box: it renders the UI and keeps server data in TanStack Q
 - **Shareable view state lives in the URL**: vocabulary search, page and sort, and game mode survive reloads and can be linked.
 - **Per-user preferences** (theme, study language, sound) are kept in `localStorage`, keyed by user id.
 
-Dictionary search results are kept for the whole visit and never refetched, because on the demo every search request uses up one of the account's searches. Saving or deleting a word updates the `saved` flag in the cached results instead.
+Dictionary search results are kept for the whole visit and never refetched, because on the demo every search request uses up one of the account's searches. For the same reason the search is a `POST`: browsers don't send the session cookie with a cross-site `POST`, so another site can't spend them. Saving or deleting a word updates the `saved` flag in the cached results instead.
 
 Starting a game creates a session on the backend (`POST`), so its query runs once per visit: no background refetch, no retry, not abortable. It is dropped when the page unmounts. Asking for the result ends the session and is safe to repeat. If the backend has dropped the session (20 minutes without an answer), the game stops and explains which answers were saved before sending the player back to the games list. A copy in `sessionStorage` lets a reload resume the game, and opening the games list clears it, so clicking a game card always starts a new session.
 
