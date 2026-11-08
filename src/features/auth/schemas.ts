@@ -18,6 +18,8 @@ export const authConfigSchema = z.object({
   account_ttl_hours: z.number().nullable(),
   /** Dictionary searches each account gets per language; null when unlimited (personal). */
   searches_per_language: z.number().nullable(),
+  /** The languages this deployment offers (the demo leaves out Korean while it's in beta). Missing from older servers: all. */
+  languages: z.array(z.string()).optional(),
 });
 export type AuthConfig = z.infer<typeof authConfigSchema>;
 

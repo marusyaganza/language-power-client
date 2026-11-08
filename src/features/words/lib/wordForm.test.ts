@@ -110,6 +110,11 @@ describe("partOfSpeechOptions", () => {
     expect(values("en")).toContain("noun");
     expect(values("en")).not.toContain("masculine noun");
   });
+
+  it("adds Korean's own kinds before Other, and only for Korean", () => {
+    expect(values("ko").slice(-4)).toEqual(["particle", "grammar pattern", "proverb", "other"]);
+    expect(values("en")).not.toContain("grammar pattern");
+  });
 });
 
 describe("genderFromFl", () => {

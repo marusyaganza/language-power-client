@@ -1,13 +1,21 @@
 import { useState, type ReactNode } from "react";
 import { loadUserPrefs, saveUserPrefs } from "@/shared/lib/userPrefs";
-import { DEFAULT_LANGUAGE, LanguageContext, SUPPORTED_LANGUAGES } from "./language";
+import { LanguageContext, startingLanguage, type LanguageOption } from "./language";
 
-/** Mount with `key={userId}` so switching users starts from the new user's saved language. */
-export function LanguageProvider({ userId, children }: { userId: number; children: ReactNode }) {
-  const [language, setLanguage] = useState(() => {
-    const saved = loadUserPrefs(userId).language;
-    return saved && SUPPORTED_LANGUAGES.some((option) => option.value === saved) ? saved : DEFAULT_LANGUAGE;
-  });
+interface LanguageProviderProps {
+  userId: number;
+  /** The languages this deployment offers (`offeredLanguages`). */
+  languages: LanguageOption[];
+  children: ReactNode;
+}
+
+/**
+ * Mount with `key={userId}` so switching users starts from the new user's saved language. A saved language
+ * the deployment doesn't offer (Korean, saved on the personal deployment, opened on the demo) gives way
+ * to the default, without overwriting the saved choice.
+ */
+export function LanguageProvider({ userId, languages, children }: LanguageProviderProps) {
+  const [language, setLanguage] = useState(() => startingLanguage(loadUserPrefs(userId).language, languages));
 
   function updateLanguage(value: string) {
     setLanguage(value);
@@ -15,7 +23,7 @@ export function LanguageProvider({ userId, children }: { userId: number; childre
   }
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage: updateLanguage, SUPPORTED_LANGUAGES }}>
+    <LanguageContext.Provider value={{ language, setLanguage: updateLanguage, SUPPORTED_LANGUAGES: languages }}>
       {children}
     </LanguageContext.Provider>
   );

@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { ActionIcon, TextInput } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
+import { preventSubmitWhileComposing } from "@/shared/lib/ime";
 
 interface SearchBarProps {
   /** Starting text. To follow outside changes (e.g. the URL), remount with a new `key`. */
@@ -19,7 +20,7 @@ export function SearchBar({ initialQuery = "", onSearch, placeholder = "Search a
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} onKeyDown={preventSubmitWhileComposing}>
       <TextInput
         size="md"
         radius="md"

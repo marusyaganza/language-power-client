@@ -98,7 +98,7 @@ export function SearchPage() {
                   {/* After the results, so it doesn't compete with them; the logo can't be smaller than 50 px. */}
                   {words.length > 0 && (
                     <Group justify="flex-end">
-                      <DictionaryCredit />
+                      <DictionaryCredit language={language} />
                     </Group>
                   )}
                 </Stack>
