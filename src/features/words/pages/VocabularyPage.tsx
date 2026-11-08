@@ -30,6 +30,7 @@ import { useLanguage } from "@/context/language";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { QueryState } from "@/shared/components/QueryState";
 import { paths } from "@/shared/paths";
+import { DictionaryCredit } from "../components/DictionaryCredit";
 import { EditWordModal } from "../components/EditWordModal";
 import { WordCard } from "../components/WordCard";
 import {
@@ -209,6 +210,13 @@ export function VocabularyPage() {
                 {items.map((word) => (
                   <WordCard key={word.id} word={word} onEdit={setEditingWord} onDelete={handleDelete} />
                 ))}
+                {/* Saved Korean words are the dictionary's text, which its license asks to credit wherever
+                    it's shown. Merriam-Webster asks for its logo with search results only. */}
+                {language === "ko" && (
+                  <Group justify="flex-end">
+                    <DictionaryCredit language={language} />
+                  </Group>
+                )}
               </Stack>
 
               {total_pages > 1 && (

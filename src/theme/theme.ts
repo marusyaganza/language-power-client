@@ -6,8 +6,9 @@ import {
 } from "@mantine/core";
 import classes from "./components.module.css";
 
-const FONT_BODY = 'Itim, "Comic Neue", system-ui, sans-serif';
-const FONT_UI = 'Jost, "Futura", system-ui, sans-serif';
+// Itim and Jost have no Hangul, so Korean text falls through to Noto Sans KR, the same on every device.
+const FONT_BODY = 'Itim, "Comic Neue", "Noto Sans KR", system-ui, sans-serif';
+const FONT_UI = 'Jost, "Futura", "Noto Sans KR", system-ui, sans-serif';
 
 // Mantine dark scheme reads: 0 text, 2 dimmed, 4 borders, 5 hover, 6 inputs, 7 body.
 const navy: MantineColorsTuple = [

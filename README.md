@@ -19,7 +19,7 @@ Language Power is a web app for language learners: look up words, save them to a
 ## Features
 
 - Sign up, log in and log out with a server-side session (cookie-based). The backend can turn sign-up off
-- Switch the study language (Spanish or English)
+- Switch the study language (Spanish, English, or Korean in beta), among those the server offers (`GET /auth/config`)
 - Search the dictionary, with spelling suggestions when a word isn't found
 - Save words from search results or add your own, then edit definitions, examples, pronunciation audio and image
 - Browse the vocabulary with search, sorting and pagination kept in the URL
@@ -29,7 +29,7 @@ Language Power is a web app for language learners: look up words, save them to a
 - Pronunciation audio in games, with a mute option
 - Light and dark theme. Theme, study language and sound are remembered per user on the device
 
-Search results come from the [Merriam-Webster Dictionary API](https://dictionaryapi.com/) and credit it with the Merriam-Webster logo, as the API's terms require. For local development and tests, the backend has a mock mode with a few made-up entries in Merriam-Webster's format; the search page lists them, and shows a "Mock dictionary" label instead of the logo.
+English and Spanish search results come from the [Merriam-Webster Dictionary API](https://dictionaryapi.com/) and credit it with the Merriam-Webster logo, as the API's terms require. Korean ones come from the [Korean Learners' Dictionary](https://krdict.korean.go.kr) of the National Institute of Korean Language (CC BY-SA 2.0 KR), imported into the backend's database; search results and the Korean vocabulary credit it, as the license requires. Korean text is typed with an input method, so forms don't submit on the Enter that finishes a syllable. For local development and tests, the backend has a mock mode with a few made-up entries per language; the search page lists them, and shows a "Mock dictionary" label instead of the credit.
 
 ## Demo
 

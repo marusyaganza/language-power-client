@@ -3,6 +3,7 @@ import { ActionIcon, Alert, Box, Button, Group, Image, Modal, Stack, Text } from
 import { useDisclosure } from "@mantine/hooks";
 import { IconPhoto, IconPlayerPlay } from "@tabler/icons-react";
 import { ExampleList } from "@/shared/components/ExampleList";
+import { preventSubmitWhileComposing } from "@/shared/lib/ime";
 import type { GameProgress } from "../lib/gameReducer";
 import type { QuestionInfo } from "../schemas";
 import classes from "./QuestionView.module.css";
@@ -70,7 +71,7 @@ export function QuestionView({
   const hiddenUntilFeedback = feedback ? undefined : { visibility: "hidden" as const };
 
   return (
-    <form onSubmit={handleSubmit} style={{ width: "100%" }}>
+    <form onSubmit={handleSubmit} onKeyDown={preventSubmitWhileComposing} style={{ width: "100%" }}>
       <Stack align="center" gap="md">
         {info.img_url && (
           // Loaded (hidden) with the question, so it's ready when shown. Phones get a button instead.

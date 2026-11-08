@@ -1,5 +1,5 @@
 import { Select } from "@mantine/core";
-import { useLanguage } from "@/context/language";
+import { languageOptionLabel, useLanguage } from "@/context/language";
 
 interface LanguageSelectProps {
   /** Visible label; without one the select is labelled for screen readers only. */
@@ -12,7 +12,7 @@ export function LanguageSelect({ label, w }: LanguageSelectProps) {
 
   return (
     <Select
-      data={SUPPORTED_LANGUAGES}
+      data={SUPPORTED_LANGUAGES.map((option) => ({ value: option.value, label: languageOptionLabel(option) }))}
       value={language}
       onChange={(value) => value && setLanguage(value)}
       allowDeselect={false}

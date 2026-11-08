@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ActionIcon, Card, Flex, Group, Image, Stack, Text, Tooltip, UnstyledButton } from "@mantine/core";
 import { IconBook, IconBookmark, IconBookmarkFilled, IconEdit, IconFlame, IconTrash, IconVolume } from "@tabler/icons-react";
 import type { Word } from "../schemas";
+import { formatTranscription } from "../lib/transcription";
 import { ExampleList } from "@/shared/components/ExampleList";
 import classes from "./WordCard.module.css";
 
@@ -36,7 +37,9 @@ export function WordCard({ word, onSave, onEdit, onDelete, isSaving }: WordCardP
                 {word.name}
               </Text>
               {word.fl && <span className={classes.tag}>{word.fl}</span>}
-              {word.transcription && <span className={classes.transcription}>/{word.transcription}/</span>}
+              {word.transcription && (
+                <span className={classes.transcription}>{formatTranscription(word.transcription, word.language)}</span>
+              )}
               {word.audio_url && (
                 <ActionIcon variant="subtle" size="sm" onClick={playAudio} aria-label="Play pronunciation">
                   <IconVolume size={16} />

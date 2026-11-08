@@ -74,10 +74,25 @@ const OTHER_PART_OF_SPEECH_OPTIONS: PartOfSpeechOption[] = [
   { value: "other", label: "Other" },
 ];
 
-/** The part-of-speech choices for a language: a gendered language picks the noun's gender with it. */
+// Kinds a Korean textbook teaches besides words. The values match the server's Korean dictionary
+// (dictionary/ko/ko.py), so custom entries read like dictionary ones.
+const LANGUAGE_PART_OF_SPEECH_OPTIONS: Record<string, PartOfSpeechOption[]> = {
+  ko: [
+    { value: "particle", label: "Particle" },
+    { value: "grammar pattern", label: "Grammar pattern" },
+    { value: "proverb", label: "Proverb" },
+  ],
+};
+
+/**
+ * The part-of-speech choices for a language: a gendered language picks the noun's gender with it, and
+ * some languages add their own kinds, before "Other".
+ */
 export function partOfSpeechOptions(language: string): PartOfSpeechOption[] {
   const nouns = GENDERED_LANGUAGES.has(language) ? GENDERED_NOUN_OPTIONS : [{ value: "noun", label: "Noun" }];
-  return [...nouns, ...OTHER_PART_OF_SPEECH_OPTIONS];
+  const other = OTHER_PART_OF_SPEECH_OPTIONS.slice(0, -1);
+  const last = OTHER_PART_OF_SPEECH_OPTIONS.slice(-1);
+  return [...nouns, ...other, ...(LANGUAGE_PART_OF_SPEECH_OPTIONS[language] ?? []), ...last];
 }
 
 /** Same rule as the server's extract_gender (dictionary/merriam_webster/api.py). */

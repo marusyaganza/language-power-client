@@ -1,6 +1,7 @@
 import { Button, Group, Select, Stack, Text, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { HelpLabel } from "@/shared/components/HelpLabel";
+import { preventSubmitWhileComposing } from "@/shared/lib/ime";
 import { partOfSpeechOptions, wordFormValidation, type WordFormMode, type WordFormValues } from "../lib/wordForm";
 import { DefsEditor } from "./DefsEditor";
 import { ExamplesEditor } from "./ExamplesEditor";
@@ -41,7 +42,7 @@ export function WordForm({
   const { values } = form;
 
   return (
-    <form onSubmit={form.onSubmit(onSubmit)}>
+    <form onSubmit={form.onSubmit(onSubmit)} onKeyDown={preventSubmitWhileComposing}>
       <Stack gap="lg">
         {mode === "create" && (
           <>
