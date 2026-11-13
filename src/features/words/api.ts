@@ -1,9 +1,13 @@
+import { z } from "zod";
 import { apiFetch } from "@/api/http";
 import {
+  engineVoicesSchema,
+  generatedAudioSchema,
   searchLimitsSchema,
   vocabularyPageSchema,
   wordSchema,
   wordSearchResponseSchema,
+  type AudioGenerateRequest,
   type VocabularyParams,
   type WordCreate,
   type WordUpdate,
@@ -42,4 +46,13 @@ export function updateWord(wordId: number, changes: WordUpdate) {
 
 export function deleteWord(wordId: number) {
   return apiFetch(`/words/${wordId}`, { method: "DELETE", schema: null });
+}
+
+/** Generates audio for a word's name. Nothing is stored until the word is saved with the returned token. */
+export function generateAudio(request: AudioGenerateRequest) {
+  return apiFetch("/audio/generate", { method: "POST", body: request, schema: generatedAudioSchema });
+}
+
+export function getAudioVoices(language: string, signal?: AbortSignal) {
+  return apiFetch("/audio/voices", { query: { language }, schema: z.array(engineVoicesSchema), signal });
 }
