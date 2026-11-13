@@ -32,7 +32,7 @@ export function AudioGenerator({ language, name, audioUrl, preview, onGenerated,
   const { data: config } = useAuthConfig();
   const engines = config?.audio_engines ?? [];
   const offered = preview !== null || canGenerateAudio({ engines, name, audioUrl });
-  // Stage 1 has one engine; the comparison of two comes with the self-hosted one.
+  // One engine for now (Google); comparing two engines side by side is planned.
   const engine = engines[0];
   const voices = useAudioVoices(language, offered && engine !== undefined);
   const engineVoices = voices.data?.find((v) => v.engine === engine);

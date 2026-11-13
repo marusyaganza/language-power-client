@@ -42,8 +42,9 @@
 
 # Security headers for every response. The CSP allows only this site's own scripts and requests
 # (the API and the Sentry tunnel are same-origin), Google Fonts, and images and audio from any https:
-# host, since users can add their own picture and audio links. 'unsafe-inline' styles: Mantine sets
-# CSS variables in style attributes and <style> tags at runtime.
+# host, since users can add their own picture and audio links. Audio also from data: URLs: generated
+# audio is previewed as one before it's saved, and the games unlock sound on iOS with a data: silence.
+# 'unsafe-inline' styles: Mantine sets CSS variables in style attributes and <style> tags at runtime.
 [[headers]]
   for = "/*"
   [headers.values]
@@ -53,7 +54,7 @@
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; \
       font-src 'self' https://fonts.gstatic.com; \
       img-src 'self' data: blob: https:; \
-      media-src 'self' blob: https:; \
+      media-src 'self' data: blob: https:; \
       connect-src 'self'; \
       object-src 'none'; \
       base-uri 'self'; \

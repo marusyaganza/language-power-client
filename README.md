@@ -15,13 +15,15 @@ Language Power is a web app for language learners: look up words, save them to a
 - Active development
 - Deployed twice from the same build: a public demo and a private instance. Frontend on Netlify, API on Google Cloud Run
 - Built and tested against the v3 FastAPI backend
+- In beta: Korean as a study language, and generating a word's pronunciation audio. Both run on the private deployment only; the demo offers English and Spanish
 
 ## Features
 
 - Sign up, log in and log out with a server-side session (cookie-based). The backend can turn sign-up off
-- Switch the study language (Spanish, English, or Korean in beta), among those the server offers (`GET /auth/config`)
+- Switch the study language: Spanish, English, or Korean (beta). The selector offers only the languages the server enables (`GET /auth/config`)
 - Search the dictionary, with spelling suggestions when a word isn't found
 - Save words from search results or add your own, then edit definitions, examples, pronunciation audio and image
+- Generate pronunciation audio for a word that has none (beta): pick a voice, listen, and keep it by saving the word. A dictionary's own recording is never replaced
 - Browse the vocabulary with search, sorting and pagination kept in the URL
 - Practise saved words in six games: Pick the Meaning, Pick the Word, Type the Word, Listen & Type, Name the Picture and Noun Gender (Spanish only)
 - Two game modes: spaced repetition (only words that are due) and review (any saved word)
@@ -39,6 +41,7 @@ The public demo is at [language-power.netlify.app](https://language-power.netlif
 - Search uses the live Merriam-Webster API, limited to 10 searches per language per account. The search page shows how many are left
 - Accounts and their data are deleted after 24 hours, and each can save up to 100 words
 - New users see a short "search, save, play" guide on the games page
+- English and Spanish only: Korean and audio generation stay on the private deployment while they're in beta
 
 The limits exist because Merriam-Webster's free plan allows 1,000 queries a day per dictionary. The backend also caps the whole demo at 800 searches per language and 50 new accounts a day; when the day's accounts are taken, the sign-up page says when it opens again, in the visitor's own time.
 
@@ -73,6 +76,8 @@ The client is the top box: it renders the UI and keeps server data in TanStack Q
 Dictionary search results are kept for the whole visit and never refetched, because on the demo every search request uses up one of the account's searches. For the same reason the search is a `POST`: browsers don't send the session cookie with a cross-site `POST`, so another site can't spend them. Saving or deleting a word updates the `saved` flag in the cached results instead.
 
 Starting a game creates a session on the backend (`POST`), so its query runs once per visit: no background refetch, no retry, not abortable. It is dropped when the page unmounts. Asking for the result ends the session and is safe to repeat. Sending an answer is too: the backend grades each question once and answers a repeat with the first grade, so after a network or server error the answer is sent again up to twice. If the backend has dropped the session (20 minutes without an answer), the game stops and explains which answers were saved before sending the player back to the games list. A copy in `sessionStorage` lets a reload resume the game, and opening the games list clears it, so clicking a game card always starts a new session.
+
+Generating audio stores nothing by itself. `POST /audio/generate` returns the recording as a `data:` URL to play in the form, plus a token. Saving the word sends the token, and only then does the backend store the file and set the word's `audio_url`. Closing the form without saving leaves nothing behind: the server drops unused generations after 24 hours.
 
 ## Project structure
 
@@ -145,9 +150,9 @@ The client calls the API on its own origin under `/api`, and a proxy forwards th
 
 In production the rewrite is also signed: Netlify adds an `X-Nf-Sign` header to every request it forwards, and the API rejects requests without a valid one, so it can only be reached through the site.
 
-Both Netlify sites (private and demo) build from this repo. `netlify.toml` can't read environment variables, so the build command writes each site's `API_ORIGIN` into the rewrite rule, and fails if it isn't set. `netlify.toml` also sets security headers: a Content-Security-Policy that allows only the site's own scripts and requests (plus Google Fonts, and images and audio from any `https:` host, since users can add their own links), `X-Content-Type-Options` and `Referrer-Policy`.
+Both Netlify sites (private and demo) build from this repo. `netlify.toml` can't read environment variables, so the build command writes each site's `API_ORIGIN` into the rewrite rule, and fails if it isn't set. `netlify.toml` also sets security headers: a Content-Security-Policy that allows only the site's own scripts and requests (plus Google Fonts, images and audio from any `https:` host, since users can add their own links, and audio from `data:` URLs for generated-audio previews), `X-Content-Type-Options` and `Referrer-Policy`.
 
-There are no feature flags in the client. Runtime settings that belong to the backend are fetched from it: `/auth/config` says whether sign-up is enabled and open today, whether the dictionary is mocked, and the demo's limits (searches per language, account lifetime), which are `null` on the private deployment.
+There are no feature flags in the client. Runtime settings that belong to the backend are fetched from it: `/auth/config` says whether sign-up is enabled and open today, whether the dictionary is mocked, which study languages and audio engines are on, and the demo's limits (searches per language, account lifetime), which are `null` on the private deployment.
 
 ### Auth and cookies
 
@@ -190,7 +195,7 @@ Without `SENTRY_AUTH_TOKEN` the build makes no source maps at all, so they are n
 | `npm run typecheck` | Run TypeScript checks (`tsc`, strict settings)    |
 | `npm test`          | Run Vitest unit tests                             |
 
-Unit tests cover pure logic: form-to-request transforms, URL state, game progress and availability rules, settings forms, error parsing and the API client. They don't need a running backend. UI is checked by running the app against a real backend.
+Unit tests cover pure logic: form-to-request transforms, URL state, game progress and availability rules, settings forms, search limits, when audio can be generated, which languages are offered, Korean input-method handling, error parsing and the API client. They don't need a running backend. UI is checked by running the app against a real backend.
 
 CI (`.github/workflows/ci.yml`) runs typecheck, lint, tests and build on every push to `main` and on pull requests.
 
@@ -205,6 +210,7 @@ Almost every flow depends on this API: accounts, dictionary search, vocabulary a
 - Requires a running backend. There is no mock API on the client side
 - Most features require a signed-in user
 - The demo limits dictionary searches (10 per language per account) to stay within Merriam-Webster's free plan
+- Korean and audio generation are in beta and not on the demo
 - No end-to-end tests yet. Automated tests cover pure logic only
 - UI and API may still change during active development
 
