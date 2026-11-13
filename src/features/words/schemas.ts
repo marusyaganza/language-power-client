@@ -89,6 +89,35 @@ export interface WordUpdate {
   defs?: string[];
   examples?: Example[];
   audio_url?: string | null;
+  /** From POST /audio/generate: the server stores that audio and sets `audio_url`. Never sent with `audio_url`. */
+  audio_token?: string;
   img_url?: string | null;
   img_desc?: string | null;
 }
+
+// AudioGenerateRequest
+export interface AudioGenerateRequest {
+  language: string;
+  /** The word's name. */
+  text: string;
+  engine?: string;
+  voice?: string;
+}
+
+// GeneratedAudio — held by the server for 24 hours; saving the word with `token` keeps it.
+export const generatedAudioSchema = z.object({
+  token: z.string(),
+  /** A `data:audio/mpeg` URL: plays right away, nothing is stored yet. */
+  preview: z.string(),
+  engine: z.string(),
+  voice: z.string(),
+});
+export type GeneratedAudio = z.infer<typeof generatedAudioSchema>;
+
+// GET /audio/voices — one item per engine.
+export const engineVoicesSchema = z.object({
+  engine: z.string(),
+  voices: z.array(z.string()),
+  default: z.string(),
+});
+export type EngineVoices = z.infer<typeof engineVoicesSchema>;

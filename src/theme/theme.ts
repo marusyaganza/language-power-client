@@ -140,7 +140,7 @@ export function cssVariablesResolver() {
       "--app-sage-hover": "#A3BAB4",
       "--app-word": "#3D6A61", // deep sage; #B6CBC6 is 1.7:1 on white
       "--app-accent": "var(--mantine-color-rose-5)", // borders and fills only
-      "--app-signal": "#68684F", // yellow can't be text on white; tentative, revisit
+      "--app-signal": "#68684F", // the brand yellow can't be text on white
       "--app-tag-bg": "var(--mantine-color-olive-1)",
       "--app-highlight-bg": "var(--app-sage)",
       "--app-highlight-text": "var(--mantine-color-olive-9)",

@@ -18,6 +18,10 @@ export interface WordFormValues {
   mainDefIndex: number;
   examples: ExampleDraft[];
   audioUrl: string;
+  /** Generated audio waiting to be saved (POST /audio/generate); saving sends it instead of `audioUrl`. */
+  audioToken: string | null;
+  /** That audio as a playable `data:` URL. */
+  audioPreview: string | null;
   imgUrl: string;
   imgDesc: string;
 }
@@ -31,6 +35,8 @@ export function emptyWordForm(): WordFormValues {
     mainDefIndex: 0,
     examples: [],
     audioUrl: "",
+    audioToken: null,
+    audioPreview: null,
     imgUrl: "",
     imgDesc: "",
   };
@@ -45,6 +51,8 @@ export function wordToFormValues(word: Word): WordFormValues {
     mainDefIndex: 0, // the backend keeps the main definition first
     examples: word.examples.map((e) => ({ text: e.text, translation: e.translation ?? "" })),
     audioUrl: word.audio_url ?? "",
+    audioToken: null,
+    audioPreview: null,
     imgUrl: word.img_url ?? "",
     imgDesc: word.img_desc ?? "",
   };
@@ -145,11 +153,12 @@ export function toWordCreate(values: WordFormValues, language: string): WordCrea
   };
 }
 
+/** Generated audio is sent as its token, and then `audio_url` is left out: the server sets it. */
 export function toWordUpdate(values: WordFormValues, language: string): WordUpdate {
   return {
     defs: orderDefs(values.defs, values.mainDefIndex),
     examples: cleanExamples(values.examples, usesTranslations(language)),
-    audio_url: emptyToNull(values.audioUrl),
+    ...(values.audioToken !== null ? { audio_token: values.audioToken } : { audio_url: emptyToNull(values.audioUrl) }),
     img_url: emptyToNull(values.imgUrl),
     img_desc: emptyToNull(values.imgDesc),
   };

@@ -1,7 +1,16 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { isApiError } from "@/api/errors";
-import { deleteWord, getSearchLimits, getVocabulary, saveWord, searchWords, updateWord } from "./api";
+import {
+  deleteWord,
+  generateAudio,
+  getAudioVoices,
+  getSearchLimits,
+  getVocabulary,
+  saveWord,
+  searchWords,
+  updateWord,
+} from "./api";
 import type { SearchLimits, VocabularyParams, WordCreate, WordSearchResponse, WordUpdate } from "./schemas";
 
 export const wordKeys = {
@@ -107,8 +116,34 @@ export function useEditWord() {
       queryClient.invalidateQueries({ queryKey: wordKeys.vocabularies() });
       notifications.show({ message: "Word updated", color: "green" });
     },
-    onError: () => {
-      notifications.show({ message: "Failed to update word", color: "red" });
+    onError: (error) => {
+      // Saving generated audio has its own answers: expired (409), made for another word (422),
+      // or not stored (503); the server's message says what to do.
+      const explained = isApiError(error) && error.kind === "http" && [409, 422, 503].includes(error.status ?? 0);
+      notifications.show({ message: explained ? error.message : "Failed to update word", color: "red" });
+    },
+  });
+}
+
+/** The voices each audio engine offers for `language`; only fetched where audio generation is on. */
+export function useAudioVoices(language: string, enabled: boolean) {
+  return useQuery({
+    queryKey: [...wordKeys.all, "audio-voices", language] as const,
+    queryFn: ({ signal }) => getAudioVoices(language, signal),
+    enabled,
+    staleTime: Infinity, // the server's voice list doesn't change at runtime
+  });
+}
+
+/** Generates audio for a word's name; the result is only kept if the word is saved with its token. */
+export function useGenerateAudio() {
+  return useMutation({
+    mutationFn: generateAudio,
+    onError: (error) => {
+      notifications.show({
+        message: isApiError(error) && error.kind === "http" ? error.message : "Couldn't generate the audio",
+        color: "red",
+      });
     },
   });
 }

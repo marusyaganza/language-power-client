@@ -142,6 +142,22 @@ describe("wordToFormValues / toWordUpdate", () => {
     const values = { ...wordToFormValues(word), mainDefIndex: 1 };
     expect(toWordUpdate(values, "es").defs).toEqual(["big person", "whale"]);
   });
+
+  it("sends generated audio as its token, never with an audio_url", () => {
+    const values = { ...wordToFormValues(word), audioUrl: "https://old/a.mp3", audioToken: "tok", audioPreview: "data:" };
+    const update = toWordUpdate(values, "es");
+    expect(update.audio_token).toBe("tok");
+    expect("audio_url" in update).toBe(false);
+  });
+
+  it("sends no token when nothing was generated", () => {
+    expect("audio_token" in toWordUpdate(wordToFormValues(word), "es")).toBe(false);
+  });
+
+  it("starts with no generated audio", () => {
+    expect(wordToFormValues(word)).toMatchObject({ audioToken: null, audioPreview: null });
+    expect(emptyWordForm()).toMatchObject({ audioToken: null, audioPreview: null });
+  });
 });
 
 describe("wordFormValidation", () => {

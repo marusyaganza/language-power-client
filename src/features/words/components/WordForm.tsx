@@ -3,6 +3,7 @@ import { useForm } from "@mantine/form";
 import { HelpLabel } from "@/shared/components/HelpLabel";
 import { preventSubmitWhileComposing } from "@/shared/lib/ime";
 import { partOfSpeechOptions, wordFormValidation, type WordFormMode, type WordFormValues } from "../lib/wordForm";
+import { AudioGenerator } from "./AudioGenerator";
 import { DefsEditor } from "./DefsEditor";
 import { ExamplesEditor } from "./ExamplesEditor";
 
@@ -79,7 +80,21 @@ export function WordForm({
           )}
         </Stack>
 
-        <TextInput label={<HelpLabel label="Audio URL" help={AUDIO_URL_HELP} />} placeholder="Optional" {...form.getInputProps("audioUrl")} />
+        {/* Edit only: create the word first, then generate its audio here. */}
+        {mode === "edit" && (
+          <AudioGenerator
+            language={language}
+            name={values.name}
+            audioUrl={values.audioUrl}
+            preview={values.audioPreview}
+            onGenerated={(audio) => form.setValues({ audioToken: audio.token, audioPreview: audio.preview })}
+            onUndo={() => form.setValues({ audioToken: null, audioPreview: null })}
+          />
+        )}
+        {/* While generated audio waits to be saved, it replaces the link; Undo brings the link back. */}
+        {values.audioToken === null && (
+          <TextInput label={<HelpLabel label="Audio URL" help={AUDIO_URL_HELP} />} placeholder="Optional" {...form.getInputProps("audioUrl")} />
+        )}
         <TextInput label={<HelpLabel label="Image URL" help={IMG_URL_HELP} />} placeholder="Optional" {...form.getInputProps("imgUrl")} />
         <TextInput label="Image description" placeholder="Optional" {...form.getInputProps("imgDesc")} />
 

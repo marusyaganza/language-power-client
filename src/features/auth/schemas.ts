@@ -20,6 +20,8 @@ export const authConfigSchema = z.object({
   searches_per_language: z.number().nullable(),
   /** The languages this deployment offers (the demo leaves out Korean while it's in beta). Missing from older servers: all. */
   languages: z.array(z.string()).optional(),
+  /** Engines that can generate a word's audio (personal deployment only); empty: off. Missing from older servers: off. */
+  audio_engines: z.array(z.string()).default([]),
 });
 export type AuthConfig = z.infer<typeof authConfigSchema>;
 
