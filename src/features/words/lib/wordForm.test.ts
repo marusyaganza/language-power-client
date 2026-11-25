@@ -158,6 +158,27 @@ describe("wordToFormValues / toWordUpdate", () => {
     expect(wordToFormValues(word)).toMatchObject({ audioToken: null, audioPreview: null });
     expect(emptyWordForm()).toMatchObject({ audioToken: null, audioPreview: null });
   });
+
+  it("sends a picked image as its pick, never with an img_url", () => {
+    const values = {
+      ...wordToFormValues(word),
+      imgPick: { source: "pixabay", id: "195893" },
+      imgPreview: "https://pixabay.com/get/a_640.jpg",
+    };
+    const update = toWordUpdate(values, "es");
+    expect(update.img_pick).toEqual({ source: "pixabay", id: "195893" });
+    expect("img_url" in update).toBe(false);
+    expect(update.img_desc).toBe("A blue whale");
+  });
+
+  it("sends no pick when no image was picked", () => {
+    expect("img_pick" in toWordUpdate(wordToFormValues(word), "es")).toBe(false);
+  });
+
+  it("starts with no picked image", () => {
+    expect(wordToFormValues(word)).toMatchObject({ imgPick: null, imgPreview: null });
+    expect(emptyWordForm()).toMatchObject({ imgPick: null, imgPreview: null });
+  });
 });
 
 describe("wordFormValidation", () => {

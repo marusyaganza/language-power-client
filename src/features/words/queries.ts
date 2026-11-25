@@ -1,17 +1,19 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { isApiError } from "@/api/errors";
 import {
   deleteWord,
   generateAudio,
   getAudioVoices,
+  getImageSuggestions,
   getSearchLimits,
   getVocabulary,
   saveWord,
+  searchImages,
   searchWords,
   updateWord,
 } from "./api";
-import type { SearchLimits, VocabularyParams, WordCreate, WordSearchResponse, WordUpdate } from "./schemas";
+import type { ImageType, SearchLimits, VocabularyParams, WordCreate, WordSearchResponse, WordUpdate } from "./schemas";
 
 export const wordKeys = {
   all: ["words"] as const,
@@ -117,8 +119,9 @@ export function useEditWord() {
       notifications.show({ message: "Word updated", color: "green" });
     },
     onError: (error) => {
-      // Saving generated audio has its own answers: expired (409), made for another word (422),
-      // or not stored (503); the server's message says what to do.
+      // Saving generated audio or a picked image has its own answers: expired or gone (409), made for
+      // another word or the feature off (422), or not fetched or stored (503); the server's message
+      // says what to do.
       const explained = isApiError(error) && error.kind === "http" && [409, 422, 503].includes(error.status ?? 0);
       notifications.show({ message: explained ? error.message : "Failed to update word", color: "red" });
     },
@@ -169,5 +172,29 @@ export function useDeleteWord() {
         color: "red",
       });
     },
+  });
+}
+
+/** The query the image picker starts with for a saved word. */
+export function useImageSuggestions(wordId: number, enabled: boolean) {
+  return useQuery({
+    queryKey: [...wordKeys.all, "image-suggestions", wordId] as const,
+    queryFn: ({ signal }) => getImageSuggestions(wordId, signal),
+    enabled,
+  });
+}
+
+/** Image search results, a page of 12 at a time ("More" fetches the next). Off for an empty query. */
+export function useImageSearch(query: string, type: ImageType, enabled: boolean) {
+  const trimmed = query.trim();
+  return useInfiniteQuery({
+    queryKey: ["images", "search", trimmed.toLowerCase(), type] as const,
+    queryFn: ({ pageParam, signal }) => searchImages(trimmed, pageParam, type, signal),
+    initialPageParam: 1,
+    getNextPageParam: (last) => (last.has_more ? last.page + 1 : undefined),
+    enabled: enabled && trimmed !== "",
+    // The server keeps each page for 24 hours; within a session the results don't change.
+    staleTime: Infinity,
+    retry: false, // a failed search shows its message and a Retry button instead
   });
 }

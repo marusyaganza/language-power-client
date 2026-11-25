@@ -22,6 +22,8 @@ export const authConfigSchema = z.object({
   languages: z.array(z.string()).optional(),
   /** Engines that can generate a word's audio (personal deployment only); empty: off. Missing from older servers: off. */
   audio_engines: z.array(z.string()).default([]),
+  /** Whether a word's image can be searched for (personal deployment only). Missing from older servers: off. */
+  image_search: z.boolean().default(false),
 });
 export type AuthConfig = z.infer<typeof authConfigSchema>;
 

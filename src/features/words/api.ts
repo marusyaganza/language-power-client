@@ -3,11 +3,14 @@ import { apiFetch } from "@/api/http";
 import {
   engineVoicesSchema,
   generatedAudioSchema,
+  imageSearchSchema,
+  imageSuggestionsSchema,
   searchLimitsSchema,
   vocabularyPageSchema,
   wordSchema,
   wordSearchResponseSchema,
   type AudioGenerateRequest,
+  type ImageType,
   type VocabularyParams,
   type WordCreate,
   type WordUpdate,
@@ -55,4 +58,14 @@ export function generateAudio(request: AudioGenerateRequest) {
 
 export function getAudioVoices(language: string, signal?: AbortSignal) {
   return apiFetch("/audio/voices", { query: { language }, schema: z.array(engineVoicesSchema), signal });
+}
+
+/** One page of images for an English query; the server caches each page for 24 hours. */
+export function searchImages(query: string, page: number, type: ImageType, signal?: AbortSignal) {
+  return apiFetch("/images/search", { query: { q: query, page, type }, schema: imageSearchSchema, signal });
+}
+
+/** What the image picker starts with for a saved word: its English meaning as the query. */
+export function getImageSuggestions(wordId: number, signal?: AbortSignal) {
+  return apiFetch("/images/suggestions", { query: { word_id: wordId }, schema: imageSuggestionsSchema, signal });
 }

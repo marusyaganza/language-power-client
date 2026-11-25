@@ -5,6 +5,7 @@ import { preventSubmitWhileComposing } from "@/shared/lib/ime";
 import { partOfSpeechOptions, wordFormValidation, type WordFormMode, type WordFormValues } from "../lib/wordForm";
 import { AudioGenerator } from "./AudioGenerator";
 import { DefsEditor } from "./DefsEditor";
+import { ImageChooser } from "./ImageChooser";
 import { ExamplesEditor } from "./ExamplesEditor";
 
 const AUDIO_URL_HELP =
@@ -19,6 +20,8 @@ interface WordFormProps {
   mode: WordFormMode;
   /** The word's language, which sets the part-of-speech choices. */
   language: string;
+  /** The saved word's id, in `edit` mode: its image can then be searched for. */
+  wordId?: number;
   /** Read once on mount; remount with a new `key` to edit a different word. */
   initialValues: WordFormValues;
   showTranslations: boolean;
@@ -32,6 +35,7 @@ interface WordFormProps {
 export function WordForm({
   mode,
   language,
+  wordId,
   initialValues,
   showTranslations,
   submitLabel,
@@ -95,7 +99,19 @@ export function WordForm({
         {values.audioToken === null && (
           <TextInput label={<HelpLabel label="Audio URL" help={AUDIO_URL_HELP} />} placeholder="Optional" {...form.getInputProps("audioUrl")} />
         )}
-        <TextInput label={<HelpLabel label="Image URL" help={IMG_URL_HELP} />} placeholder="Optional" {...form.getInputProps("imgUrl")} />
+        {/* Edit only, like audio: a picked image waits here until Save, in place of the link; Undo brings the link back. */}
+        {mode === "edit" && wordId !== undefined && (
+          <ImageChooser
+            wordId={wordId}
+            imgUrl={values.imgUrl}
+            preview={values.imgPreview}
+            onPick={(hit, source) => form.setValues({ imgPick: { source, id: hit.id }, imgPreview: hit.preview_url })}
+            onUndo={() => form.setValues({ imgPick: null, imgPreview: null })}
+          />
+        )}
+        {values.imgPick === null && (
+          <TextInput label={<HelpLabel label="Image URL" help={IMG_URL_HELP} />} placeholder="Optional" {...form.getInputProps("imgUrl")} />
+        )}
         <TextInput label="Image description" placeholder="Optional" {...form.getInputProps("imgDesc")} />
 
         <Group justify="flex-end">
