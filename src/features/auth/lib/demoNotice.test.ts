@@ -9,6 +9,7 @@ const personal: AuthConfig = {
   account_ttl_hours: null,
   searches_per_language: null,
   audio_engines: ["google"],
+  image_search: true,
 };
 const demo: AuthConfig = {
   signup_enabled: true,
@@ -17,6 +18,7 @@ const demo: AuthConfig = {
   account_ttl_hours: 24,
   searches_per_language: 10,
   audio_engines: [],
+  image_search: false,
 };
 
 describe("demoNoticeItems", () => {

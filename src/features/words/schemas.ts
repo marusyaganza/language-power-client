@@ -92,7 +92,15 @@ export interface WordUpdate {
   /** From POST /audio/generate: the server stores that audio and sets `audio_url`. Never sent with `audio_url`. */
   audio_token?: string;
   img_url?: string | null;
+  /** An image from GET /images/search: the server downloads and stores it and sets `img_url`. Never sent with `img_url`. */
+  img_pick?: ImagePick;
   img_desc?: string | null;
+}
+
+/** An image picked from the search results: where it was found, and its id there. */
+export interface ImagePick {
+  source: string;
+  id: string;
 }
 
 // AudioGenerateRequest
@@ -121,3 +129,37 @@ export const engineVoicesSchema = z.object({
   default: z.string(),
 });
 export type EngineVoices = z.infer<typeof engineVoicesSchema>;
+
+// GET /images/search — one page of 12. The URLs are the source's own: shown while choosing, never saved.
+export const imageHitSchema = z.object({
+  id: z.string(),
+  /** About 150 px, for the grid. */
+  thumb_url: z.string(),
+  /** About 640 px, for the picked image on the form. */
+  preview_url: z.string(),
+  width: z.number(),
+  height: z.number(),
+  page_url: z.string(),
+  author: z.string(),
+});
+export type ImageHit = z.infer<typeof imageHitSchema>;
+
+export const imageSearchSchema = z.object({
+  source: z.string(),
+  items: z.array(imageHitSchema),
+  /** Results reachable by paging (Pixabay: at most 500), not every match. */
+  total: z.number(),
+  page: z.number(),
+  has_more: z.boolean(),
+});
+export type ImageSearch = z.infer<typeof imageSearchSchema>;
+
+export type ImageType = "all" | "photo" | "illustration";
+
+// GET /images/suggestions — what the picker starts with for a saved word.
+export const imageSuggestionsSchema = z.object({
+  /** The word's English meaning; "" when it has none usable. */
+  query: z.string(),
+  used_before: z.array(z.object({ word_id: z.number(), img_url: z.string() })),
+});
+export type ImageSuggestions = z.infer<typeof imageSuggestionsSchema>;

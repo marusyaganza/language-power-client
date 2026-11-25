@@ -1,5 +1,5 @@
 // Pure helpers behind WordForm: initial values, validation and the request bodies built from it.
-import type { Example, Word, WordCreate, WordUpdate } from "../schemas";
+import type { Example, ImagePick, Word, WordCreate, WordUpdate } from "../schemas";
 
 type Gender = NonNullable<WordCreate["gender"]>;
 
@@ -23,6 +23,10 @@ export interface WordFormValues {
   /** That audio as a playable `data:` URL. */
   audioPreview: string | null;
   imgUrl: string;
+  /** An image picked from the search (GET /images/search), waiting to be saved; saving sends it instead of `imgUrl`. */
+  imgPick: ImagePick | null;
+  /** That image's preview link, to show it on the form (the source's own URL, never saved). */
+  imgPreview: string | null;
   imgDesc: string;
 }
 
@@ -38,6 +42,8 @@ export function emptyWordForm(): WordFormValues {
     audioToken: null,
     audioPreview: null,
     imgUrl: "",
+    imgPick: null,
+    imgPreview: null,
     imgDesc: "",
   };
 }
@@ -54,6 +60,8 @@ export function wordToFormValues(word: Word): WordFormValues {
     audioToken: null,
     audioPreview: null,
     imgUrl: word.img_url ?? "",
+    imgPick: null,
+    imgPreview: null,
     imgDesc: word.img_desc ?? "",
   };
 }
@@ -153,13 +161,16 @@ export function toWordCreate(values: WordFormValues, language: string): WordCrea
   };
 }
 
-/** Generated audio is sent as its token, and then `audio_url` is left out: the server sets it. */
+/**
+ * Generated audio is sent as its token, and a picked image as its pick; then `audio_url` or `img_url`
+ * is left out: the server sets it.
+ */
 export function toWordUpdate(values: WordFormValues, language: string): WordUpdate {
   return {
     defs: orderDefs(values.defs, values.mainDefIndex),
     examples: cleanExamples(values.examples, usesTranslations(language)),
     ...(values.audioToken !== null ? { audio_token: values.audioToken } : { audio_url: emptyToNull(values.audioUrl) }),
-    img_url: emptyToNull(values.imgUrl),
+    ...(values.imgPick !== null ? { img_pick: values.imgPick } : { img_url: emptyToNull(values.imgUrl) }),
     img_desc: emptyToNull(values.imgDesc),
   };
 }

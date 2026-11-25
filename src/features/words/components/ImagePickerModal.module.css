@@ -1,0 +1,14 @@
+.thumb {
+    border-radius: var(--mantine-radius-sm);
+    outline-offset: 2px;
+    transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.thumb:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 0 2px var(--mantine-primary-color-filled);
+}
+
+.thumb:focus-visible {
+    outline: 2px solid var(--mantine-primary-color-filled);
+}
